@@ -18,8 +18,7 @@ yarn-error.log*
 *.log
 
 # Angular
-.angular/cache/
-.angular/config.json
+.angular/
 
 # NestJS
 # .js
