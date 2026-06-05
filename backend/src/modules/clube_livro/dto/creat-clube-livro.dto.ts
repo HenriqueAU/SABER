@@ -21,13 +21,13 @@ export class CreateClubeLivroDto {
 
     @IsDateString()
     @IsOptional()
-    data_inicio!: Date|null;
+    data_inicio?: Date|null;
 
     @IsDateString()
     @IsOptional()
-    data_fim!: Date|null;
+    data_fim?: Date|null;
 
     @IsString()
     @IsOptional()
-    local_encontro!: string|null;
+    local_encontro?: string|null;
 }
