@@ -26,17 +26,17 @@ export class ClubeLivro {
     @Column()
     nome!: string;
 
-    @Column()
+    @Column({default: true})
     ativo!: boolean;
 
     @Column({type: 'timestamptz', nullable: true})
-    data_inicio!: Date|null;
+    data_inicio?: Date|null;
 
     @Column({type: 'timestamptz', nullable: true})
-    data_fim!: Date|null;
+    data_fim?: Date|null;
 
     @Column({ nullable: true })
-    local_encontro!: string|null;
+    local_encontro?: string|null;
 
     @CreateDateColumn({ type: 'timestamptz' })
     created_at!: Date;
