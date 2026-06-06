@@ -25,10 +25,10 @@ export class Instituicao {
   })
   tipo!: TipoInstituicao;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'text' })
   cidade?: string | null;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'text' })
   estado?: string | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
