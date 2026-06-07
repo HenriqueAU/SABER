@@ -31,7 +31,7 @@ Sistema de Acompanhamento Bibliográfico Escolar em Rede
 
 2. Crie os arquivos de variáveis de ambiente com base no exemplo:
 ```bash
-   cp .env.example .env        # raiz (Docker)
+   cp backend/.env.example .env        # raiz (Docker)
    cp backend/.env.example backend/.env  # backend (NestJS)
 ```
    Preencha os valores em ambos os arquivos.
