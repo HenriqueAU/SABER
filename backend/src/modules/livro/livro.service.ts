@@ -37,14 +37,9 @@ export class LivroService {
   }
 
   async update(id: string, updateLivroDto: UpdateLivroDto): Promise<Livro> {
-    const { instituicao_id, ...dadosLivro } = updateLivroDto;
     const livro = await this.findOne(id);
 
-    this.livroRepository.merge(livro, dadosLivro);
-
-    if (instituicao_id) {
-      Object.assign(livro, { instituicao: { id: instituicao_id } });
-    }
+    this.livroRepository.merge(livro, updateLivroDto);
 
     return await this.livroRepository.save(livro);
   }
