@@ -37,14 +37,9 @@ export class ExemplarService {
   }
 
   async update(id: string, updateExemplarDto: UpdateExemplarDto): Promise<Exemplar> {
-    const { livro_id, ...dadosExemplar } = updateExemplarDto;
     const exemplar = await this.findOne(id);
 
-    this.exemplarRepository.merge(exemplar, dadosExemplar);
-
-    if (livro_id) {
-      Object.assign(exemplar, { livro: { id: livro_id } });
-    }
+    this.exemplarRepository.merge(exemplar, updateExemplarDto);
 
     return await this.exemplarRepository.save(exemplar);
   }
