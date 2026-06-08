@@ -14,12 +14,12 @@ export class LivroService {
 
   async create(createLivroDto: CreateLivroDto): Promise<Livro> {
     const { instituicao_id, ...dadosLivro } = createLivroDto;
-    
+
     const livro = this.livroRepository.create({
       ...dadosLivro,
       instituicao: { id: instituicao_id },
     });
-    
+
     return await this.livroRepository.save(livro);
   }
 
@@ -28,7 +28,7 @@ export class LivroService {
   }
 
   async findOne(id: string): Promise<Livro> {
-    const livro = await this.livroRepository.findOne({ 
+    const livro = await this.livroRepository.findOne({
       where: { id },
       relations: ['instituicao'],
     });
