@@ -1,0 +1,49 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { PreferenciaGenero } from './preferencia-genero.entity';
+import { CreatePreferenciaGeneroDto } from './dto/create-preferencia-genero.dto';
+
+@Injectable()
+export class PreferenciaGeneroService {
+  constructor(
+    @InjectRepository(PreferenciaGenero)
+    private readonly preferenciaGeneroRepository: Repository<PreferenciaGenero>,
+  ) {}
+
+  async create(
+    createPreferenciaGeneroDto: CreatePreferenciaGeneroDto,
+  ): Promise<PreferenciaGenero> {
+    const { usuario_id, genero_id, ...dadosPreferenciaGenero } =
+      createPreferenciaGeneroDto;
+
+    const preferencia_genero = this.preferenciaGeneroRepository.create({
+      ...dadosPreferenciaGenero,
+      usuario: { id: usuario_id },
+      genero: { id: genero_id },
+    });
+
+    return await this.preferenciaGeneroRepository.save(preferencia_genero);
+  }
+
+  async findAll(): Promise<PreferenciaGenero[]> {
+    return await this.preferenciaGeneroRepository.find({
+      relations: ['usuario', 'genero'],
+    });
+  }
+
+  async findOne(id: string): Promise<PreferenciaGenero> {
+    const preferencia_genero = await this.preferenciaGeneroRepository.findOne({
+      where: { id },
+      relations: ['usuario', 'genero'],
+    });
+    if (!preferencia_genero)
+      throw new NotFoundException('Preferência de gênero não encontrada');
+    return preferencia_genero;
+  }
+
+  async remove(id: string): Promise<void> {
+    const preferencia_genero = await this.findOne(id);
+    await this.preferenciaGeneroRepository.remove(preferencia_genero);
+  }
+}

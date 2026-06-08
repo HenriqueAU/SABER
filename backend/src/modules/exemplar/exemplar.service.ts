@@ -14,12 +14,12 @@ export class ExemplarService {
 
   async create(createExemplarDto: CreateExemplarDto): Promise<Exemplar> {
     const { livro_id, ...dadosExemplar } = createExemplarDto;
-    
+
     const exemplar = this.exemplarRepository.create({
       ...dadosExemplar,
       livro: { id: livro_id },
     });
-    
+
     return await this.exemplarRepository.save(exemplar);
   }
 
@@ -28,15 +28,18 @@ export class ExemplarService {
   }
 
   async findOne(id: string): Promise<Exemplar> {
-    const exemplar = await this.exemplarRepository.findOne({ 
+    const exemplar = await this.exemplarRepository.findOne({
       where: { id },
-      relations: ['livro']
+      relations: ['livro'],
     });
     if (!exemplar) throw new NotFoundException('Exemplar não encontrado');
     return exemplar;
   }
 
-  async update(id: string, updateExemplarDto: UpdateExemplarDto): Promise<Exemplar> {
+  async update(
+    id: string,
+    updateExemplarDto: UpdateExemplarDto,
+  ): Promise<Exemplar> {
     const exemplar = await this.findOne(id);
 
     this.exemplarRepository.merge(exemplar, updateExemplarDto);
