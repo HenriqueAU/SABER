@@ -27,8 +27,6 @@ import { InstituicaoModule } from './modules/instituicao/instituicao.module';
 import { GeneroModule } from './modules/genero/genero.module';
 import { ExemplarModule } from './modules/exemplar/exemplar.module';
 import { EmprestimoModule } from './modules/emprestimo/emprestimo.module';
-import { PreferenciaGeneroController } from './modules/preferencia-genero/preferencia-genero.controller';
-import { PreferenciaGeneroService } from './modules/preferencia-genero/preferencia-genero.service';
 
 @Module({
   imports: [
@@ -73,7 +71,7 @@ import { PreferenciaGeneroService } from './modules/preferencia-genero/preferenc
     ExemplarModule,
     EmprestimoModule,
   ],
-  controllers: [PreferenciaGeneroController],
-  providers: [PreferenciaGeneroService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
