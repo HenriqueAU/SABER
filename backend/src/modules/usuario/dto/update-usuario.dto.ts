@@ -1,10 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsOptional, IsString } from 'class-validator';
 
 export class UpdateUsuarioDto {
   @IsString()
   @IsOptional()
   foto_perfil?: string;
+
+  @IsString()
+  nome!: string;
+
+  @IsDateString()
+  data_nasc!: Date;
 
   @IsString()
   @IsOptional()
