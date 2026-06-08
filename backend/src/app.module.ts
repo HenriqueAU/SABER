@@ -27,6 +27,10 @@ import { InstituicaoModule } from './modules/instituicao/instituicao.module';
 import { GeneroModule } from './modules/genero/genero.module';
 import { ExemplarModule } from './modules/exemplar/exemplar.module';
 import { EmprestimoModule } from './modules/emprestimo/emprestimo.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './common/guards/jwt-auth.guard';
+import { RolesGuard } from './common/guards/roles.guard';
 
 @Module({
   imports: [
@@ -70,8 +74,18 @@ import { EmprestimoModule } from './modules/emprestimo/emprestimo.module';
     GeneroModule,
     ExemplarModule,
     EmprestimoModule,
+    AuthModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}
