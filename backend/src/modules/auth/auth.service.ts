@@ -17,19 +17,19 @@ export class AuthService {
     return usuario;
   }
 
-  async login(loginDto: LoginDto): Promise<any> {
+  async login(loginDto: LoginDto): Promise<{ access_token: string }> {
     const { senha, email } = loginDto;
     const usuario = await this.findOne(email);
     const credenciais = await bcrypt.compare(senha, usuario.senha_hash);
     if (!credenciais) {
-      return new UnauthorizedException('Credenciais inválidas');
+      throw new UnauthorizedException('Credenciais inválidas');
     } else {
       const payload = {
         id: usuario.id,
         perfil: usuario.perfil,
         email: usuario.email,
       };
-      return { acces_token: this.jwtService.sign(payload) };
+      return { access_token: this.jwtService.sign(payload) };
     }
   }
 }
