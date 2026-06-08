@@ -27,6 +27,7 @@ import { InstituicaoModule } from './modules/instituicao/instituicao.module';
 import { GeneroModule } from './modules/genero/genero.module';
 import { ExemplarModule } from './modules/exemplar/exemplar.module';
 import { EmprestimoModule } from './modules/emprestimo/emprestimo.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { EmprestimoModule } from './modules/emprestimo/emprestimo.module';
     GeneroModule,
     ExemplarModule,
     EmprestimoModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

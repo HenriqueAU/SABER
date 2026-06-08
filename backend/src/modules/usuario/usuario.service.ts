@@ -33,6 +33,14 @@ export class UsuarioService {
     return usuario;
   }
 
+  async findByEmail(email: string): Promise<Usuario> {
+    const usuario = await this.usuarioRepository.findOne({
+      where: { email },
+    });
+    if (!usuario) throw new NotFoundException('Email não encontrado');
+    return usuario;
+  }
+
   async findAll(): Promise<Usuario[]> {
     return await this.usuarioRepository.find();
   }
