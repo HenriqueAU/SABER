@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { ClubeLivro } from './clube-livro.entity';
-import { CreateClubeLivroDto } from './dto/creat-clube-livro.dto';
+import { CreateClubeLivroDto } from './dto/create-clube-livro.dto';
 import { UpdateClubeLivroDto } from './dto/update-clube-livro.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -14,10 +14,12 @@ export class ClubeService {
 
   async create(createClubeDto: CreateClubeLivroDto): Promise<ClubeLivro> {
 
-    const clube = this.clubeLivroRepository.create({
-      ...createClubeDto,
-      professor: { id: createClubeDto.professor_id }, 
-      livro: { id: createClubeDto.livro_id },        
+    const { professor_id, livro_id, ...dadosClube } = createClubeDto;
+
+    const clube = this .clubeLivroRepository.create({
+      ...dadosClube,
+      professor: { id: professor_id },  
+      livro: { id: livro_id },
     });
     return await this.clubeLivroRepository.save(clube);
   }
@@ -46,8 +48,8 @@ export class ClubeService {
     return await this.clubeLivroRepository.save(clube);
   }
 
-  async remove(id: string): Promise<ClubeLivro> {
+  async remove(id: string): Promise<void> {
     const clube = await this.findOne(id); 
-    return await this.clubeLivroRepository.remove(clube);
+     await this.clubeLivroRepository.remove(clube);
   }
 }

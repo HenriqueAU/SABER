@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ClubeService } from './clube-livro.service';
 import { UpdateClubeLivroDto } from './dto/update-clube-livro.dto';
-import { CreateClubeLivroDto } from './dto/creat-clube-livro.dto';
+import { CreateClubeLivroDto } from './dto/create-clube-livro.dto';
 
 @Controller('clube')
 export class ClubeController {

@@ -14,10 +14,12 @@ export class RespostaMembroService {
     
   async create(createRespostaMembroDto: CreateRespostaMembroDto): Promise<RespostaMembro> {
    
+    const { membro_id, item_pergunta_id, ...dadosRespostaMembro } = createRespostaMembroDto;
+
     const novaRespostaMembro = this.respostaMembroRepository.create({
-      ...createRespostaMembroDto,
-      membro: { id: createRespostaMembroDto.membro_id },
-      itemPergunta: { id: createRespostaMembroDto.item_pergunta_id },
+      ...dadosRespostaMembro,
+      membro: { id: membro_id },
+      itemPergunta: { id: item_pergunta_id },
     });
     
     return await this.respostaMembroRepository.save(novaRespostaMembro);

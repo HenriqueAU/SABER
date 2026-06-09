@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ItemPergunta } from './item-pergunta.entity';
 import { InjectRepository,  } from '@nestjs/typeorm';
 import { CreateItemPerguntaDto } from './dto/create-item-pergunta.dto';
-import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
+import { NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { UpdateItemPerguntaDto } from './dto/update-item-pergunta.dto';
 
@@ -16,9 +16,11 @@ export class ItemPerguntaService {
     ){}
     async create(createItemPerguntaDto: CreateItemPerguntaDto): Promise<ItemPergunta> {
 
+    const { pergunta_id, ...dadosItemPergunta } = createItemPerguntaDto;
+    
     const itemPergunta = this.itemPerguntaRepository.create({
-      ...createItemPerguntaDto,
-      pergunta: { id: createItemPerguntaDto.pergunta_id }, 
+      ...dadosItemPergunta,
+      pergunta: { id: pergunta_id }, 
     });
 
     return await this.itemPerguntaRepository.save(itemPergunta);

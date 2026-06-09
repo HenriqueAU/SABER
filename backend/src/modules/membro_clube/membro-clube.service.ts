@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { MembroClube } from "./membro-clube.entity";
 import { Repository } from "typeorm";
@@ -11,10 +11,14 @@ export class MembroClubeService {
         @InjectRepository(MembroClube)
         private readonly membroClubeRepository: Repository<MembroClube>,
     ) {}
-    async create(createMembroClubeDto: CreateMembroClubeDto): Promise<MembroClube> {  
+    async create(createMembroClubeDto: CreateMembroClubeDto): Promise<MembroClube> {
+        
+        const { usuario_id, clube_id, ...dadosMembroClube } = createMembroClubeDto;
+        
         const novoMembroClube = this.membroClubeRepository.create({
-            usuario: { id: createMembroClubeDto.usuario_id },
-            clube: { id: createMembroClubeDto.clube_id }, 
+            ...dadosMembroClube,
+            usuario: { id: usuario_id },
+            clube: { id: clube_id }, 
         });
         return await this.membroClubeRepository.save(novoMembroClube);
     }
@@ -24,7 +28,7 @@ export class MembroClubeService {
     async findOne(id: string): Promise<MembroClube> {
        const membroClube = await this.membroClubeRepository.findOne({ where: { id }, relations: ['usuario', 'clube'] });
        if (!membroClube) {
-        throw new Error('Membro do Clube não encontrado');
+        throw new NotFoundException('Membro do Clube não encontrado');
        }
        return membroClube;
     }
