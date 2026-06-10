@@ -1,9 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ClubeService } from './clube-livro.service';
 import { UpdateClubeLivroDto } from './dto/update-clube-livro.dto';
 import { CreateClubeLivroDto } from './dto/create-clube-livro.dto';
 
-@Controller('clube')
+@Controller('clubes')
 export class ClubeController {
   constructor(private readonly clubeService: ClubeService) {}
 
@@ -23,7 +31,10 @@ export class ClubeController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() UpdateClubeLivroDto: UpdateClubeLivroDto) {
+  update(
+    @Param('id') id: string,
+    @Body() UpdateClubeLivroDto: UpdateClubeLivroDto,
+  ) {
     return this.clubeService.update(id, UpdateClubeLivroDto);
   }
 
