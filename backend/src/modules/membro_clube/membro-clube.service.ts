@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MembroClube } from './membro-clube.entity';
 import { Repository } from 'typeorm';
@@ -15,6 +19,17 @@ export class MembroClubeService {
     createMembroClubeDto: CreateMembroClubeDto,
   ): Promise<MembroClube> {
     const { usuario_id, clube_id, ...dadosMembroClube } = createMembroClubeDto;
+
+    const membroExistente = await this.membroClubeRepository.findOne({
+      where: {
+        usuario: { id: usuario_id },
+        clube: { id: clube_id },
+      },
+    });
+
+    if (membroExistente) {
+      throw new ConflictException('Usuário já é membro deste clube');
+    }
 
     const novoMembroClube = this.membroClubeRepository.create({
       ...dadosMembroClube,
