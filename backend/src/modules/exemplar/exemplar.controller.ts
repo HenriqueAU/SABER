@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Req
 } from '@nestjs/common';
 import { ExemplarService } from './exemplar.service';
 import { CreateExemplarDto } from './dto/create-exemplar.dto';
@@ -21,8 +22,9 @@ export class ExemplarController {
   }
 
   @Get()
-  findAll() {
-    return this.exemplarService.findAll();
+  findAll(@Req() request: any) {
+    const instituicao_id = request.user.instituicao;
+    return this.exemplarService.findAll(instituicao_id);
   }
 
   @Get(':id')

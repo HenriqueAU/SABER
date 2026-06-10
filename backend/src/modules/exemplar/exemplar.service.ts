@@ -23,8 +23,15 @@ export class ExemplarService {
     return await this.exemplarRepository.save(exemplar);
   }
 
-  async findAll(): Promise<Exemplar[]> {
-    return await this.exemplarRepository.find({ relations: ['livro'] });
+  async findAll(instituicao_id: string): Promise<Exemplar[]> {
+    return await this.exemplarRepository.find({ 
+      where: {
+        livro: {
+          instituicao: { id: instituicao_id },
+        },
+      },
+      relations: ['livro'],
+    });
   }
 
   async findOne(id: string): Promise<Exemplar> {

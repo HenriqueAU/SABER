@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { LivroService } from './livro.service';
 import { CreateLivroDto } from './dto/create-livro.dto';
@@ -21,8 +22,9 @@ export class LivroController {
   }
 
   @Get()
-  findAll() {
-    return this.livroService.findAll();
+  findAll(@Req() request: any) {
+    const instituicao_id = request.user.instituicao;
+    return this.livroService.findAll(instituicao_id);
   }
 
   @Get(':id')

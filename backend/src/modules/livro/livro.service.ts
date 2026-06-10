@@ -23,8 +23,11 @@ export class LivroService {
     return await this.livroRepository.save(livro);
   }
 
-  async findAll(): Promise<Livro[]> {
-    return await this.livroRepository.find({ relations: ['instituicao'] });
+  async findAll(instituicao_id: string): Promise<Livro[]> {
+    return await this.livroRepository.find({
+      where: { instituicao: { id: instituicao_id } },
+      relations: ['instituicao'],
+    });
   }
 
   async findOne(id: string): Promise<Livro> {
