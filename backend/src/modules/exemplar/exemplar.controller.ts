@@ -17,8 +17,9 @@ export class ExemplarController {
   constructor(private readonly exemplarService: ExemplarService) {}
 
   @Post()
-  create(@Body() createExemplarDto: CreateExemplarDto) {
-    return this.exemplarService.create(createExemplarDto);
+  create(@Body() createExemplarDto: CreateExemplarDto, @Req() request: any) {
+    const instituicao_id = request.user.instituicao;
+    return this.exemplarService.create(createExemplarDto, instituicao_id);
   }
 
   @Get()
