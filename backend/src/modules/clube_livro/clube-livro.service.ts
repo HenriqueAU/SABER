@@ -1,20 +1,36 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { ClubeLivro } from './clube-livro.entity';
 import { CreateClubeLivroDto } from './dto/create-clube-livro.dto';
 import { UpdateClubeLivroDto } from './dto/update-clube-livro.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UsuarioService } from '../usuario/usuario.service';
+import { LivroService } from '../livro/livro.service';
+import { TipoPerfil } from '../usuario/usuario.entity'
 
 @Injectable()
 export class ClubeService {
   constructor(
     @InjectRepository(ClubeLivro)
-    private readonly clubeLivroRepository: Repository<ClubeLivro>
+    private readonly clubeLivroRepository: Repository<ClubeLivro>,
+
+    private readonly usuarioService: UsuarioService,
+    private readonly livroService: LivroService,
   ) {}
 
   async create(createClubeDto: CreateClubeLivroDto): Promise<ClubeLivro> {
 
     const { professor_id, livro_id, ...dadosClube } = createClubeDto;
+
+     const professor = await this.usuarioService.findOne(professor_id);
+    if (professor.perfil !== TipoPerfil.PROFESSOR) {
+      throw new BadRequestException('Usuário não é professor');
+    }
+
+    const livro = await this.livroService.findOne(livro_id);
+    if (livro.instituicao.id !== professor.instituicao.id) {
+      throw new ForbiddenException('Livro não pertence à instituição do professor');
+    }
 
     const clube = this .clubeLivroRepository.create({
       ...dadosClube,
