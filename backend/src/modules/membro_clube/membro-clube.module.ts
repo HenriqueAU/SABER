@@ -8,6 +8,6 @@ import { MembroClubeService } from './membro-clube.service';
   imports: [TypeOrmModule.forFeature([MembroClube])],
   controllers: [MembroClubeController],
   providers: [MembroClubeService],
-  exports: [MembroClubeService],  
+  exports: [MembroClubeService],
 })
 export class MembroClubeModule {}

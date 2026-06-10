@@ -1,8 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { MembroClubeService } from './membro-clube.service';
 import { CreateMembroClubeDto } from './dto/create-membro-clube.dto';
 import { UpdateMembroClubeDto } from './dto/update-membro-clube.dto';
-
 
 @Controller('membro-clube')
 export class MembroClubeController {
@@ -23,8 +30,11 @@ export class MembroClubeController {
     return this.membroClubeService.findOne(id);
   }
 
- @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMembroClubeDto: UpdateMembroClubeDto) {
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateMembroClubeDto: UpdateMembroClubeDto,
+  ) {
     return this.membroClubeService.update(id, updateMembroClubeDto);
   }
 
