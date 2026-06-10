@@ -10,5 +10,6 @@ import { LivroModule } from '../livro/livro.module';
   imports: [TypeOrmModule.forFeature([ClubeLivro]), UsuarioModule, LivroModule],
   controllers: [ClubeController],
   providers: [ClubeService],
+  exports: [ClubeService],
 })
 export class ClubeModule {}
