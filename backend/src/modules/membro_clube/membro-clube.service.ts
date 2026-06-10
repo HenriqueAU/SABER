@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -8,12 +9,14 @@ import { MembroClube } from './membro-clube.entity';
 import { Repository } from 'typeorm';
 import { CreateMembroClubeDto } from './dto/create-membro-clube.dto';
 import { UpdateMembroClubeDto } from './dto/update-membro-clube.dto';
+import { ClubeService } from '../clube_livro/clube-livro.service';
 
 @Injectable()
 export class MembroClubeService {
   constructor(
     @InjectRepository(MembroClube)
     private readonly membroClubeRepository: Repository<MembroClube>,
+    private readonly clubeService: ClubeService,
   ) {}
   async create(
     createMembroClubeDto: CreateMembroClubeDto,
@@ -31,7 +34,15 @@ export class MembroClubeService {
       throw new ConflictException('Usuário já é membro deste clube');
     }
 
-    ////// verificar se clube está ativo antes de adc membro
+    const clube = await this.clubeService.findOne(
+      createMembroClubeDto.clube_id,
+    );
+
+    if (!clube.ativo) {
+      throw new BadRequestException(
+        'Não é possível adicionar membros a um clube inativo',
+      );
+    }
 
     const novoMembroClube = this.membroClubeRepository.create({
       ...dadosMembroClube,
