@@ -31,6 +31,8 @@ export class MembroClubeService {
       throw new ConflictException('Usuário já é membro deste clube');
     }
 
+    ////// verificar se clube está ativo antes de adc membro
+
     const novoMembroClube = this.membroClubeRepository.create({
       ...dadosMembroClube,
       usuario: { id: usuario_id },
