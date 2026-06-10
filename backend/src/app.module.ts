@@ -31,6 +31,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
+import { ClubeModule } from './modules/clube_livro/clube-livro.module'
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     RespostaMembroModule,
     PreferenciaGeneroModule,
     PerguntaModule,
+    ClubeModule,
     MembroClubeModule,
     LivroGeneroModule,
     LivroModule,
