@@ -6,10 +6,7 @@ import { ExemplarController } from './exemplar.controller';
 import { LivroModule } from '../livro/livro.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Exemplar]),
-    LivroModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Exemplar]), LivroModule],
   controllers: [ExemplarController],
   providers: [ExemplarService],
   exports: [ExemplarService],

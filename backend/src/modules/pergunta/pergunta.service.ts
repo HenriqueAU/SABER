@@ -14,7 +14,7 @@ export class PerguntaService {
 
   async create(createPerguntaDto: CreatePerguntaDto): Promise<Pergunta> {
     const pergunta = this.perguntaRepository.create(createPerguntaDto);
-    
+
     return await this.perguntaRepository.save(pergunta);
   }
 
@@ -23,21 +23,24 @@ export class PerguntaService {
   }
 
   async findOne(id: string): Promise<Pergunta> {
-    const pergunta = await this.perguntaRepository.findOne({ 
+    const pergunta = await this.perguntaRepository.findOne({
       where: { id },
     });
     if (!pergunta) throw new NotFoundException('Pergunta não encontrada');
     return pergunta;
   }
 
-  async update(id: string, updatePerguntaDto: UpdatePerguntaDto): Promise<Pergunta> {
+  async update(
+    id: string,
+    updatePerguntaDto: UpdatePerguntaDto,
+  ): Promise<Pergunta> {
     const pergunta = await this.findOne(id);
 
     this.perguntaRepository.merge(pergunta, updatePerguntaDto);
     return await this.perguntaRepository.save(pergunta);
-}
+  }
 
- async remove(id: string): Promise<void> {
+  async remove(id: string): Promise<void> {
     const pergunta = await this.findOne(id);
     await this.perguntaRepository.remove(pergunta);
   }
