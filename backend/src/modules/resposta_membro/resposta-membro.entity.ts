@@ -14,7 +14,7 @@ export class RespostaMembro {
   id!: string;
 
   @ManyToOne(() => MembroClube)
-  @JoinColumn({ name: 'membro_id' })
+  @JoinColumn({ name: 'membro_clube_id' })
   membro!: MembroClube;
 
   @ManyToOne(() => ItemPergunta)
