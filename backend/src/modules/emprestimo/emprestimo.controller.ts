@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { EmprestimoService } from './emprestimo.service';
 import { CreateEmprestimoDto } from './dto/create-emprestimo.dto';
 import { UpdateEmprestimoDto } from './dto/update-emprestimo.dto';
+import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
 
 @Controller('emprestimos')
 export class EmprestimoController {
@@ -21,8 +23,9 @@ export class EmprestimoController {
   }
 
   @Get()
-  findAll() {
-    return this.emprestimoService.findAll();
+  findAll(@Req() request: RequestComUser) {
+    const instituicao_id = request.user.instituicao;
+    return this.emprestimoService.findAll(instituicao_id);
   }
 
   @Get(':id')

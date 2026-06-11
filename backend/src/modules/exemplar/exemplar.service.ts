@@ -1,7 +1,7 @@
-import { 
-  Injectable, 
+import {
+  Injectable,
   NotFoundException,
-  ForbiddenException
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -18,12 +18,17 @@ export class ExemplarService {
     private readonly livroService: LivroService,
   ) {}
 
-  async create(createExemplarDto: CreateExemplarDto, instituicao_id: string): Promise<Exemplar> {
+  async create(
+    createExemplarDto: CreateExemplarDto,
+    instituicao_id: string,
+  ): Promise<Exemplar> {
     const { livro_id, ...dadosExemplar } = createExemplarDto;
     const livro = await this.livroService.findOne(livro_id);
 
     if (livro.instituicao.id !== instituicao_id) {
-      throw new ForbiddenException('Acesso negado: Este livro pertence a outra instituição.');
+      throw new ForbiddenException(
+        'Acesso negado: Este livro pertence a outra instituição.',
+      );
     }
     const exemplar = this.exemplarRepository.create({
       ...dadosExemplar,
@@ -34,7 +39,7 @@ export class ExemplarService {
   }
 
   async findAll(instituicao_id: string): Promise<Exemplar[]> {
-    return await this.exemplarRepository.find({ 
+    return await this.exemplarRepository.find({
       where: {
         livro: {
           instituicao: { id: instituicao_id },

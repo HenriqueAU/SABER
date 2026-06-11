@@ -2,14 +2,7 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { TipoPerfil } from '../../modules/usuario/usuario.entity';
-
-interface RequestComUser extends Request {
-  user: {
-    id: string;
-    perfil: string;
-    email: string;
-  };
-}
+import { RequestComUser } from '../interfaces/request-com-usuario.interface';
 
 @Injectable()
 export class RolesGuard implements CanActivate {

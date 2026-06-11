@@ -6,24 +6,28 @@ import {
   Patch,
   Param,
   Delete,
-  Req
+  Req,
 } from '@nestjs/common';
 import { ExemplarService } from './exemplar.service';
 import { CreateExemplarDto } from './dto/create-exemplar.dto';
 import { UpdateExemplarDto } from './dto/update-exemplar.dto';
+import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
 
 @Controller('exemplares')
 export class ExemplarController {
   constructor(private readonly exemplarService: ExemplarService) {}
 
   @Post()
-  create(@Body() createExemplarDto: CreateExemplarDto, @Req() request: any) {
+  create(
+    @Body() createExemplarDto: CreateExemplarDto,
+    @Req() request: RequestComUser,
+  ) {
     const instituicao_id = request.user.instituicao;
     return this.exemplarService.create(createExemplarDto, instituicao_id);
   }
 
   @Get()
-  findAll(@Req() request: any) {
+  findAll(@Req() request: RequestComUser) {
     const instituicao_id = request.user.instituicao;
     return this.exemplarService.findAll(instituicao_id);
   }

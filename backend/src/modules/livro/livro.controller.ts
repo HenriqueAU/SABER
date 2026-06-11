@@ -11,6 +11,7 @@ import {
 import { LivroService } from './livro.service';
 import { CreateLivroDto } from './dto/create-livro.dto';
 import { UpdateLivroDto } from './dto/update-livro.dto';
+import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
 
 @Controller('livros')
 export class LivroController {
@@ -22,7 +23,7 @@ export class LivroController {
   }
 
   @Get()
-  findAll(@Req() request: any) {
+  findAll(@Req() request: RequestComUser) {
     const instituicao_id = request.user.instituicao;
     return this.livroService.findAll(instituicao_id);
   }
