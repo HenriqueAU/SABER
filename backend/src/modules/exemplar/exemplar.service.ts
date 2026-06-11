@@ -1,20 +1,30 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { 
+  Injectable, 
+  NotFoundException,
+  ForbiddenException
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Exemplar } from './exemplar.entity';
 import { CreateExemplarDto } from './dto/create-exemplar.dto';
 import { UpdateExemplarDto } from './dto/update-exemplar.dto';
+import { LivroService } from '../livro/livro.service';
 
 @Injectable()
 export class ExemplarService {
   constructor(
     @InjectRepository(Exemplar)
     private readonly exemplarRepository: Repository<Exemplar>,
+    private readonly livroService: LivroService,
   ) {}
 
-  async create(createExemplarDto: CreateExemplarDto): Promise<Exemplar> {
+  async create(createExemplarDto: CreateExemplarDto, instituicao_id: string): Promise<Exemplar> {
     const { livro_id, ...dadosExemplar } = createExemplarDto;
+    const livro = await this.livroService.findOne(livro_id);
 
+    if (livro.instituicao.id !== instituicao_id) {
+      throw new ForbiddenException('Acesso negado: Este livro pertence a outra instituição.');
+    }
     const exemplar = this.exemplarRepository.create({
       ...dadosExemplar,
       livro: { id: livro_id },
@@ -23,8 +33,15 @@ export class ExemplarService {
     return await this.exemplarRepository.save(exemplar);
   }
 
-  async findAll(): Promise<Exemplar[]> {
-    return await this.exemplarRepository.find({ relations: ['livro'] });
+  async findAll(instituicao_id: string): Promise<Exemplar[]> {
+    return await this.exemplarRepository.find({ 
+      where: {
+        livro: {
+          instituicao: { id: instituicao_id },
+        },
+      },
+      relations: ['livro'],
+    });
   }
 
   async findOne(id: string): Promise<Exemplar> {
