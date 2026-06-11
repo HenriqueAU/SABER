@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { CreateRespostaMembroDto } from './dto/create-resposta-membro.dto';
 import { RespostaMembroService } from './resposta-membro.service';
 

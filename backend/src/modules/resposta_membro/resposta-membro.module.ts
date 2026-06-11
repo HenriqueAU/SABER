@@ -9,5 +9,4 @@ import { RespostaMembroController } from './resposta-membro.controller';
   controllers: [RespostaMembroController],
   providers: [RespostaMembroService],
 })
-
 export class RespostaMembroModule {}
