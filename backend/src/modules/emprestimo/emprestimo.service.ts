@@ -39,8 +39,13 @@ export class EmprestimoService {
     }
   }
 
-  async findAll(): Promise<Emprestimo[]> {
+  async findAll(instituicao_id: string): Promise<Emprestimo[]> {
     return await this.emprestimoRepository.find({
+      where: {
+        usuario: {
+          instituicao: { id: instituicao_id },
+        },
+      },
       relations: ['exemplar', 'usuario'],
     });
   }
