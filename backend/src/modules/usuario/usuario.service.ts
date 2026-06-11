@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from './usuario.entity';
 import { Repository } from 'typeorm';
@@ -14,20 +18,29 @@ export class UsuarioService {
   ) {}
 
   async create(createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
-    const { instituicao_id, senha, ...dadosUsuario } = createUsuarioDto;
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(senha, salt);
-    const usuario = this.usuarioRepository.create({
-      ...dadosUsuario,
-      instituicao: { id: instituicao_id },
-      senha_hash: hash,
-    });
-    return await this.usuarioRepository.save(usuario);
+    const { instituicao_id, senha, email, ...dadosUsuario } = createUsuarioDto;
+    const emailJaExiste = await this.findByEmailSemExcecao(email);
+    if (emailJaExiste) {
+      throw new ConflictException(
+        'Este e-mail já está cadastrado na base de dados',
+      );
+    } else {
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(senha, salt);
+      const usuario = this.usuarioRepository.create({
+        ...dadosUsuario,
+        instituicao: { id: instituicao_id },
+        senha_hash: hash,
+        email: email,
+      });
+      return await this.usuarioRepository.save(usuario);
+    }
   }
 
   async findOne(id: string): Promise<Usuario> {
     const usuario = await this.usuarioRepository.findOne({
       where: { id },
+      relations: ['instituicao'],
     });
     if (!usuario) throw new NotFoundException('Usuário não encontrado');
     return usuario;
@@ -40,6 +53,18 @@ export class UsuarioService {
     });
     if (!usuario) throw new NotFoundException('Email não encontrado');
     return usuario;
+  }
+
+  async findByEmailSemExcecao(email: string): Promise<Usuario | null> {
+    const usuario = await this.usuarioRepository.findOne({
+      where: { email },
+      relations: ['instituicao'],
+    });
+    if (!usuario) {
+      return null;
+    } else {
+      return usuario;
+    }
   }
 
   async findAll(): Promise<Usuario[]> {
