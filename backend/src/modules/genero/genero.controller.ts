@@ -10,9 +10,10 @@ import {
 import { GeneroService } from './genero.service';
 import { CreateGeneroDto } from './dto/create-genero.dto';
 import { UpdateGeneroDto } from './dto/update-genero.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Gêneros')
+@ApiBearerAuth()
 @Controller('generos')
 export class GeneroController {
   constructor(private readonly generoService: GeneroService) {}

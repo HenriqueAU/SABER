@@ -12,9 +12,10 @@ import { LivroService } from './livro.service';
 import { CreateLivroDto } from './dto/create-livro.dto';
 import { UpdateLivroDto } from './dto/update-livro.dto';
 import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('Livros')
+@ApiBearerAuth()
 @Controller('livros')
 export class LivroController {
   constructor(private readonly livroService: LivroService) {}

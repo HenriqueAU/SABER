@@ -12,9 +12,10 @@ import { ExemplarService } from './exemplar.service';
 import { CreateExemplarDto } from './dto/create-exemplar.dto';
 import { UpdateExemplarDto } from './dto/update-exemplar.dto';
 import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Exemplares')
+@ApiBearerAuth()
 @Controller('exemplares')
 export class ExemplarController {
   constructor(private readonly exemplarService: ExemplarService) {}

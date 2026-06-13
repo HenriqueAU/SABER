@@ -1,9 +1,10 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { LivroGeneroService } from './livro-genero.service';
 import { CreateLivroGeneroDto } from './dto/create-livro-genero.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Relação Livro <-> Gênero')
+@ApiBearerAuth()
 @Controller('livro-generos')
 export class LivroGeneroController {
   constructor(private readonly livroGeneroService: LivroGeneroService) {}
