@@ -38,8 +38,9 @@ export class ClubeService {
     return await this.clubeLivroRepository.save(clube);
   }
 
-  async findAll(): Promise<ClubeLivro[]> {
+  async findAll(instituicao_id: string): Promise<ClubeLivro[]> {
     return await this.clubeLivroRepository.find({
+      where: { professor: { instituicao: { id: instituicao_id } } },
       relations: ['professor', 'livro'],
     });
   }
