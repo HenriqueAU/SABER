@@ -10,14 +10,15 @@ async function bootstrap() {
   app.enableCors({
     origin: process.env.FRONTEND_URL,
   });
-  const config = new DocumentBuilder()
-    .setTitle('SABER api')
+  const documentBuilder = new DocumentBuilder()
+    .setTitle('SABER API')
     .setDescription('DocumentaçÃo da api do app SABER')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+  const documentFactory = () =>
+    SwaggerModule.createDocument(app, documentBuilder);
+  SwaggerModule.setup('docs', app, documentFactory);
   await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();
