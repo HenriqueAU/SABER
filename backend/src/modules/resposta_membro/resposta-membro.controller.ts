@@ -1,8 +1,10 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { CreateRespostaMembroDto } from './dto/create-resposta-membro.dto';
 import { RespostaMembroService } from './resposta-membro.service';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Respostas do membro')
+@ApiBearerAuth()
 @Controller('resposta-membro')
 export class RespostaMembroController {
   constructor(private readonly respostaMembroService: RespostaMembroService) {}
