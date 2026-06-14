@@ -10,8 +10,11 @@ import {
 import { ClubeService } from './clube-livro.service';
 import { UpdateClubeLivroDto } from './dto/update-clube-livro.dto';
 import { CreateClubeLivroDto } from './dto/create-clube-livro.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
 
+@ApiTags('Clubes')
+@ApiBearerAuth()
 @Controller('clubes')
 export class ClubeController {
   constructor(private readonly clubeService: ClubeService) {}
@@ -26,8 +29,9 @@ export class ClubeController {
   @ApiOperation({summary:'Lista todos os clube do livro'})
   @ApiResponse({status:200, description: 'Lista de clubes retornada com sucesso'})
   @Get()
-  findAll() {
-    return this.clubeService.findAll();
+  findAll(@Req() request: RequestComUser) {
+    const instituicao_id = request.user.instituicao;
+    return this.clubeService.findAll(instituicao_id);
   }
 
   @ApiOperation({summary:'Busca um clube do livro pelo id'})
