@@ -67,8 +67,11 @@ export class UsuarioService {
     }
   }
 
-  async findAll(): Promise<Usuario[]> {
-    return await this.usuarioRepository.find();
+  async findAll(instituicao_id: string): Promise<Usuario[]> {
+    return await this.usuarioRepository.find({
+      where: { instituicao: { id: instituicao_id } },
+      relations: ['instituicao'],
+    });
   }
 
   async update(
