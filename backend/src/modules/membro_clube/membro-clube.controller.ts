@@ -10,8 +10,10 @@ import {
 import { MembroClubeService } from './membro-clube.service';
 import { CreateMembroClubeDto } from './dto/create-membro-clube.dto';
 import { UpdateMembroClubeDto } from './dto/update-membro-clube.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('Membro do clube')
+@ApiBearerAuth()
 @Controller('membro-clube')
 export class MembroClubeController {
   constructor(private readonly membroClubeService: MembroClubeService) {}
