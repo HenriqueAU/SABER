@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { CreateMembroClubeDto } from './dto/create-membro-clube.dto';
 import { UpdateMembroClubeDto } from './dto/update-membro-clube.dto';
 import { ClubeService } from '../clube_livro/clube-livro.service';
+import { Usuario } from '../usuario/usuario.entity';
 
 @Injectable()
 export class MembroClubeService {
@@ -17,11 +18,16 @@ export class MembroClubeService {
     @InjectRepository(MembroClube)
     private readonly membroClubeRepository: Repository<MembroClube>,
     private readonly clubeService: ClubeService,
+
+    @InjectRepository(Usuario)
+    private readonly usuarioRepository: Repository<Usuario>,
   ) {}
   async create(
     createMembroClubeDto: CreateMembroClubeDto,
   ): Promise<MembroClube> {
     const { usuario_id, clube_id, ...dadosMembroClube } = createMembroClubeDto;
+
+    await this.validarUsuario(usuario_id);
 
     const membroExistente = await this.membroClubeRepository.findOne({
       where: {
@@ -82,4 +88,15 @@ export class MembroClubeService {
     const membroClube = await this.findOne(id);
     await this.membroClubeRepository.remove(membroClube);
   }
+  private async validarUsuario(usuarioId: string): Promise<Usuario> {
+  const usuario = await this.usuarioRepository.findOne({
+    where: { id: usuarioId },
+  });
+
+  if (!usuario) {
+    throw new NotFoundException('Usuário não encontrado');
+  }
+
+  return usuario;
+}
 }
