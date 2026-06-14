@@ -4,6 +4,8 @@ import { JwtService } from '@nestjs/jwt';
 import { Usuario } from '../usuario/usuario.entity';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { JwtPayload } from '../../common/interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -32,5 +34,18 @@ export class AuthService {
       };
       return { access_token: this.jwtService.sign(payload) };
     }
+  }
+
+  refreshToken(refreshTokenDto: RefreshTokenDto): { access_token: string } {
+    const tokenAntigo = refreshTokenDto.token;
+    let payload: JwtPayload;
+    try {
+      payload = this.jwtService.verify<JwtPayload>(tokenAntigo);
+    } catch {
+      throw new UnauthorizedException('Token inválido');
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { iat, exp, ...payloadLimpo } = payload;
+    return { access_token: this.jwtService.sign(payloadLimpo) };
   }
 }
