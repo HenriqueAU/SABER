@@ -10,8 +10,10 @@ import {
 import { CreatePerguntaDto } from './dto/create-pergunta.dto';
 import { PerguntaService } from './pergunta.service';
 import { UpdatePerguntaDto } from './dto/update-pergunta.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Perguntas')
+@ApiBearerAuth()
 @Controller('pergunta')
 export class PerguntaController {
   constructor(private readonly perguntaService: PerguntaService) {}
