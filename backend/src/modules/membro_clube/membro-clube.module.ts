@@ -14,5 +14,6 @@ import { UsuarioModule } from '../usuario/usuario.module';
   ],
   controllers: [MembroClubeController],
   providers: [MembroClubeService],
+  exports: [MembroClubeService],
 })
 export class MembroClubeModule {}
