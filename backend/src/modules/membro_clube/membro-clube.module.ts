@@ -4,10 +4,14 @@ import { MembroClube } from './membro-clube.entity';
 import { MembroClubeController } from './membro-clube.controller';
 import { MembroClubeService } from './membro-clube.service';
 import { ClubeModule } from '../clube_livro/clube-livro.module';
-import { Usuario } from '../usuario/usuario.entity'
+import { UsuarioModule } from '../usuario/usuario.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([MembroClube, Usuario]), ClubeModule],
+  imports: [
+    TypeOrmModule.forFeature([MembroClube]),
+    ClubeModule,
+    UsuarioModule,
+  ],
   controllers: [MembroClubeController],
   providers: [MembroClubeService],
 })

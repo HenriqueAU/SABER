@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { TipoInstituicao } from '../instituicao.entity';
 

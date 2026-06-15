@@ -11,6 +11,7 @@ import { CreateMembroClubeDto } from './dto/create-membro-clube.dto';
 import { UpdateMembroClubeDto } from './dto/update-membro-clube.dto';
 import { ClubeService } from '../clube_livro/clube-livro.service';
 import { Usuario } from '../usuario/usuario.entity';
+import { UsuarioService } from '../usuario/usuario.service';
 
 @Injectable()
 export class MembroClubeService {
@@ -18,9 +19,7 @@ export class MembroClubeService {
     @InjectRepository(MembroClube)
     private readonly membroClubeRepository: Repository<MembroClube>,
     private readonly clubeService: ClubeService,
-
-    @InjectRepository(Usuario)
-    private readonly usuarioRepository: Repository<Usuario>,
+    private readonly usuarioService: UsuarioService,
   ) {}
   async create(
     createMembroClubeDto: CreateMembroClubeDto,
@@ -88,15 +87,8 @@ export class MembroClubeService {
     const membroClube = await this.findOne(id);
     await this.membroClubeRepository.remove(membroClube);
   }
-  private async validarUsuario(usuarioId: string): Promise<Usuario> {
-  const usuario = await this.usuarioRepository.findOne({
-    where: { id: usuarioId },
-  });
-
-  if (!usuario) {
-    throw new NotFoundException('Usuário não encontrado');
+  private async validarUsuario(usuario_id: string): Promise<Usuario> {
+    const usuario = await this.usuarioService.findOne(usuario_id);
+    return usuario;
   }
-
-  return usuario;
-}
 }

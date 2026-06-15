@@ -6,7 +6,10 @@ export class CreateLivroGeneroDto {
   @IsUUID()
   livro_id!: string;
 
-  @ApiProperty({ description: 'ID do gênero literário', example: 'uuid-do-genero' })
+  @ApiProperty({
+    description: 'ID do gênero literário',
+    example: 'uuid-do-genero',
+  })
   @IsUUID()
   genero_id!: string;
 }
