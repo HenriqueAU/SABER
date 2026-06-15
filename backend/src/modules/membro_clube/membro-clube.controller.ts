@@ -23,7 +23,7 @@ import {
 export class MembroClubeController {
   constructor(private readonly membroClubeService: MembroClubeService) {}
 
-  @ApiOperation({ summary: 'Criação do membro da pergunta' })
+  @ApiOperation({ summary: 'Criação do membro do clube' })
   @ApiResponse({ status: 201, description: 'Membro criado com sucesso' })
   @Post()
   create(@Body() createMembroClubeDto: CreateMembroClubeDto) {
