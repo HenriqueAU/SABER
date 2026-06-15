@@ -12,8 +12,8 @@ export class ItemPerguntaService {
   constructor(
     @InjectRepository(ItemPergunta)
     private readonly itemPerguntaRepository: Repository<ItemPergunta>,
-   
-    @InjectRepository(Pergunta)  // ← faltou esse decorator
+
+    @InjectRepository(Pergunta) // ← faltou esse decorator
     private readonly perguntaRepository: Repository<Pergunta>,
   ) {}
 
@@ -22,7 +22,7 @@ export class ItemPerguntaService {
   ): Promise<ItemPergunta> {
     const { pergunta_id, ...dadosItemPergunta } = createItemPerguntaDto;
 
-    await this.validarPergunta(pergunta_id); 
+    await this.validarPergunta(pergunta_id);
 
     const itemPergunta = this.itemPerguntaRepository.create({
       ...dadosItemPergunta,
@@ -62,14 +62,14 @@ export class ItemPerguntaService {
     await this.itemPerguntaRepository.remove(itemPergunta);
   }
   private async validarPergunta(perguntaId: string): Promise<Pergunta> {
-  const pergunta = await this.perguntaRepository.findOne({
-    where: { id: perguntaId },
-  });
+    const pergunta = await this.perguntaRepository.findOne({
+      where: { id: perguntaId },
+    });
 
-  if (!pergunta) {
-    throw new NotFoundException('Pergunta não encontrada');
+    if (!pergunta) {
+      throw new NotFoundException('Pergunta não encontrada');
+    }
+
+    return pergunta;
   }
-
-  return pergunta;
-}
 }

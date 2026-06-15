@@ -12,6 +12,7 @@ import { AuthService } from './auth.service';
       global: true,
       secret: process.env.JWT_SECRET,
       signOptions: {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         expiresIn: (process.env.JWT_EXPIRES_IN ?? '1d') as any,
       },
     }),

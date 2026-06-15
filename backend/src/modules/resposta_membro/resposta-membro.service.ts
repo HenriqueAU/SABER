@@ -58,26 +58,28 @@ export class RespostaMembroService {
   }
 
   private async validarMembroClube(membroId: string): Promise<MembroClube> {
-  const membro = await this.membroClubeRepository.findOne({
-    where: { id: membroId },
-  });
+    const membro = await this.membroClubeRepository.findOne({
+      where: { id: membroId },
+    });
 
-  if (!membro) {
-    throw new NotFoundException('Membro do clube não encontrado');
+    if (!membro) {
+      throw new NotFoundException('Membro do clube não encontrado');
+    }
+
+    return membro;
   }
 
-  return membro;
-}
+  private async validarItemPergunta(
+    itemPerguntaId: string,
+  ): Promise<ItemPergunta> {
+    const itemPergunta = await this.itemPerguntaRepository.findOne({
+      where: { id: itemPerguntaId },
+    });
 
-private async validarItemPergunta(itemPerguntaId: string): Promise<ItemPergunta> {
-  const itemPergunta = await this.itemPerguntaRepository.findOne({
-    where: { id: itemPerguntaId },
-  });
+    if (!itemPergunta) {
+      throw new NotFoundException('Item de pergunta não encontrado');
+    }
 
-  if (!itemPergunta) {
-    throw new NotFoundException('Item de pergunta não encontrado');
+    return itemPergunta;
   }
-
-  return itemPergunta;
-}
 }

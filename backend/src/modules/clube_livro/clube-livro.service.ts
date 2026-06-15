@@ -71,7 +71,7 @@ export class ClubeService {
     const clube = await this.findOne(id);
     await this.clubeLivroRepository.remove(clube);
   }
-  
+
   private async validarProfessor(professorId: string): Promise<Usuario> {
     const professor = await this.usuarioService.findOne(professorId);
 

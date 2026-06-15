@@ -89,14 +89,14 @@ export class MembroClubeService {
     await this.membroClubeRepository.remove(membroClube);
   }
   private async validarUsuario(usuarioId: string): Promise<Usuario> {
-  const usuario = await this.usuarioRepository.findOne({
-    where: { id: usuarioId },
-  });
+    const usuario = await this.usuarioRepository.findOne({
+      where: { id: usuarioId },
+    });
 
-  if (!usuario) {
-    throw new NotFoundException('Usuário não encontrado');
+    if (!usuario) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    return usuario;
   }
-
-  return usuario;
-}
 }
