@@ -26,7 +26,7 @@ export class ItemPerguntaController {
   @ApiOperation({ summary: 'Criação do item da pergunta' })
   @ApiResponse({
     status: 201,
-    description: 'Item da Pergunta criada com sucesso',
+    description: 'Item da Pergunta criado com sucesso',
   })
   @Post()
   create(@Body() createItemPerguntaDto: CreateItemPerguntaDto) {
@@ -45,7 +45,7 @@ export class ItemPerguntaController {
 
   @ApiOperation({ summary: 'Busca um item pelo id' })
   @ApiResponse({ status: 200, description: 'Busca realizada com sucesso' })
-  @ApiResponse({ status: 404, description: 'Item não encontrada' })
+  @ApiResponse({ status: 404, description: 'Item não encontrado' })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.itemPerguntaService.findOne(id);
@@ -56,7 +56,7 @@ export class ItemPerguntaController {
     status: 200,
     description: 'Atualização realizada com sucesso',
   })
-  @ApiResponse({ status: 404, description: 'Item não encontrada' })
+  @ApiResponse({ status: 404, description: 'Item não encontrado' })
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -66,8 +66,8 @@ export class ItemPerguntaController {
   }
 
   @ApiOperation({ summary: 'Remove um item' })
-  @ApiResponse({ status: 200, description: 'item removida com sucesso' })
-  @ApiResponse({ status: 404, description: 'Item não encontrada' })
+  @ApiResponse({ status: 200, description: 'item removido com sucesso' })
+  @ApiResponse({ status: 404, description: 'Item não encontrado' })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.itemPerguntaService.remove(id);

@@ -5,18 +5,16 @@ import { RespostaMembro } from './resposta-membro.entity';
 import { CreateRespostaMembroDto } from './dto/create-resposta-membro.dto';
 import { MembroClube } from '../membro_clube/membro-clube.entity';
 import { ItemPergunta } from '../item_pergunta/item-pergunta.entity';
+import { MembroClubeService } from '../membro_clube/membro-clube.service';
+import { ItemPerguntaService } from '../item_pergunta/item-pergunta.service';
 
 @Injectable()
 export class RespostaMembroService {
   constructor(
     @InjectRepository(RespostaMembro)
     private readonly respostaMembroRepository: Repository<RespostaMembro>,
-
-    @InjectRepository(MembroClube)
-    private readonly membroClubeRepository: Repository<MembroClube>,
-
-    @InjectRepository(ItemPergunta)
-    private readonly itemPerguntaRepository: Repository<ItemPergunta>,
+    private readonly membroClubeService: MembroClubeService,
+    private readonly itemPerguntaService: ItemPerguntaService,
   ) {}
 
   async create(
@@ -57,29 +55,16 @@ export class RespostaMembroService {
     await this.respostaMembroRepository.remove(respostaMembro);
   }
 
-  private async validarMembroClube(membroId: string): Promise<MembroClube> {
-    const membro = await this.membroClubeRepository.findOne({
-      where: { id: membroId },
-    });
-
-    if (!membro) {
-      throw new NotFoundException('Membro do clube não encontrado');
-    }
-
+  private async validarMembroClube(membro_id: string): Promise<MembroClube> {
+    const membro = await this.membroClubeService.findOne(membro_id);
     return membro;
   }
 
   private async validarItemPergunta(
-    itemPerguntaId: string,
+    item_pergunta_id: string,
   ): Promise<ItemPergunta> {
-    const itemPergunta = await this.itemPerguntaRepository.findOne({
-      where: { id: itemPerguntaId },
-    });
-
-    if (!itemPergunta) {
-      throw new NotFoundException('Item de pergunta não encontrado');
-    }
-
+    const itemPergunta =
+      await this.itemPerguntaService.findOne(item_pergunta_id);
     return itemPergunta;
   }
 }

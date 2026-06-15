@@ -3,12 +3,14 @@ import { Module } from '@nestjs/common';
 import { RespostaMembro } from './resposta-membro.entity';
 import { RespostaMembroService } from './resposta-membro.service';
 import { RespostaMembroController } from './resposta-membro.controller';
-import { MembroClube } from '../membro_clube/membro-clube.entity';
-import { ItemPergunta } from '../item_pergunta/item-pergunta.entity';
+import { MembroClubeModule } from '../membro_clube/membro-clube.module';
+import { ItemPerguntaModule } from '../item_pergunta/item-pergunta.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([RespostaMembro, MembroClube, ItemPergunta]),
+    TypeOrmModule.forFeature([RespostaMembro]),
+    MembroClubeModule,
+    ItemPerguntaModule,
   ],
   controllers: [RespostaMembroController],
   providers: [RespostaMembroService],

@@ -5,6 +5,7 @@ import { CreateItemPerguntaDto } from './dto/create-item-pergunta.dto';
 import { NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { UpdateItemPerguntaDto } from './dto/update-item-pergunta.dto';
+import { PerguntaService } from '../pergunta/pergunta.service';
 import { Pergunta } from '../pergunta/pergunta.entity';
 
 @Injectable()
@@ -12,9 +13,7 @@ export class ItemPerguntaService {
   constructor(
     @InjectRepository(ItemPergunta)
     private readonly itemPerguntaRepository: Repository<ItemPergunta>,
-
-    @InjectRepository(Pergunta) // ← faltou esse decorator
-    private readonly perguntaRepository: Repository<Pergunta>,
+    private readonly perguntaService: PerguntaService,
   ) {}
 
   async create(
@@ -61,15 +60,8 @@ export class ItemPerguntaService {
     const itemPergunta = await this.findOne(id);
     await this.itemPerguntaRepository.remove(itemPergunta);
   }
-  private async validarPergunta(perguntaId: string): Promise<Pergunta> {
-    const pergunta = await this.perguntaRepository.findOne({
-      where: { id: perguntaId },
-    });
-
-    if (!pergunta) {
-      throw new NotFoundException('Pergunta não encontrada');
-    }
-
+  private async validarPergunta(pergunta_id: string): Promise<Pergunta> {
+    const pergunta = await this.perguntaService.findOne(pergunta_id);
     return pergunta;
   }
 }
