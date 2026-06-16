@@ -1,6 +1,6 @@
 import { inject } from "@angular/core"
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from "@angular/router"
-import { CoreAuthService } from "./auth.service"
+import { CoreAuthService } from "./auth-session"
 
 export const rolesGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
