@@ -6,6 +6,6 @@ import { Component } from '@angular/core';
   templateUrl: './onboarding.html',
   styleUrl: './onboarding.css',
 })
-export class OnboardingComponent {
+export default class OnboardingComponent {
 
 }

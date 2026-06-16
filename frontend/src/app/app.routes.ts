@@ -5,110 +5,79 @@ import { rolesGuard } from './core/auth/roles-guard';
 
 export const routes: Routes = [
   {
-    path: '',
-    redirectTo: 'onboarding',
-    pathMatch: 'full',
+    path: '', redirectTo: 'onboarding', pathMatch: 'full',
   },
   {
     path: 'onboarding',
-    loadComponent: () =>
-      import('./shared/pages/onboarding/onboarding').then(
-        (m) => m.OnboardingComponent,
-      ),
+    loadComponent: () => import('./shared/pages/onboarding/onboarding'),
   },
   {
     path: 'login',
-    loadComponent: () =>
-      import('./shared/pages/login/login').then((m) => m.LoginComponent),
+    loadComponent: () => import('./shared/pages/login/login'),
   },
   {
     path: 'home',
-    loadComponent: () =>
-      import('./shared/pages/home/home').then((m) => m.HomeComponent),
+    loadComponent: () => import('./shared/pages/home/home'),
     canActivate: [authGuard],
   },
   {
     path: 'perfil',
-    loadComponent: () =>
-      import('./shared/pages/perfil/perfil').then((m) => m.PerfilComponent),
+    loadComponent: () => import('./shared/pages/perfil/perfil'),
     canActivate: [authGuard],
   },
   {
     path: 'alterar-senha',
-    loadComponent: () =>
-      import('./shared/pages/alterar-senha/alterar-senha').then(
-        (m) => m.AlterarSenhaComponent,
-      ),
+    loadComponent: () => import('./shared/pages/alterar-senha/alterar-senha'),
     canActivate: [authGuard],
   },
   {
     path: 'notificacoes',
-    loadComponent: () =>
-      import('./shared/pages/notificacoes/notificacoes').then(
-        (m) => m.NotificacoesComponent,
-      ),
+    loadComponent: () => import('./shared/pages/notificacoes/notificacoes'),
     canActivate: [authGuard],
   },
   {
     path: 'livros',
-    loadComponent: () =>
-      import('./features/livro/livro').then((m) => m.LivroComponent),
+    loadComponent: () => import('./features/livro/livro'),
     canActivate: [authGuard],
+
   },
   {
     path: 'livros/:id',
-    loadComponent: () =>
-      import('./features/livro/livro').then((m) => m.LivroComponent),
+    loadComponent: () => import('./features/livro/livro'),
     canActivate: [authGuard],
   },
   {
     path: 'primeiro-acesso',
-    loadComponent: () =>
-      import('./features/usuario/primeiro-acesso/primeiro-acesso').then(
-        (m) => m.PrimeiroAcessoComponent,
-      ),
+    loadComponent: () => import('./features/usuario/primeiro-acesso/primeiro-acesso'),
     canActivate: [authGuard, rolesGuard],
-    data: { roles: [TipoPerfil.ALUNO] },
+    data: {roles: [TipoPerfil.ALUNO]}
   },
   {
     path: 'instituicao',
-    loadComponent: () =>
-      import('./features/instituicao/instituicao').then(
-        (m) => m.InstituicaoComponent,
-      ),
+    loadComponent: () => import('./features/instituicao/instituicao'),
     canActivate: [authGuard, rolesGuard],
-    data: { roles: [TipoPerfil.GESTOR] },
+    data: {roles: [TipoPerfil.GESTOR]}
   },
   {
     path: 'usuarios',
-    loadComponent: () =>
-      import('./features/usuario/usuario').then((m) => m.UsuarioComponent),
+    loadComponent: () => import('./features/usuario/usuario'),
     canActivate: [authGuard, rolesGuard],
-    data: { roles: [TipoPerfil.GESTOR] },
+    data: {roles: [TipoPerfil.GESTOR]}
   },
   {
     path: 'emprestimo',
-    loadComponent: () =>
-      import('./features/emprestimo/emprestimo').then(
-        (m) => m.EmprestimoComponent,
-      ),
+    loadComponent: () => import('./features/emprestimo/emprestimo'),
     canActivate: [authGuard, rolesGuard],
-    data: { roles: [TipoPerfil.BIBLIOTECARIO] },
+    data: {roles: [TipoPerfil.BIBLIOTECARIO]}
   },
   {
     path: 'clubes',
-    loadComponent: () =>
-      import('./features/clube_livro/clube-livro').then(
-        (m) => m.ClubeLivroComponent,
-      ),
+    loadComponent: () => import('./features/clube_livro/clube-livro'),
     canActivate: [authGuard],
   },
   {
     path: 'clubes/:id',
-    loadComponent: () =>
-      import('./features/clube_livro/clube-livro').then(
-        (m) => m.ClubeLivroComponent,
-      ),
+    loadComponent: () => import('./features/clube_livro/clube-livro'),
     canActivate: [authGuard],
   },
 ];

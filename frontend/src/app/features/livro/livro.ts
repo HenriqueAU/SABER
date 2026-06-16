@@ -1,4 +1,4 @@
 import { Component } from "@angular/core";
 
 @Component({template: ''})
-export class LivroComponent{}
+export default class LivroComponent{}

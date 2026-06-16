@@ -1,4 +1,4 @@
 import { Component } from "@angular/core";
 
 @Component({template: ''})
-export class PrimeiroAcessoComponent{}
+export default class PrimeiroAcessoComponent{}

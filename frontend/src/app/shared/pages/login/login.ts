@@ -1,4 +1,4 @@
 import { Component } from "@angular/core";
 
 @Component({template: ''})
-export class LoginComponent{}
+export default class LoginComponent{}

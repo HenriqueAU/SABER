@@ -6,6 +6,6 @@ import { Component } from '@angular/core';
   templateUrl: './emprestimo.html',
   styleUrl: './emprestimo.css',
 })
-export class EmprestimoComponent {
+export default class EmprestimoComponent {
 
 }
