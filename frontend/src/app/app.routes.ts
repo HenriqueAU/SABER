@@ -13,31 +13,31 @@ export const routes: Routes = [
     path: 'onboarding',
     loadComponent: () =>
       import('./shared/pages/onboarding/onboarding').then(
-        (m) => m.Onboarding,
+        (m) => m.OnboardingComponent,
       ),
   },
   {
     path: 'login',
     loadComponent: () =>
-      import('./shared/pages/login/login').then((m) => m.Login),
+      import('./shared/pages/login/login').then((m) => m.LoginComponent),
   },
   {
     path: 'home',
     loadComponent: () =>
-      import('./shared/pages/home/home').then((m) => m.Home),
+      import('./shared/pages/home/home').then((m) => m.HomeComponent),
     canActivate: [authGuard],
   },
   {
     path: 'perfil',
     loadComponent: () =>
-      import('./shared/pages/perfil/perfil').then((m) => m.Perfil),
+      import('./shared/pages/perfil/perfil').then((m) => m.PerfilComponent),
     canActivate: [authGuard],
   },
   {
     path: 'alterar-senha',
     loadComponent: () =>
       import('./shared/pages/alterar-senha/alterar-senha').then(
-        (m) => m.AlterarSenha,
+        (m) => m.AlterarSenhaComponent,
       ),
     canActivate: [authGuard],
   },
@@ -45,27 +45,27 @@ export const routes: Routes = [
     path: 'notificacoes',
     loadComponent: () =>
       import('./shared/pages/notificacoes/notificacoes').then(
-        (m) => m.Notificacoes,
+        (m) => m.NotificacoesComponent,
       ),
     canActivate: [authGuard],
   },
   {
     path: 'livros',
     loadComponent: () =>
-      import('./features/livro/livro').then((m) => m.Livro),
+      import('./features/livro/livro').then((m) => m.LivroComponent),
     canActivate: [authGuard],
   },
   {
     path: 'livros/:id',
     loadComponent: () =>
-      import('./features/livro/livro').then((m) => m.Livro),
+      import('./features/livro/livro').then((m) => m.LivroComponent),
     canActivate: [authGuard],
   },
   {
     path: 'primeiro-acesso',
     loadComponent: () =>
       import('./features/usuario/primeiro-acesso/primeiro-acesso').then(
-        (m) => m.PrimeiroAcesso,
+        (m) => m.PrimeiroAcessoComponent,
       ),
     canActivate: [authGuard, rolesGuard],
     data: { roles: [TipoPerfil.ALUNO] },
@@ -74,7 +74,7 @@ export const routes: Routes = [
     path: 'instituicao',
     loadComponent: () =>
       import('./features/instituicao/instituicao').then(
-        (m) => m.Instituicao,
+        (m) => m.InstituicaoComponent,
       ),
     canActivate: [authGuard, rolesGuard],
     data: { roles: [TipoPerfil.GESTOR] },
@@ -82,7 +82,7 @@ export const routes: Routes = [
   {
     path: 'usuarios',
     loadComponent: () =>
-      import('./features/usuario/usuario').then((m) => m.Usuario),
+      import('./features/usuario/usuario').then((m) => m.UsuarioComponent),
     canActivate: [authGuard, rolesGuard],
     data: { roles: [TipoPerfil.GESTOR] },
   },
@@ -90,7 +90,7 @@ export const routes: Routes = [
     path: 'emprestimo',
     loadComponent: () =>
       import('./features/emprestimo/emprestimo').then(
-        (m) => m.Emprestimo,
+        (m) => m.EmprestimoComponent,
       ),
     canActivate: [authGuard, rolesGuard],
     data: { roles: [TipoPerfil.BIBLIOTECARIO] },
@@ -99,7 +99,7 @@ export const routes: Routes = [
     path: 'clubes',
     loadComponent: () =>
       import('./features/clube_livro/clube-livro').then(
-        (m) => m.ClubeLivro,
+        (m) => m.ClubeLivroComponent,
       ),
     canActivate: [authGuard],
   },
@@ -107,7 +107,7 @@ export const routes: Routes = [
     path: 'clubes/:id',
     loadComponent: () =>
       import('./features/clube_livro/clube-livro').then(
-        (m) => m.ClubeLivro,
+        (m) => m.ClubeLivroComponent,
       ),
     canActivate: [authGuard],
   },
