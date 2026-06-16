@@ -1,4 +1,11 @@
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
 
-@Component({template: ''})
-export default class OnboardingComponent{}
+@Component({
+  selector: 'app-onboarding',
+  imports: [],
+  templateUrl: './onboarding.html',
+  styleUrl: './onboarding.css',
+})
+export class Onboarding {
+
+}

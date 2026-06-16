@@ -1,4 +1,11 @@
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
 
-@Component({template: ''})
-export default class PerfilComponent{}
+@Component({
+  selector: 'app-perfil',
+  imports: [],
+  templateUrl: './perfil.html',
+  styleUrl: './perfil.css',
+})
+export class Perfil {
+
+}
