@@ -1,4 +1,4 @@
 import { Component } from "@angular/core";
 
 @Component({template: ''})
-export class Home{}
+export class HomeComponent{}
