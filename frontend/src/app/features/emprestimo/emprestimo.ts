@@ -1,4 +1,11 @@
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
 
-@Component({template: ''})
-export default class EmprestimoComponent{}
+@Component({
+  selector: 'app-emprestimo',
+  imports: [],
+  templateUrl: './emprestimo.html',
+  styleUrl: './emprestimo.css',
+})
+export default class EmprestimoComponent {
+
+}
