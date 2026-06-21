@@ -1,8 +1,10 @@
+import { TipoPerfil } from '../../modules/usuario/usuario.entity';
+
 export interface RequestComUser extends Request {
   user: {
     id: string;
     instituicao: string;
-    perfil: string;
+    perfil: TipoPerfil;
     email: string;
   };
 }
