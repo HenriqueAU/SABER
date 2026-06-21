@@ -1,0 +1,68 @@
+<div class="clube-container">
+  <header class="clube-header">
+    <h1>Clube do Livro</h1>
+    
+    <p *ngIf="perfilUsuario === TipoPerfilEnum.ALUNO">
+      Preencha o questionário abaixo com o seu feedback sobre a leitura.
+    </p>
+    
+    <p *ngIf="perfilUsuario === TipoPerfilEnum.PROFESSOR">
+      Visualização do questionário padrão do sistema que será respondido pelos alunos.
+    </p>
+  </header>
+
+  <div *ngIf="carregando" class="loading">
+    A carregar as perguntas do clube...
+  </div>
+
+  <div *ngIf="mensagemSucesso" class="alerta sucesso">{{ mensagemSucesso }}</div>
+  <div *ngIf="mensagemErro" class="alerta erro">{{ mensagemErro }}</div>
+
+  <div class="questionario-card" *ngIf="!carregando">
+    
+    <div *ngIf="perguntas.length === 0" class="sem-perguntas">
+      Não há perguntas disponíveis para este clube no momento.
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="perguntas.length > 0 && perfilUsuario === TipoPerfilEnum.ALUNO">
+      
+      <div class="pergunta-bloco" *ngFor="let pergunta of perguntas; let i = index">
+        <h3>{{ i + 1 }}. {{ pergunta.texto }}</h3>
+        
+        <div class="opcoes-lista">
+          <label class="opcao-item" *ngFor="let item of getItensDaPergunta(pergunta.id)">
+            <input 
+              type="radio" 
+              [formControlName]="pergunta.id" 
+              [value]="item.id"
+            >
+            <span class="opcao-texto">{{ item.texto }}</span>
+          </label>
+        </div>
+
+        <small class="texto-erro" *ngIf="form.get(pergunta.id)?.invalid && form.get(pergunta.id)?.touched">
+          Por favor, selecione uma opção para esta pergunta.
+        </small>
+      </div>
+
+      <button class="btn-enviar" type="submit" [disabled]="form.invalid || enviando || form.disabled">
+        {{ enviando ? 'A enviar...' : 'Enviar Respostas' }}
+      </button>
+    </form>
+
+    <div *ngIf="perguntas.length > 0 && perfilUsuario === TipoPerfilEnum.PROFESSOR">
+      
+      <div class="pergunta-bloco professor-view" *ngFor="let pergunta of perguntas; let i = index">
+        <h3>{{ i + 1 }}. {{ pergunta.texto }}</h3>
+        
+        <ul class="opcoes-lista-visualizacao">
+          <li *ngFor="let item of getItensDaPergunta(pergunta.id)">
+            {{ item.texto }}
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+</div>
