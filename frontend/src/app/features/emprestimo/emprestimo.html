@@ -1,1 +1,158 @@
-<p>emprestimo works!</p>
+<div class="d-flex justify-content-center align-items-center">
+  <div class="mb-1 w-50">
+    <h2>Registro de Empréstimo</h2>
+    <p>Selecione o livro que deseja registrar para o empréstimo individual.</p>
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-0">
+        <div class="position-relative">
+          <i
+            class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info">
+          </i>
+
+          <input
+            type="text"
+            class="form-control border-0 ps-5 py-3"
+            placeholder="Pesquise por título ou autor"
+            maxlength="255">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-5">
+  @if (livros$ | async; as livros) {
+    <div class="row row-cols-3">
+      @for (livro of livros; track livro.id) {
+        <div class="col mb-3">
+          <div class="card mb-3 shadow" style="max-width: 540px;">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img [src]= "livro.capa_url || 'assets/imgs/teste2.png'" class="img-fluid rounded-start" [alt]="'Capa' + livro.titulo">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">{{ livro.titulo }}</h5>
+                  <p class="card-text">{{ livro.autor }}</p>
+                  <p class="card-text">
+                    <span
+                      class="badge {{ getColorStatusExemplar(livro.id) }}">
+                      {{ getStatusExemplar(livro.id)}}
+                    </span>
+                  </p>
+                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#emprestimoModal">
+                    <i class="bi bi-plus-circle"></i>
+                    Selecionar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+    </div>
+
+    <div class="modal fade" id="emprestimoModal" tabindex="-1" aria-labelledby="emprestimoModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <i class="bi bi-bookmark-plus me-1 fs-5"></i>
+            <h1 class="modal-title fs-5" id="emprestimoModalLabel">Confirmar Empréstimo</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="card bg-light border mb-3">
+              <div class="card-body d-flex align-items-center">
+                <i class="bi bi-book fs-2 me-3"></i>
+
+                <div>
+                  <small class="text-uppercase text-secondary fw-bold">
+                    Livro Selecionado
+                  </small>
+
+                  <div class="fw-bold">Dom Casmurro</div>
+
+                  <small class="text-secondary">
+                    Machado de Assis • ISBN 978-85-359
+                  </small>
+                </div>
+              </div>
+            </div>
+            <form [formGroup]="emprestimoForm" (ngSubmit)="onSubmit()" id="emprestimoForm">
+              <div class="mb-3">
+                <label for="recipient-name" class="col-form-label">Selecionar Aluno</label>
+                <div class="position-relative">
+                  <i
+                    class="bi bi-person-plus position-absolute top-50 start-0 translate-middle-y ms-3 fs-5 text-secondary">
+                    </i>
+
+                  <input
+                    type="text"
+                    class="form-control ps-5"
+                    placeholder="Nome ou matrícula do aluno..."
+                    id="recipient-name"
+                    maxlength="255"
+                  >
+                </div>
+                <div class="form-text">Pesquise por nome completo ou número de registro acadêmico.</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="message-text" class="col-form-label">Data de Devolução</label>
+                  <div class="position-relative">
+                    <i
+                      class="bi bi-calendar4-week position-absolute top-50 start-0 translate-middle-y ms-3 fs-5 text-secondary">
+                    </i>
+
+                    <input
+                      type="date"
+                      class="form-control ps-5"
+                      id="message-text"
+                      maxlength="255"
+                    >
+                  </div>
+              </div>
+            </form>
+            <div class="alert alert-info mt-4 mb-0" role="alert">
+              <i class="bi bi-info-circle me-1"></i>
+
+              O prazo padrão de empréstimo é de 14 dias.
+              A data de devolução foi preenchida automaticamente
+              com base na política da biblioteca.
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" form="emprestimoForm" class="btn btn-primary" data-bs-dismiss="modal">Confirmar Empréstimo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="successModal" tabindex="-1"
+      aria-labelledby="successModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content bg-success-subtle">
+          <div class="modal-header bg-success text-white">
+            <h1 class="modal-title fs-5" id="successModalLabel">Sucesso!</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Empréstimo realizado com sucesso!
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @else {
+    <div class="bg-white rounded-3 shadow p-4 w-100 text-center">
+      Não há livros registrados no momento.
+        <span class="breadcrumb-item"><a routerLink="/livros">Adicione um novo livro.</a></span>
+    </div>
+  }
+
+</div>

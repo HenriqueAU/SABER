@@ -33,7 +33,7 @@ export default class PerfilComponent {
     foto_perfil: new FormControl('', {
       validators: []
     }),
-  })
+  });
 
   generos$?: Observable<any>;
 
