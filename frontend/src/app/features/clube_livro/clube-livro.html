@@ -1,68 +1,101 @@
 <div class="clube-container">
-  <header class="clube-header">
-    <h1>Clube do Livro</h1>
-    
-    <p *ngIf="perfilUsuario === TipoPerfilEnum.ALUNO">
-      Preencha o questionário abaixo com o seu feedback sobre a leitura.
-    </p>
-    
-    <p *ngIf="perfilUsuario === TipoPerfilEnum.PROFESSOR">
-      Visualização do questionário padrão do sistema que será respondido pelos alunos.
-    </p>
-  </header>
 
-  <div *ngIf="carregando" class="loading">
-    A carregar as perguntas do clube...
-  </div>
+  <ng-container *ngIf="modoListagem">
+    <header class="clube-header">
+      <h1>Clubes de Leitura</h1>
+      <p>Explore os clubes disponíveis na sua instituição.</p>
+    </header>
 
-  <div *ngIf="mensagemSucesso" class="alerta sucesso">{{ mensagemSucesso }}</div>
-  <div *ngIf="mensagemErro" class="alerta erro">{{ mensagemErro }}</div>
+    <div *ngIf="carregando" class="loading">A carregar clubes...</div>
+    <div *ngIf="mensagemErro" class="alerta erro">{{ mensagemErro }}</div>
 
-  <div class="questionario-card" *ngIf="!carregando">
-    
-    <div *ngIf="perguntas.length === 0" class="sem-perguntas">
-      Não há perguntas disponíveis para este clube no momento.
+    <div *ngIf="!carregando && clubes.length === 0" class="sem-perguntas">
+      Não há nenhum clube cadastrado no momento.
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="perguntas.length > 0 && perfilUsuario === TipoPerfilEnum.ALUNO">
+    <div class="clubes-grid" *ngIf="!carregando && clubes.length > 0">
+      <div class="clube-card clicavel" *ngFor="let c of clubes" (click)="abrirClube(c.id)">
+        <div class="clube-card-header">
+          <h3>{{ c.nome || c.livro?.titulo || 'Clube de Leitura' }}</h3>
+        </div>
+        <div class="clube-card-body">
+          <p><strong>Início:</strong> {{ c.data_inicio | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Fim:</strong> {{ c.data_fim | date:'dd/MM/yyyy' }}</p>
+          <p *ngIf="c.local_encontro"><strong>Local:</strong> {{ c.local_encontro }}</p>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!modoListagem">
+    <button class="btn-voltar" (click)="voltarParaListagem()">← Voltar à Lista</button>
+
+    <div *ngIf="carregando" class="loading">A carregar detalhes...</div>
+    
+    <div *ngIf="!carregando && clubeDetalhes" class="detalhes-container">
       
-      <div class="pergunta-bloco" *ngFor="let pergunta of perguntas; let i = index">
-        <h3>{{ i + 1 }}. {{ pergunta.texto }}</h3>
-        
-        <div class="opcoes-lista">
-          <label class="opcao-item" *ngFor="let item of getItensDaPergunta(pergunta.id)">
-            <input 
-              type="radio" 
-              [formControlName]="pergunta.id" 
-              [value]="item.id"
-            >
-            <span class="opcao-texto">{{ item.texto }}</span>
-          </label>
+      <div class="clube-info-card">
+        <h2>{{ clubeDetalhes.nome || clubeDetalhes.livro?.titulo || 'Detalhes do Clube' }}</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <span>Local do Encontro</span>
+            <strong>{{ clubeDetalhes.local_encontro || 'Não definido' }}</strong>
+          </div>
+          <div class="info-item">
+            <span>Data de Início</span>
+            <strong>{{ clubeDetalhes.data_inicio | date:'dd/MM/yyyy' }}</strong>
+          </div>
+          <div class="info-item">
+            <span>Data de Fim</span>
+            <strong>{{ clubeDetalhes.data_fim | date:'dd/MM/yyyy' }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divisor">
+
+      <header class="clube-header">
+        <h2>Sessão de Feedback</h2>
+        <p *ngIf="perfilUsuario === TipoPerfilEnum.ALUNO">Preencha o questionário abaixo sobre o clube.</p>
+        <p *ngIf="perfilUsuario === TipoPerfilEnum.PROFESSOR">Visualização do questionário (Visão Docente).</p>
+      </header>
+
+      <div *ngIf="mensagemSucesso" class="alerta sucesso">{{ mensagemSucesso }}</div>
+
+      <div class="questionario-card">
+        <div *ngIf="perguntas.length === 0" class="sem-perguntas">
+          Não há perguntas configuradas pelo sistema no momento.
         </div>
 
-        <small class="texto-erro" *ngIf="form.get(pergunta.id)?.invalid && form.get(pergunta.id)?.touched">
-          Por favor, selecione uma opção para esta pergunta.
-        </small>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="perguntas.length > 0 && perfilUsuario === TipoPerfilEnum.ALUNO">
+          <div class="pergunta-bloco" *ngFor="let pergunta of perguntas; let i = index">
+            <h3>{{ i + 1 }}. {{ pergunta.texto }}</h3>
+            <div class="opcoes-lista">
+              <label class="opcao-item" *ngFor="let item of getItensDaPergunta(pergunta.id)">
+                <input type="radio" [formControlName]="pergunta.id" [value]="item.id">
+                <span class="opcao-texto">{{ item.texto }}</span>
+              </label>
+            </div>
+            <small class="texto-erro" *ngIf="form.get(pergunta.id)?.invalid && form.get(pergunta.id)?.touched">
+              Por favor, selecione uma opção para esta pergunta.
+            </small>
+          </div>
+          <button class="btn-enviar" type="submit" [disabled]="form.invalid || enviando || form.disabled">
+            {{ enviando ? 'A enviar...' : 'Enviar Feedback' }}
+          </button>
+        </form>
+
+        <div *ngIf="perguntas.length > 0 && perfilUsuario === TipoPerfilEnum.PROFESSOR">
+          <div class="pergunta-bloco professor-view" *ngFor="let pergunta of perguntas; let i = index">
+            <h3>{{ i + 1 }}. {{ pergunta.texto }}</h3>
+            <ul class="opcoes-lista-visualizacao">
+              <li *ngFor="let item of getItensDaPergunta(pergunta.id)">{{ item.texto }}</li>
+            </ul>
+          </div>
+        </div>
+
       </div>
-
-      <button class="btn-enviar" type="submit" [disabled]="form.invalid || enviando || form.disabled">
-        {{ enviando ? 'A enviar...' : 'Enviar Respostas' }}
-      </button>
-    </form>
-
-    <div *ngIf="perguntas.length > 0 && perfilUsuario === TipoPerfilEnum.PROFESSOR">
-      
-      <div class="pergunta-bloco professor-view" *ngFor="let pergunta of perguntas; let i = index">
-        <h3>{{ i + 1 }}. {{ pergunta.texto }}</h3>
-        
-        <ul class="opcoes-lista-visualizacao">
-          <li *ngFor="let item of getItensDaPergunta(pergunta.id)">
-            {{ item.texto }}
-          </li>
-        </ul>
-      </div>
-
     </div>
+  </ng-container>
 
-  </div>
 </div>
