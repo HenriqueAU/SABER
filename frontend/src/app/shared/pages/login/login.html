@@ -1,0 +1,15 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+  @if (erroLogin()) {
+    <p>{{ erroLogin() }}</p>
+  }
+
+  <label for="email">Email: </label>
+  <input id="email" type="text" formControlName="email">
+
+  <label for="senha">Senha: </label>
+  <input  id="senha" type="password" formControlName="senha">
+
+  <button type="submit" [disabled]="!loginForm.valid">Confirmar</button>
+
+</form>

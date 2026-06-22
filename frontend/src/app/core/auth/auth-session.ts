@@ -1,7 +1,10 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable, signal } from "@angular/core";
 import { TipoPerfil } from "./tipo-perfil.enum";
+import { AuthService } from "../../../client/services/auth.service";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class CoreAuthService {
   setToken (valor: string){
     localStorage.setItem('token', valor)
@@ -13,7 +16,7 @@ export class CoreAuthService {
     localStorage.removeItem('token')
   }
   isLoggedIn () {
-    return !!this.getToken()
+      return !!this.getToken()
   }
   getPerfil(): TipoPerfil | null {
     const token = this.getToken();
@@ -22,5 +25,7 @@ export class CoreAuthService {
     const payload = JSON.parse(atob(base64));
     return payload.perfil
   }
-}
 
+  perfil = signal<TipoPerfil | null>(this.getPerfil())
+  estaLogado = signal(this.isLoggedIn())
+}

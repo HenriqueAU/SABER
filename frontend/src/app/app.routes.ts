@@ -5,15 +5,15 @@ import { rolesGuard } from './core/auth/roles-guard';
 
 export const routes: Routes = [
   {
-    path: '', redirectTo: 'login', pathMatch: 'full',
-    },
-  {
-    path: 'login',
-    loadComponent: () => import('./shared/pages/login/login'),
+    path: '', redirectTo: 'onboarding', pathMatch: 'full',
   },
   {
     path: 'onboarding',
     loadComponent: () => import('./shared/pages/onboarding/onboarding'),
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./shared/pages/login/login'),
   },
   {
     path: 'home',
