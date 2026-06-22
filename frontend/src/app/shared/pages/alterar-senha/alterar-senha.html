@@ -1,0 +1,44 @@
+<div class="alterar-senha-container">
+  <h2>Alterar Senha</h2>
+  <p>Por favor, insira a sua senha atual e a nova senha desejada.</p>
+
+  <div *ngIf="mensagemSucesso" class="alerta sucesso">{{ mensagemSucesso }}</div>
+  <div *ngIf="mensagemErro" class="alerta erro">{{ mensagemErro }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    
+    <div class="form-group">
+      <label for="senhaAtual">Senha Atual</label>
+      <input 
+        id="senhaAtual" 
+        type="password" 
+        formControlName="senhaAtual" 
+        placeholder="Digite sua senha atual"
+      >
+      <small *ngIf="form.get('senhaAtual')?.invalid && form.get('senhaAtual')?.touched" class="texto-erro">
+        A senha atual é obrigatória.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="novaSenha">Nova Senha</label>
+      <input 
+        id="novaSenha" 
+        type="password" 
+        formControlName="novaSenha" 
+        placeholder="Mínimo 6 caracteres"
+      >
+      <small *ngIf="form.get('novaSenha')?.errors?.['required'] && form.get('novaSenha')?.touched" class="texto-erro">
+        A nova senha é obrigatória.
+      </small>
+      <small *ngIf="form.get('novaSenha')?.errors?.['minlength'] && form.get('novaSenha')?.touched" class="texto-erro">
+        A nova senha deve ter no mínimo 6 caracteres.
+      </small>
+    </div>
+
+    <button type="submit" [disabled]="form.invalid || carregando">
+      {{ carregando ? 'A atualizar...' : 'Alterar Senha' }}
+    </button>
+
+  </form>
+</div>
