@@ -1,0 +1,73 @@
+<div class="mt-3 border-top pt-3 px-2 pb-2 bg-white rounded-3 shadow-sm">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fs-6 fw-medium text-dark d-flex align-items-center gap-2 mb-0">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-secondary"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+      Gerenciamento de Exemplares
+    </h4>
+    <button (click)="abrirForm()" class="btn btn-sm btn-light text-primary fw-medium shadow-sm">
+      + Adicionar Exemplar
+    </button>
+  </div>
+
+  <ng-container *ngIf="mostrarForm">
+    <form [formGroup]="exemplarForm" (ngSubmit)="salvarExemplar()" class="bg-primary-subtle border border-primary-subtle p-3 rounded-3 mb-3">
+      <div class="row g-3 align-items-end">
+        <div class="col">
+          <label class="form-label small fw-medium">Código Identificador *</label>
+          <input type="text" formControlName="codigo" class="form-control form-control-sm" placeholder="Ex: EXE-001">
+        </div>
+        <div class="col">
+          <label class="form-label small fw-medium">Status Atual *</label>
+          <select formControlName="status" class="form-select form-select-sm">
+            <option value="disponivel">Disponível para Empréstimo</option>
+            <option value="emprestado">Emprestado</option>
+            <option value="danificado">Danificado</option>
+            <option value="perdido">Perdido</option>
+          </select>
+        </div>
+        <div class="col-auto d-flex gap-2">
+          <button type="button" (click)="fecharForm()" class="btn btn-sm btn-outline-secondary">
+            Cancelar
+          </button>
+          <button type="submit" [disabled]="exemplarForm.invalid" class="btn btn-sm btn-primary">
+            Salvar
+          </button>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+
+  <div class="bg-light rounded-3 border overflow-hidden">
+    <ul class="list-group list-group-flush">
+      <li *ngFor="let exemplar of exemplares" class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+        <div class="d-flex align-items-center gap-3">
+          <div class="bg-white p-2 rounded-2 shadow-sm border">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-secondary"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          </div>
+          <div>
+            <div class="small fw-medium text-dark">Código: {{ exemplar.codigo }}</div>
+            <div class="text-secondary mt-1" style="font-size: 0.75rem;">ID Sistema: {{ exemplar.id.split('-')[0] }}...</div>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <span class="badge rounded-pill border"
+            [ngClass]="{
+              'bg-success-subtle text-success-emphasis border-success-subtle': exemplar.status === 'disponivel',
+              'bg-warning-subtle text-warning-emphasis border-warning-subtle': exemplar.status === 'emprestado',
+              'bg-danger-subtle text-danger-emphasis border-danger-subtle': exemplar.status === 'danificado' || exemplar.status === 'perdido'
+            }">
+            {{ exemplar.status | titlecase }}
+          </span>
+          <button (click)="removerExemplar(exemplar.id)" class="btn btn-sm btn-light text-secondary" title="Remover exemplar">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          </button>
+        </div>
+      </li>
+      <li *ngIf="exemplares.length === 0" class="list-group-item text-center py-4 bg-transparent">
+        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-secondary opacity-50 mx-auto mb-2 d-block"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+        <p class="small text-secondary fw-medium mb-1">Nenhum exemplar cadastrado</p>
+        <p class="text-secondary mb-0" style="font-size: 0.75rem;">Adicione o primeiro exemplar deste livro.</p>
+      </li>
+    </ul>
+  </div>
+</div>
