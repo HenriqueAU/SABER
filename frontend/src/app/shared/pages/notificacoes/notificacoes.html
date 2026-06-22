@@ -1,0 +1,28 @@
+<div class="notificacoes-container">
+  <h2>Minhas Notificações</h2>
+
+  <div *ngIf="notificacoes.length === 0" class="estado-vazio">
+    <p>Não tem nenhuma notificação no momento.</p>
+  </div>
+
+  <div class="notificacoes-lista" *ngIf="notificacoes.length > 0">
+    
+    <div 
+      *ngFor="let notif of notificacoes" 
+      class="notificacao-card" 
+      [class.nao-lida]="!notif.lida"
+    >
+      <div class="notificacao-header">
+        <h3>{{ notif.titulo }}</h3>
+        <span class="data">{{ notif.data | date:'short' }}</span> 
+      </div>
+      
+      <p class="mensagem">{{ notif.mensagem }}</p>
+      
+      <button class="btn-lida" *ngIf="!notif.lida" (click)="marcarComoLida(notif)">
+        Marcar como lida
+      </button>
+    </div>
+
+  </div>
+</div>
