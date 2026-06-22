@@ -31,7 +31,6 @@ export default class GenerosComponent implements OnInit, OnChanges {
   }
   ngOnChanges(changes: SimpleChanges) {
   if (changes['livroId']?.currentValue) {
-    console.log('livroId recebido em gêneros:', this.livroId);
     this.carregarDados();
   }
 }
