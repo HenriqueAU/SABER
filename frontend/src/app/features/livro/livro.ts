@@ -116,7 +116,7 @@ carregarGeneros() {
       : {};
     
     // Fallback to a valid ID in the DB if the token is incomplete
-    const instituicao_id = tokenPayload.instituicao || '1d5f4ba2-70e2-4ad9-9939-2c6545407faf';
+    const instituicao_id = tokenPayload.instituicao 
     const formValue = { ...this.livroForm.value, instituicao_id };
 
     if (this.livroSelecionado) {
