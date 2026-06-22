@@ -2,7 +2,9 @@ import { inject, Injectable, signal } from "@angular/core";
 import { TipoPerfil } from "./tipo-perfil.enum";
 import { AuthService } from "../../../client/services/auth.service";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class CoreAuthService {
   setToken (valor: string){
     localStorage.setItem('token', valor)
