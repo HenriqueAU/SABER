@@ -61,29 +61,18 @@ export default class ExemplarComponent implements OnInit, OnChanges{
 
   salvarExemplar() {
   if (this.exemplarForm.invalid) return;
-
-  console.log('livroId recebido:', this.livroId);
-
   const formValue = {
     ...this.exemplarForm.value,
     livro_id: this.livroId
   };
 
-  console.log('Payload enviado:', formValue);
-
   this.exemplaresService.exemplarControllerCreate(formValue).subscribe({
     next: () => {
-      console.log('Exemplar criado com sucesso');
-
       this.fecharForm();
       this.carregarExemplares();
     },
     error: (err) => {
       console.error('Erro ao criar exemplar', err);
-
-      if (err.error) {
-        console.log('Resposta do backend:', err.error);
-      }
     }
   });
 }
