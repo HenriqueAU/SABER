@@ -9,10 +9,6 @@
     <div *ngIf="carregando" class="loading">A carregar clubes...</div>
     <div *ngIf="mensagemErro" class="alerta erro">{{ mensagemErro }}</div>
 
-    <div *ngIf="!carregando && clubes.length === 0" class="sem-perguntas">
-      Não há nenhum clube cadastrado no momento.
-    </div>
-
     <div class="clubes-grid" *ngIf="!carregando && clubes.length > 0">
       <div class="clube-card clicavel" *ngFor="let c of clubes" (click)="abrirClube(c.id)">
         <div class="clube-card-header">
@@ -30,8 +26,10 @@
   <ng-container *ngIf="!modoListagem">
     <button class="btn-voltar" (click)="voltarParaListagem()">← Voltar à Lista</button>
 
-    <div *ngIf="carregando" class="loading">A carregar detalhes...</div>
-    
+    <div *ngIf="carregando" class="loading">A carregar dados...</div>
+    <div *ngIf="mensagemErro" class="alerta erro">{{ mensagemErro }}</div>
+    <div *ngIf="mensagemSucesso" class="alerta sucesso">{{ mensagemSucesso }}</div>
+
     <div *ngIf="!carregando && clubeDetalhes" class="detalhes-container">
       
       <div class="clube-info-card">
@@ -50,24 +48,36 @@
             <strong>{{ clubeDetalhes.data_fim | date:'dd/MM/yyyy' }}</strong>
           </div>
         </div>
+
+        <div class="acoes-clube" *ngIf="abaAtiva === 'detalhes'">
+          
+          <ng-container *ngIf="perfilUsuario === TipoPerfilEnum.ALUNO">
+            <button *ngIf="clubeEncerrado" class="btn-acao-primario" (click)="abrirAvaliacao()">
+              Avaliar Clube
+            </button>
+            <div *ngIf="!clubeEncerrado" class="aviso-bloqueio">
+              <i class="icone-relogio">🕒</i> A avaliação deste clube só estará disponível após o encerramento no dia {{ clubeDetalhes.data_fim | date:'dd/MM/yyyy' }}.
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="perfilUsuario === TipoPerfilEnum.PROFESSOR">
+            <button class="btn-acao-primario" (click)="abrirFeedbacks()">
+              Ver Feedbacks dos Alunos
+            </button>
+          </ng-container>
+
+        </div>
       </div>
 
-      <hr class="divisor">
+      <hr class="divisor" *ngIf="abaAtiva !== 'detalhes'">
 
-      <header class="clube-header">
-        <h2>Sessão de Feedback</h2>
-        <p *ngIf="perfilUsuario === TipoPerfilEnum.ALUNO">Preencha o questionário abaixo sobre o clube.</p>
-        <p *ngIf="perfilUsuario === TipoPerfilEnum.PROFESSOR">Visualização do questionário (Visão Docente).</p>
-      </header>
+      <div class="questionario-card" *ngIf="abaAtiva === 'avaliacao'">
+        <header class="clube-header">
+          <h2>Avaliação do Clube</h2>
+          <p>Preencha o questionário abaixo com o seu feedback.</p>
+        </header>
 
-      <div *ngIf="mensagemSucesso" class="alerta sucesso">{{ mensagemSucesso }}</div>
-
-      <div class="questionario-card">
-        <div *ngIf="perguntas.length === 0" class="sem-perguntas">
-          Não há perguntas configuradas pelo sistema no momento.
-        </div>
-
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="perguntas.length > 0 && perfilUsuario === TipoPerfilEnum.ALUNO">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <div class="pergunta-bloco" *ngFor="let pergunta of perguntas; let i = index">
             <h3>{{ i + 1 }}. {{ pergunta.texto }}</h3>
             <div class="opcoes-lista">
@@ -77,24 +87,48 @@
               </label>
             </div>
             <small class="texto-erro" *ngIf="form.get(pergunta.id)?.invalid && form.get(pergunta.id)?.touched">
-              Por favor, selecione uma opção para esta pergunta.
+              Por favor, selecione uma opção.
             </small>
           </div>
           <button class="btn-enviar" type="submit" [disabled]="form.invalid || enviando || form.disabled">
-            {{ enviando ? 'A enviar...' : 'Enviar Feedback' }}
+            {{ enviando ? 'A enviar...' : 'Enviar Avaliação' }}
           </button>
         </form>
+      </div>
 
-        <div *ngIf="perguntas.length > 0 && perfilUsuario === TipoPerfilEnum.PROFESSOR">
-          <div class="pergunta-bloco professor-view" *ngFor="let pergunta of perguntas; let i = index">
-            <h3>{{ i + 1 }}. {{ pergunta.texto }}</h3>
-            <ul class="opcoes-lista-visualizacao">
-              <li *ngFor="let item of getItensDaPergunta(pergunta.id)">{{ item.texto }}</li>
-            </ul>
-          </div>
+      <div class="questionario-card" *ngIf="abaAtiva === 'feedbacks'">
+        <header class="clube-header">
+          <h2>Resultados dos Feedbacks</h2>
+          <p>Selecione uma pergunta abaixo para ver a votação dos alunos.</p>
+        </header>
+
+        <div *ngIf="perguntas.length === 0" class="sem-perguntas">
+          Não há perguntas configuradas.
         </div>
 
+        <div class="lista-perguntas-analise">
+          <div class="pergunta-analise-card" *ngFor="let pergunta of perguntas; let i = index">
+            
+            <button class="btn-pergunta" 
+                    [class.ativo]="perguntaSelecionadaId === pergunta.id"
+                    (click)="selecionarPerguntaParaAnalise(pergunta.id)">
+              <span>{{ i + 1 }}. {{ pergunta.texto }}</span>
+              <span class="seta">{{ perguntaSelecionadaId === pergunta.id ? '▲' : '▼' }}</span>
+            </button>
+
+            <div class="estatisticas-box" *ngIf="perguntaSelecionadaId === pergunta.id">
+              <div class="stat-item" *ngFor="let stat of estatisticas">
+                <span class="stat-texto">{{ stat.texto }}</span>
+                <span class="stat-badge" [class.destaque]="stat.quantidade > 0">
+                  {{ stat.quantidade }} voto(s)
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
+
     </div>
   </ng-container>
 

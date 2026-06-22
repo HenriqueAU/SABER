@@ -113,3 +113,112 @@
   background: #eaeaea;
   margin: 40px 0;
 }
+
+.acoes-clube {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px dashed #ddd;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-acao-primario {
+  padding: 12px 24px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.05rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-acao-primario:hover {
+  background-color: #0056b3;
+}
+
+.aviso-bloqueio {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 12px 20px;
+  border-radius: 6px;
+  border: 1px solid #ffeeba;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lista-perguntas-analise {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pergunta-analise-card {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.btn-pergunta {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border: none;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s;
+}
+
+.btn-pergunta:hover {
+  background-color: #e2e6ea;
+}
+
+.btn-pergunta.ativo {
+  background-color: #e2e6ea;
+  border-bottom: 1px solid #ddd;
+}
+
+.estatisticas-box {
+  background-color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background-color: #fcfcfc;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.stat-texto {
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.stat-badge {
+  background-color: #6c757d;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.stat-badge.destaque {
+  background-color: #28a745;
+}
