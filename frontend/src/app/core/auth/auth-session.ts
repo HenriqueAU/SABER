@@ -7,23 +7,38 @@ import { AuthService } from "../../../client/services/auth.service";
 })
 export class CoreAuthService {
   setToken (valor: string){
-    localStorage.setItem('token', valor)
+    localStorage.setItem('token', valor);
   }
   getToken () {
-    return localStorage.getItem('token')
+    return localStorage.getItem('token');
   }
   removeToken () {
-    localStorage.removeItem('token')
+    localStorage.removeItem('token');
   }
-  isLoggedIn () {
-      return !!this.getToken()
-  }
-  getPerfil(): TipoPerfil | null {
+  private decodeToken() {
     const token = this.getToken();
     if (!token) return null;
     const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(atob(base64));
-    return payload.perfil
+    return JSON.parse(atob(base64));
+  }
+  isLoggedIn () {
+      return !!this.getToken();
+  }
+  getPerfil(): TipoPerfil | null {
+    const payload = this.decodeToken();
+    if(!payload) return null;
+    return payload.perfil;
+  }
+  getId() {
+    const payload = this.decodeToken();
+    if(!payload) return null;
+    return payload.id
+  }
+
+  getInstituicao() {
+    const payload = this.decodeToken();
+    if(!payload) return null;
+    return payload.instituicao
   }
 
   perfil = signal<TipoPerfil | null>(this.getPerfil())
