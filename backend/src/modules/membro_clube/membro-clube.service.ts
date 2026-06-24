@@ -56,11 +56,12 @@ export class MembroClubeService {
     });
     return await this.membroClubeRepository.save(novoMembroClube);
   }
-  async findAll(): Promise<MembroClube[]> {
-    return await this.membroClubeRepository.find({
-      relations: ['usuario', 'clube'],
-    });
-  }
+  async findAll(clube_id: string): Promise<MembroClube[]> {
+  return await this.membroClubeRepository.find({
+    where: { clube: { id: clube_id } },
+    relations: ['usuario', 'clube'],
+  });
+}
   async findOne(id: string): Promise<MembroClube> {
     const membroClube = await this.membroClubeRepository.findOne({
       where: { id },

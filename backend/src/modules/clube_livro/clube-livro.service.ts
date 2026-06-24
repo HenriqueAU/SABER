@@ -45,13 +45,16 @@ export class ClubeService {
     });
   }
 
-  async findOne(id: string): Promise<ClubeLivro> {
+  async findOne(id: string, instituicao_id?: string): Promise<ClubeLivro> {
     const clube = await this.clubeLivroRepository.findOne({
       where: { id },
-      relations: ['professor', 'livro'],
+      relations: ['professor', 'professor.instituicao', 'livro'],
     });
 
     if (!clube) {
+      throw new NotFoundException('Clube não encontrado');
+    }
+    if (instituicao_id && clube.professor.instituicao.id !== instituicao_id) {
       throw new NotFoundException('Clube não encontrado');
     }
     return clube;
@@ -60,16 +63,28 @@ export class ClubeService {
   async update(
     id: string,
     updateClubeLivroDto: UpdateClubeLivroDto,
+    professorLogadoId: string,
   ): Promise<ClubeLivro> {
     const clube = await this.findOne(id);
+    this.validarDono(clube, professorLogadoId);
 
     this.clubeLivroRepository.merge(clube, updateClubeLivroDto);
     return await this.clubeLivroRepository.save(clube);
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string, professorLogadoId: string): Promise<void> {
     const clube = await this.findOne(id);
+    this.validarDono(clube, professorLogadoId);
+
     await this.clubeLivroRepository.remove(clube);
+  }
+
+  private validarDono(clube: ClubeLivro, professorLogadoId: string): void {
+    if (clube.professor.id !== professorLogadoId) {
+      throw new ForbiddenException(
+        'Apenas o professor responsável pelo clube pode realizar esta ação',
+      );
+    }
   }
 
   private async validarProfessor(professorId: string): Promise<Usuario> {

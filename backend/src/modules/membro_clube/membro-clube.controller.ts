@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query
 } from '@nestjs/common';
 import { MembroClubeService } from './membro-clube.service';
 import { CreateMembroClubeDto } from './dto/create-membro-clube.dto';
@@ -16,6 +17,8 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { Roles } from '../../common/decorators/roles.decorator'
+import { TipoPerfil } from '../usuario/usuario.entity'
 
 @ApiTags('Membro do clube')
 @ApiBearerAuth()
@@ -25,6 +28,7 @@ export class MembroClubeController {
 
   @ApiOperation({ summary: 'Criação do membro do clube' })
   @ApiResponse({ status: 201, description: 'Membro criado com sucesso' })
+  @Roles(TipoPerfil.ALUNO)
   @Post()
   create(@Body() createMembroClubeDto: CreateMembroClubeDto) {
     return this.membroClubeService.create(createMembroClubeDto);
@@ -35,14 +39,16 @@ export class MembroClubeController {
     status: 200,
     description: 'Lista de membros retornada com sucesso',
   })
+  @Roles(TipoPerfil.PROFESSOR)
   @Get()
-  findAll() {
-    return this.membroClubeService.findAll();
+  findAll(@Query('clube_id') clube_id: string,) {
+    return this.membroClubeService.findAll(clube_id);
   }
 
   @ApiOperation({ summary: 'Busca um membro pelo id' })
   @ApiResponse({ status: 200, description: 'Busca realizada com sucesso' })
   @ApiResponse({ status: 404, description: 'Membro não encontrado' })
+  @Roles(TipoPerfil.PROFESSOR, TipoPerfil.ALUNO)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.membroClubeService.findOne(id);
@@ -54,6 +60,7 @@ export class MembroClubeController {
     description: 'Atualização realizada com sucesso',
   })
   @ApiResponse({ status: 404, description: 'Membro não encontrado' })
+  @Roles(TipoPerfil.PROFESSOR)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -65,6 +72,7 @@ export class MembroClubeController {
   @ApiOperation({ summary: 'Remove um membro' })
   @ApiResponse({ status: 200, description: 'Membro removida com sucesso' })
   @ApiResponse({ status: 404, description: 'Membro não encontrado' })
+  @Roles(TipoPerfil.ALUNO)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.membroClubeService.remove(id);

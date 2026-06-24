@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post,Body,Param,Delete,Req,}from '@nestjs/common';
 import { CreateRespostaMembroDto } from './dto/create-resposta-membro.dto';
 import { RespostaMembroService } from './resposta-membro.service';
 import {
@@ -7,8 +7,11 @@ import {
   ApiBearerAuth,
   ApiTags,
 } from '@nestjs/swagger';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { TipoPerfil } from '../usuario/usuario.entity';
+import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
 
-@ApiTags('Respostas do membro')
+@ApiTags('respostas-do-membro')
 @ApiBearerAuth()
 @Controller('resposta-membro')
 export class RespostaMembroController {
@@ -16,9 +19,16 @@ export class RespostaMembroController {
 
   @ApiOperation({ summary: 'Criação de resposta do membro do clube' })
   @ApiResponse({ status: 201, description: 'Resposta criada com sucesso' })
+  @Roles(TipoPerfil.ALUNO)
   @Post()
-  create(@Body() createRespostaMembroDto: CreateRespostaMembroDto) {
-    return this.respostaMembroService.create(createRespostaMembroDto);
+  create(
+    @Body() createRespostaMembroDto: CreateRespostaMembroDto,
+    @Req() request: RequestComUser,
+  ) {
+    return this.respostaMembroService.create(
+      createRespostaMembroDto,
+      request.user.id,
+    );
   }
 
   @ApiOperation({ summary: 'Lista todas as respostas' })
@@ -26,22 +36,32 @@ export class RespostaMembroController {
     status: 200,
     description: 'Lista resposta retornada com sucesso',
   })
+  @Roles(TipoPerfil.PROFESSOR, TipoPerfil.ALUNO)
   @Get()
-  findAll() {
-    return this.respostaMembroService.findAll();
+  findAll(@Req() request: RequestComUser) {
+    return this.respostaMembroService.findAll(
+      request.user.id,
+      request.user.perfil,
+    );
   }
 
-  @ApiOperation({ summary: 'Busca uma respota pelo id' })
+  @ApiOperation({ summary: 'Busca uma resposta pelo id' })
   @ApiResponse({ status: 200, description: 'Busca realizada com sucesso' })
   @ApiResponse({ status: 404, description: 'Resposta não encontrada' })
+  @Roles(TipoPerfil.PROFESSOR, TipoPerfil.ALUNO)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.respostaMembroService.findOne(id);
+  findOne(@Param('id') id: string, @Req() request: RequestComUser) {
+    return this.respostaMembroService.findOne(
+      id,
+      request.user.id,
+      request.user.perfil,
+    );
   }
 
   @ApiOperation({ summary: 'Remove uma Resposta' })
   @ApiResponse({ status: 200, description: 'Resposta removida com sucesso' })
   @ApiResponse({ status: 404, description: 'Resposta não encontrada' })
+  @Roles()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.respostaMembroService.remove(id);

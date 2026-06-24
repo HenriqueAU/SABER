@@ -18,8 +18,10 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { TipoPerfil } from '../usuario/usuario.entity';
 
-@ApiTags('Clubes')
+@ApiTags('clubes')
 @ApiBearerAuth()
 @Controller('clubes')
 export class ClubeController {
@@ -30,6 +32,7 @@ export class ClubeController {
     status: 201,
     description: 'Clube do livro criado com sucesso',
   })
+  @Roles(TipoPerfil.PROFESSOR)
   @Post()
   create(@Body() createClubeDto: CreateClubeLivroDto) {
     return this.clubeService.create(createClubeDto);
@@ -50,8 +53,9 @@ export class ClubeController {
   @ApiResponse({ status: 200, description: 'Busca realizada com sucesso' })
   @ApiResponse({ status: 404, description: 'Clube do livro não encontrado' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.clubeService.findOne(id);
+  findOne(@Param('id') id: string, @Req() request: RequestComUser) {
+    const instituicao_id = request.user.instituicao;
+    return this.clubeService.findOne(id, instituicao_id);
   }
 
   @ApiOperation({ summary: 'Atualiza um clube do livro existente' })
@@ -60,12 +64,14 @@ export class ClubeController {
     description: 'Atualização realizada com sucesso',
   })
   @ApiResponse({ status: 404, description: 'Clube do livro não encontrado' })
+  @Roles(TipoPerfil.PROFESSOR)
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() UpdateClubeLivroDto: UpdateClubeLivroDto,
+    @Body() updateClubeLivroDto: UpdateClubeLivroDto,
+    @Req() request: RequestComUser,
   ) {
-    return this.clubeService.update(id, UpdateClubeLivroDto);
+    return this.clubeService.update(id, updateClubeLivroDto, request.user.id);
   }
 
   @ApiOperation({ summary: 'Remove um clube do livro' })
@@ -74,8 +80,9 @@ export class ClubeController {
     description: 'Clube do livro removida com sucesso',
   })
   @ApiResponse({ status: 404, description: 'Clube do livro não encontrado' })
+  @Roles(TipoPerfil.PROFESSOR)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.clubeService.remove(id);
+  remove(@Param('id') id: string, @Req() request: RequestComUser) {
+    return this.clubeService.remove(id, request.user.id);
   }
 }
