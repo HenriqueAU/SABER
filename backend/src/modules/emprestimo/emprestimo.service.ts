@@ -6,6 +6,8 @@ import { CreateEmprestimoDto } from './dto/create-emprestimo.dto';
 import { UpdateEmprestimoDto } from './dto/update-emprestimo.dto';
 import { ExemplarService } from '../exemplar/exemplar.service';
 import { StatusExemplar } from '../exemplar/exemplar.entity';
+import { TipoPerfil } from '../usuario/usuario.entity';
+import { FindOptionsWhere } from 'typeorm';
 
 @Injectable()
 export class EmprestimoService {
@@ -39,7 +41,23 @@ export class EmprestimoService {
     }
   }
 
-  async findAll(instituicao_id: string): Promise<Emprestimo[]> {
+  async findAll(
+    instituicao_id: string,
+    perfilLogado: TipoPerfil,
+    usuarioId: string,
+  ): Promise<Emprestimo[]> {
+    if (perfilLogado === TipoPerfil.ALUNO) {
+      return await this.emprestimoRepository.find({
+        where: {
+          usuario: {
+            instituicao: { id: instituicao_id },
+            id: usuarioId,
+          },
+        },
+        relations: ['exemplar', 'usuario'],
+      });
+    }
+
     return await this.emprestimoRepository.find({
       where: {
         usuario: {
@@ -50,9 +68,19 @@ export class EmprestimoService {
     });
   }
 
-  async findOne(id: string): Promise<Emprestimo> {
+  async findOne(
+    id: string,
+    perfilLogado?: TipoPerfil,
+    usuarioId?: string,
+  ): Promise<Emprestimo> {
+    const where: FindOptionsWhere<Emprestimo> = { id };
+
+    if (perfilLogado === TipoPerfil.ALUNO && usuarioId) {
+      where.usuario = { id: usuarioId };
+    }
+
     const emprestimo = await this.emprestimoRepository.findOne({
-      where: { id },
+      where,
       relations: ['exemplar', 'usuario'],
     });
     if (!emprestimo) throw new NotFoundException('Empréstimo não encontrado');

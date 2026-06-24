@@ -3,7 +3,7 @@ import { PreferenciaGeneroService } from './preferencia-genero.service';
 import { CreatePreferenciaGeneroDto } from './dto/create-preferencia-genero.dto';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 
-@ApiTags('Preferências de Gênero')
+@ApiTags('Preferencias Genero')
 @ApiBearerAuth()
 @Controller('preferencias-genero')
 export class PreferenciaGeneroController {
