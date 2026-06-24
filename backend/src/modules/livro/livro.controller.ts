@@ -13,6 +13,8 @@ import { CreateLivroDto } from './dto/create-livro.dto';
 import { UpdateLivroDto } from './dto/update-livro.dto';
 import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { TipoPerfil } from '../usuario/usuario.entity';
 
 @ApiTags('Livros')
 @ApiBearerAuth()
@@ -21,6 +23,7 @@ export class LivroController {
   constructor(private readonly livroService: LivroService) {}
 
   @Post()
+  @Roles(TipoPerfil.BIBLIOTECARIO)
   @ApiOperation({ summary: 'Cadastrar um novo livro' })
   create(@Body() createLivroDto: CreateLivroDto) {
     return this.livroService.create(createLivroDto);
@@ -40,12 +43,14 @@ export class LivroController {
   }
 
   @Patch(':id')
+  @Roles(TipoPerfil.BIBLIOTECARIO)
   @ApiOperation({ summary: 'Atualizar os dados de um livro' })
   update(@Param('id') id: string, @Body() updateLivroDto: UpdateLivroDto) {
     return this.livroService.update(id, updateLivroDto);
   }
 
   @Delete(':id')
+  @Roles(TipoPerfil.BIBLIOTECARIO)
   @ApiOperation({ summary: 'Remover um livro' })
   remove(@Param('id') id: string) {
     return this.livroService.remove(id);
