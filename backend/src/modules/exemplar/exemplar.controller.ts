@@ -13,6 +13,8 @@ import { CreateExemplarDto } from './dto/create-exemplar.dto';
 import { UpdateExemplarDto } from './dto/update-exemplar.dto';
 import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { TipoPerfil } from '../usuario/usuario.entity';
 
 @ApiTags('Exemplares')
 @ApiBearerAuth()
@@ -21,6 +23,7 @@ export class ExemplarController {
   constructor(private readonly exemplarService: ExemplarService) {}
 
   @Post()
+  @Roles(TipoPerfil.BIBLIOTECARIO)
   @ApiOperation({ summary: 'Cadastrar um novo exemplar' })
   create(
     @Body() createExemplarDto: CreateExemplarDto,
@@ -44,6 +47,7 @@ export class ExemplarController {
   }
 
   @Patch(':id')
+  @Roles(TipoPerfil.BIBLIOTECARIO)
   @ApiOperation({ summary: 'Atualizar os dados do exemplar' })
   update(
     @Param('id') id: string,
@@ -53,6 +57,7 @@ export class ExemplarController {
   }
 
   @Delete(':id')
+  @Roles(TipoPerfil.BIBLIOTECARIO)
   @ApiOperation({ summary: 'Remover um exemplar' })
   remove(@Param('id') id: string) {
     return this.exemplarService.remove(id);

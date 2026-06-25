@@ -2,14 +2,17 @@ import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { LivroGeneroService } from './livro-genero.service';
 import { CreateLivroGeneroDto } from './dto/create-livro-genero.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { TipoPerfil } from '../usuario/usuario.entity';
 
-@ApiTags('Relação Livro <-> Gênero')
+@ApiTags('Livro Genero')
 @ApiBearerAuth()
 @Controller('livro-generos')
 export class LivroGeneroController {
   constructor(private readonly livroGeneroService: LivroGeneroService) {}
 
   @Post()
+  @Roles(TipoPerfil.BIBLIOTECARIO)
   @ApiOperation({ summary: 'Vincular um gênero a um livro' })
   create(@Body() createLivroGeneroDto: CreateLivroGeneroDto) {
     return this.livroGeneroService.create(createLivroGeneroDto);
@@ -28,6 +31,7 @@ export class LivroGeneroController {
   }
 
   @Delete(':id')
+  @Roles(TipoPerfil.BIBLIOTECARIO)
   @ApiOperation({ summary: 'Desvincular um gênero de um livro' })
   remove(@Param('id') id: string) {
     return this.livroGeneroService.remove(id);
