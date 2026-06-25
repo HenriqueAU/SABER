@@ -80,7 +80,6 @@ carregarGeneros() {
       });
       this.cdr.detectChanges(); 
     },
-    error: (err) => console.error(err)
   });
 }
   abrirFormCadastro() {
@@ -110,13 +109,7 @@ carregarGeneros() {
 
   onLivroSalvo() {
     if (this.livroForm.invalid) return;
-
-    const tokenPayload = this.authService.getToken() 
-      ? JSON.parse(atob(this.authService.getToken()!.split('.')[1]))
-      : {};
-    
-    // Fallback to a valid ID in the DB if the token is incomplete
-    const instituicao_id = tokenPayload.instituicao 
+    const instituicao_id = this.authService.getInstituicao();
     const formValue = { ...this.livroForm.value, instituicao_id };
 
     if (this.livroSelecionado) {
@@ -125,7 +118,6 @@ carregarGeneros() {
           this.fecharForm();
           this.carregarLivros();
         },
-        error: (err) => console.error('Erro ao editar livro', err)
       });
     } else {
       this.livrosService.livroControllerCreate(formValue).subscribe({
@@ -133,7 +125,6 @@ carregarGeneros() {
           this.fecharForm();
           this.carregarLivros();
         },
-        error: (err) => console.error('Erro ao criar livro', err)
       });
     }
   }

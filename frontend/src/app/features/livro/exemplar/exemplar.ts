@@ -47,7 +47,6 @@ export default class ExemplarComponent implements OnInit, OnChanges{
 
       this.cdr.detectChanges();
     },
-    error: (err) => console.error('Erro ao carregar exemplares', err)
   });
 }
   abrirForm() {
@@ -71,9 +70,6 @@ export default class ExemplarComponent implements OnInit, OnChanges{
       this.fecharForm();
       this.carregarExemplares();
     },
-    error: (err) => {
-      console.error('Erro ao criar exemplar', err);
-    }
   });
 }
 
@@ -81,7 +77,6 @@ export default class ExemplarComponent implements OnInit, OnChanges{
     if(confirm('Tem certeza que deseja remover este exemplar?')) {
       this.exemplaresService.exemplarControllerRemove(id).subscribe({
         next: () => this.carregarExemplares(),
-        error: (err) => console.error('Erro ao remover exemplar', err)
       });
     }
   }
