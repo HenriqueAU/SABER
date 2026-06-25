@@ -1,4 +1,4 @@
-import {Controller, Get, Post,Body,Param,Delete,Req,}from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req } from '@nestjs/common';
 import { CreateRespostaMembroDto } from './dto/create-resposta-membro.dto';
 import { RespostaMembroService } from './resposta-membro.service';
 import {
@@ -11,7 +11,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { TipoPerfil } from '../usuario/usuario.entity';
 import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
 
-@ApiTags('respostas-do-membro')
+@ApiTags('RespostaMembro')
 @ApiBearerAuth()
 @Controller('resposta-membro')
 export class RespostaMembroController {
@@ -56,14 +56,5 @@ export class RespostaMembroController {
       request.user.id,
       request.user.perfil,
     );
-  }
-
-  @ApiOperation({ summary: 'Remove uma Resposta' })
-  @ApiResponse({ status: 200, description: 'Resposta removida com sucesso' })
-  @ApiResponse({ status: 404, description: 'Resposta não encontrada' })
-  @Roles()
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.respostaMembroService.remove(id);
   }
 }

@@ -57,11 +57,11 @@ export class MembroClubeService {
     return await this.membroClubeRepository.save(novoMembroClube);
   }
   async findAll(clube_id: string): Promise<MembroClube[]> {
-  return await this.membroClubeRepository.find({
-    where: { clube: { id: clube_id } },
-    relations: ['usuario', 'clube'],
-  });
-}
+    return await this.membroClubeRepository.find({
+      where: { clube: { id: clube_id } },
+      relations: ['usuario', 'clube'],
+    });
+  }
   async findOne(id: string): Promise<MembroClube> {
     const membroClube = await this.membroClubeRepository.findOne({
       where: { id },
@@ -89,7 +89,7 @@ export class MembroClubeService {
     await this.membroClubeRepository.remove(membroClube);
   }
   private async validarUsuario(usuario_id: string): Promise<Usuario> {
-    const usuario = await this.usuarioService.findOne(usuario_id);
+    const usuario = await this.usuarioService.findOneInterno(usuario_id);
     return usuario;
   }
 }

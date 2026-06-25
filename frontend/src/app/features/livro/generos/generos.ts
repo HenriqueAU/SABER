@@ -1,12 +1,12 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { GênerosService } from '../../../../client/services/generos.service';
+import { GenerosService } from '../../../../client/services/generos.service';
 import { LivroGeneroService, LivroGenero } from './livro-genero.service';
-import { CreateGeneroDto } from '../../../../client/models/index';
 
-interface Genero extends CreateGeneroDto {
+interface Genero {
   id: string;
+  nome: string;
 }
 
 @Component({
@@ -18,7 +18,7 @@ interface Genero extends CreateGeneroDto {
 export default class GenerosComponent implements OnInit, OnChanges {
   @Input() livroId!: string;
 
-  private generosService = inject(GênerosService);
+  private generosService = inject(GenerosService);
   private livroGeneroService = inject(LivroGeneroService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -77,7 +77,7 @@ export default class GenerosComponent implements OnInit, OnChanges {
 
   vincular() {
     if (!this.generoSelecionadoId) return;
-    
+
     // check se já está vinculado
     if (this.generosVinculados.some(g => g.genero.id === this.generoSelecionadoId)) {
       alert('Gênero já vinculado a este livro.');

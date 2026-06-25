@@ -3,10 +3,10 @@ import { CoreAuthService } from '../../../core/auth/auth-session';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from "@angular/router";
 import { Observable, forkJoin } from 'rxjs';
-import { UsuáriosService } from '../../../../client/services/usuarios.service';
+import { UsuariosService } from '../../../../client/services/usuarios.service';
 import { Location, CommonModule } from '@angular/common';
-import { PreferênciasDeGêneroService } from '../../../../client/services/preferenciasDeGenero.service';
-import { GênerosService } from '../../../../client/services/generos.service';
+import { PreferenciasGeneroService } from '../../../../client/services/preferenciasGenero.service';
+import { GenerosService } from '../../../../client/services/generos.service';
 import { Modal } from 'bootstrap';
 
 @Component({
@@ -43,9 +43,9 @@ export default class PerfilComponent {
 
   constructor(
     private coreAuthService: CoreAuthService,
-    protected usuariosService: UsuáriosService,
-    protected preferenciasGeneroService: PreferênciasDeGêneroService,
-    protected generosService: GênerosService,
+    protected usuariosService: UsuariosService,
+    protected preferenciasGeneroService: PreferenciasGeneroService,
+    protected generosService: GenerosService,
     protected router: Router,
     private location: Location,
   ) {

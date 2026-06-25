@@ -125,30 +125,6 @@ export interface UpdateLivroDto {
     faixa_etaria?: 'livre' | '10+' | '12+' | '14+' | '16+' | '18+';
 }
 
-export interface CreateItemPerguntaDto {
-    /** ID da pergunta relacionada */
-    pergunta_id: string;
-    /** Texto do item da pergunta */
-    texto: string;
-}
-
-export interface UpdateItemPerguntaDto {
-    /** ID da pergunta relacionada */
-    pergunta_id?: string;
-    /** Texto do item da pergunta */
-    texto?: string;
-}
-
-export interface CreatePerguntaDto {
-    /** Texto da pergunta */
-    texto: string;
-}
-
-export interface UpdatePerguntaDto {
-    /** Texto da pergunta */
-    texto?: string;
-}
-
 export interface CreatePreferenciaGeneroDto {
     /** ID do usuário */
     usuario_id: string;
@@ -183,16 +159,6 @@ export interface UpdateInstituicaoDto {
     cidade?: string;
     /** Estado onde se localiza a instituição */
     estado?: string;
-}
-
-export interface CreateGeneroDto {
-    /** Nome do Gênero Literário */
-    nome: string;
-}
-
-export interface UpdateGeneroDto {
-    /** Nome do Gênero Literário */
-    nome?: string;
 }
 
 export interface CreateExemplarDto {

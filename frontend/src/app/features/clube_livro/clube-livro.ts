@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { MembroDoClubeService } from '../../../client/services/membroDoClube.service';
+import { MembroClubeService } from '../../../client/services/membroClube.service';
 import { ClubesService } from '../../../client/services/clubes.service';
 import { PerguntasService } from '../../../client/services/perguntas.service';
-import { ItemDaPerguntaService } from '../../../client/services/itemDaPergunta.service';
-import { RespostasDoMembroService } from '../../../client/services/respostasDoMembro.service';
+import { ItemPerguntaService } from '../../../client/services/itemPergunta.service';
+import { RespostaMembroService } from '../../../client/services/respostaMembro.service';
 import { CoreAuthService } from '../../core/auth/auth-session';
 import { TipoPerfil } from '../../core/auth/tipo-perfil.enum';
 
@@ -21,7 +21,7 @@ import { TipoPerfil } from '../../core/auth/tipo-perfil.enum';
 export default class ClubeLivroComponent implements OnInit {
   modoListagem: boolean = true;
   abaAtiva: 'detalhes' | 'avaliacao' | 'feedbacks' = 'detalhes';
-  
+
   clubes: any[] = [];
   clubeDetalhes: any = null;
   perguntas: any[] = [];
@@ -44,17 +44,17 @@ export default class ClubeLivroComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
-  private membroDoClubeService = inject(MembroDoClubeService);
+  private MembroClubeService = inject(MembroClubeService);
   private clubesService = inject(ClubesService);
   private perguntasService = inject(PerguntasService);
-  private itemPerguntaService = inject(ItemDaPerguntaService);
-  private respostasService = inject(RespostasDoMembroService);
+  private itemPerguntaService = inject(ItemPerguntaService);
+  private respostasService = inject(RespostaMembroService);
   private authService = inject(CoreAuthService);
 
   ngOnInit(): void {
     this.perfilUsuario = this.authService.getPerfil();
     this.form = this.fb.group({});
-    
+
     this.route.paramMap.subscribe(params => {
       this.clubeId = params.get('id');
       if (this.clubeId) {
@@ -92,10 +92,10 @@ export default class ClubeLivroComponent implements OnInit {
   async carregarDetalhes() {
     this.carregando = true;
     this.mensagemSucesso = '';
-    
+
     try {
       this.clubeDetalhes = await firstValueFrom(this.clubesService.clubeControllerFindOne(this.clubeId!));
-      
+
       if (this.clubeDetalhes?.data_fim) {
         const dataFim = new Date(this.clubeDetalhes.data_fim);
         this.clubeEncerrado = new Date() > dataFim;
@@ -113,7 +113,7 @@ export default class ClubeLivroComponent implements OnInit {
       this.mensagemErro = 'Não foi possível carregar os detalhes deste clube.';
     } finally {
       this.carregando = false;
-      this.cdr.detectChanges(); 
+      this.cdr.detectChanges();
     }
   }
 
@@ -127,7 +127,7 @@ export default class ClubeLivroComponent implements OnInit {
   abrirAvaliacao() {
     this.abaAtiva = 'avaliacao';
     this.mensagemSucesso = '';
-    
+
     Object.keys(this.form.controls).forEach(key => this.form.removeControl(key));
     this.perguntas.forEach(pergunta => {
       this.form.addControl(pergunta.id, this.fb.control('', Validators.required));
@@ -148,17 +148,17 @@ export default class ClubeLivroComponent implements OnInit {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       if (token) {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        usuarioIdReal = payload.id; 
+        usuarioIdReal = payload.id;
       }
     } catch (e) {
       console.error('Falha ao decodificar o token', e);
     }
 
     try {
-      const resMembros = await firstValueFrom(this.membroDoClubeService.membroClubeControllerFindAll());
+      const resMembros = await firstValueFrom(this.MembroClubeService.membroClubeControllerFindAll(this.clubeId!));
       const listaMembros = Array.isArray(resMembros) ? resMembros : (resMembros as any)?.data || (resMembros as any)?.items || [];
 
-      const minhaInscricao = listaMembros.find((m: any) => 
+      const minhaInscricao = listaMembros.find((m: any) =>
         (m.usuario?.id === usuarioIdReal || m.usuario_id === usuarioIdReal || m.usuario === usuarioIdReal) &&
         (m.clube?.id === this.clubeId || m.clube_id === this.clubeId || m.clube === this.clubeId)
       );
@@ -172,21 +172,21 @@ export default class ClubeLivroComponent implements OnInit {
 
       const idDaInscricao = minhaInscricao.id;
       const respostasFormulario = this.form.value;
-      const requisicoes: any[] = []; 
+      const requisicoes: any[] = [];
 
       Object.keys(respostasFormulario).forEach(perguntaId => {
         const payload = {
           membro_id: idDaInscricao,
           item_pergunta_id: respostasFormulario[perguntaId]
         } as any;
-        
+
         requisicoes.push(firstValueFrom(this.respostasService.respostaMembroControllerCreate(payload)));
       });
 
       await Promise.all(requisicoes);
       this.mensagemSucesso = 'Avaliação enviada com sucesso! Obrigado pelo seu feedback.';
       this.form.disable();
-      
+
     } catch (error) {
       this.mensagemErro = 'Ocorreu um erro ao processar a avaliação.';
       console.error('Erro de envio:', error);
@@ -223,11 +223,11 @@ export default class ClubeLivroComponent implements OnInit {
 
     this.estatisticas = itensDestaPergunta.map(item => {
       const votos = this.respostasMembros.filter(resposta => {
-        const respostaItemId = resposta.itemPergunta?.id 
-                            || resposta.item_pergunta?.id 
-                            || resposta.item_pergunta_id 
+        const respostaItemId = resposta.itemPergunta?.id
+                            || resposta.item_pergunta?.id
+                            || resposta.item_pergunta_id
                             || resposta.item_pergunta;
-                            
+
         return respostaItemId === item.id;
       }).length;
 

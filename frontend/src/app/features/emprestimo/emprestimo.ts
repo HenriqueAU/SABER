@@ -2,12 +2,12 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { Modal } from 'bootstrap';
-import { EmpréstimosService } from '../../../client/services/emprestimos.service';
+import { EmprestimosService } from '../../../client/services/emprestimos.service';
 import { ExemplaresService } from '../../../client/services/exemplares.service';
 import { CommonModule } from '@angular/common';
 import { LivrosService } from '../../../client/services/livros.service';
 import { RouterLink } from '@angular/router';
-import { UsuáriosService } from '../../../client/services/usuarios.service';
+import { UsuariosService } from '../../../client/services/usuarios.service';
 
 @Component({
   selector: 'app-emprestimo',
@@ -48,10 +48,10 @@ export default class EmprestimoComponent {
   termoPesquisa = '';
 
   constructor(
-    protected emprestimosService: EmpréstimosService,
+    protected emprestimosService: EmprestimosService,
     protected livrosService: LivrosService,
     protected exemplaresService: ExemplaresService,
-    protected usuariosService: UsuáriosService,
+    protected usuariosService: UsuariosService,
   ) {
     this.livros$ = this.livrosService.livroControllerFindAll();
 

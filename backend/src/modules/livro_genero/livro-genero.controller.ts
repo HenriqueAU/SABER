@@ -5,7 +5,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { TipoPerfil } from '../usuario/usuario.entity';
 
-@ApiTags('Livro Genero')
+@ApiTags('LivroGenero')
 @ApiBearerAuth()
 @Controller('livro-generos')
 export class LivroGeneroController {

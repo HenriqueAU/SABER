@@ -6,7 +6,7 @@ import {
   Patch,
   Param,
   Delete,
-  Query
+  Query,
 } from '@nestjs/common';
 import { MembroClubeService } from './membro-clube.service';
 import { CreateMembroClubeDto } from './dto/create-membro-clube.dto';
@@ -17,10 +17,10 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { Roles } from '../../common/decorators/roles.decorator'
-import { TipoPerfil } from '../usuario/usuario.entity'
+import { Roles } from '../../common/decorators/roles.decorator';
+import { TipoPerfil } from '../usuario/usuario.entity';
 
-@ApiTags('Membro do clube')
+@ApiTags('MembroClube')
 @ApiBearerAuth()
 @Controller('membro-clube')
 export class MembroClubeController {
@@ -41,7 +41,7 @@ export class MembroClubeController {
   })
   @Roles(TipoPerfil.PROFESSOR)
   @Get()
-  findAll(@Query('clube_id') clube_id: string,) {
+  findAll(@Query('clube_id') clube_id: string) {
     return this.membroClubeService.findAll(clube_id);
   }
 

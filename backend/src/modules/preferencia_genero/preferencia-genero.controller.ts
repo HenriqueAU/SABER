@@ -14,7 +14,7 @@ import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { TipoPerfil } from '../usuario/usuario.entity';
 
-@ApiTags('Preferencias Genero')
+@ApiTags('PreferenciasGenero')
 @ApiBearerAuth()
 @Controller('preferencias-genero')
 export class PreferenciaGeneroController {

@@ -1,4 +1,4 @@
-@if (estaLogado()) {
+@if (estaLogado() && !isRotaPublica) {
 <nav>
   <a routerLink="/home">Home</a>
   @if (perfil() === 'gestor') {

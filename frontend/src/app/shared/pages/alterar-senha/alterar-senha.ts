@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UsuáriosService } from '../../../../client/services/usuarios.service';
+import { UsuariosService } from '../../../../client/services/usuarios.service';
 import { CoreAuthService } from '../../../core/auth/auth-session';
 
 @Component({
@@ -18,7 +18,7 @@ export default class AlterarSenhaComponent {
   carregando: boolean = false;
 
   private fb = inject(FormBuilder);
-  private usuariosService = inject(UsuáriosService);
+  private usuariosService = inject(UsuariosService);
   private authSession = inject(CoreAuthService);
 
   constructor() {
@@ -36,7 +36,7 @@ export default class AlterarSenhaComponent {
     this.mensagemErro = '';
 
     const token = this.authSession.getToken();
-    
+
     if (!token) {
       this.mensagemErro = 'Utilizador não autenticado.';
       this.carregando = false;
