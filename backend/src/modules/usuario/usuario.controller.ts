@@ -38,10 +38,11 @@ export class UsuarioController {
   }
 
   @Get(':id')
-  @Roles(TipoPerfil.GESTOR)
   @ApiOperation({ summary: 'Buscar usuário por ID' })
-  findOne(@Param('id') id: string) {
-    return this.usuarioService.findOne(id);
+  findOne(@Param('id') id: string, @Req() request: RequestComUser) {
+    const usuarioLogadoId = request.user.id;
+    const perfilLogado = request.user.perfil;
+    return this.usuarioService.findOne(id, usuarioLogadoId, perfilLogado);
   }
 
   @Patch(':id')
@@ -52,13 +53,21 @@ export class UsuarioController {
     @Req() request: RequestComUser,
   ) {
     const usuarioLogadoId = request.user.id;
-    return this.usuarioService.update(id, usuarioLogadoId, updateUsuarioDto);
+    const perfilLogado = request.user.perfil;
+    return this.usuarioService.update(
+      id,
+      usuarioLogadoId,
+      perfilLogado,
+      updateUsuarioDto,
+    );
   }
 
   @Delete(':id')
   @Roles(TipoPerfil.GESTOR)
   @ApiOperation({ summary: 'Deletar usuário' })
-  remove(@Param('id') id: string) {
-    return this.usuarioService.remove(id);
+  remove(@Param('id') id: string, @Req() request: RequestComUser) {
+    const usuarioLogadoId = request.user.id;
+    const perfilLogado = request.user.perfil;
+    return this.usuarioService.remove(id, usuarioLogadoId, perfilLogado);
   }
 }

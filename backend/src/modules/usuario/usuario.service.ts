@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Usuario } from './usuario.entity';
+import { TipoPerfil, Usuario } from './usuario.entity';
 import { Repository } from 'typeorm';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -38,7 +38,23 @@ export class UsuarioService {
     }
   }
 
-  async findOne(id: string): Promise<Usuario> {
+  async findOne(
+    id: string,
+    usuarioLogadoId: string,
+    perfilLogado: TipoPerfil,
+  ): Promise<Usuario> {
+    if (perfilLogado !== TipoPerfil.GESTOR && usuarioLogadoId !== id) {
+      throw new ForbiddenException('Acesso negado');
+    }
+    const usuario = await this.usuarioRepository.findOne({
+      where: { id },
+      relations: ['instituicao'],
+    });
+    if (!usuario) throw new NotFoundException('Usuário não encontrado');
+    return usuario;
+  }
+
+  async findOneInterno(id: string): Promise<Usuario> {
     const usuario = await this.usuarioRepository.findOne({
       where: { id },
       relations: ['instituicao'],
@@ -78,12 +94,13 @@ export class UsuarioService {
   async update(
     id: string,
     usuarioLogadoId: string,
+    perfilLogado: TipoPerfil,
     updateUsuarioDto: UpdateUsuarioDto,
   ): Promise<Usuario> {
     if (usuarioLogadoId !== id) {
       throw new ForbiddenException('Você só pode atualizar o próprio perfil');
     }
-    const usuario = await this.findOne(id);
+    const usuario = await this.findOne(id, usuarioLogadoId, perfilLogado);
     const { senha, ...dadosUsuario } = updateUsuarioDto;
     if (senha) {
       const salt = await bcrypt.genSalt(10);
@@ -98,8 +115,8 @@ export class UsuarioService {
     return await this.usuarioRepository.save(usuario);
   }
 
-  async remove(id: string) {
-    const usuario = await this.findOne(id);
+  async remove(id: string, usuarioLogadoId: string, perfilLogado: TipoPerfil) {
+    const usuario = await this.findOne(id, usuarioLogadoId, perfilLogado);
     await this.usuarioRepository.remove(usuario);
   }
 }

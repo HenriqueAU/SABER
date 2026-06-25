@@ -88,7 +88,7 @@ export class ClubeService {
   }
 
   private async validarProfessor(professorId: string): Promise<Usuario> {
-    const professor = await this.usuarioService.findOne(professorId);
+    const professor = await this.usuarioService.findOneInterno(professorId);
 
     if (professor.perfil !== TipoPerfil.PROFESSOR) {
       throw new BadRequestException('Usuário não é professor');

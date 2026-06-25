@@ -1,4 +1,4 @@
 import { Component } from "@angular/core";
 
-@Component({template: ''})
+@Component({template: '', selector: 'app-usuario'})
 export default class UsuarioComponent{}

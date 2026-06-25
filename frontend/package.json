@@ -38,6 +38,7 @@
     "@angular/build": "^21.0.5",
     "@angular/cli": "^21.0.5",
     "@angular/compiler-cli": "^21.0.0",
+    "@types/bootstrap": "^5.2.11",
     "jsdom": "^27.1.0",
     "ng-openapi": "^0.2.21",
     "typescript": "~5.9.2",

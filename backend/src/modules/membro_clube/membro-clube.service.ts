@@ -89,7 +89,7 @@ export class MembroClubeService {
     await this.membroClubeRepository.remove(membroClube);
   }
   private async validarUsuario(usuario_id: string): Promise<Usuario> {
-    const usuario = await this.usuarioService.findOne(usuario_id);
+    const usuario = await this.usuarioService.findOneInterno(usuario_id);
     return usuario;
   }
 }

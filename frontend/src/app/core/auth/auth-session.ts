@@ -1,6 +1,5 @@
-import { inject, Injectable, signal } from "@angular/core";
+import { Injectable, signal } from "@angular/core";
 import { TipoPerfil } from "./tipo-perfil.enum";
-import { AuthService } from "../../../client/services/auth.service";
 
 @Injectable({
   providedIn: 'root'

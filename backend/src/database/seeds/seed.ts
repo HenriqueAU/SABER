@@ -159,7 +159,9 @@ async function seed(): Promise<void> {
     }),
   ]);
 
-  await exemplarRepo.update(exemplares[0].id, { status: StatusExemplar.EMPRESTADO });
+  await exemplarRepo.update(exemplares[0].id, {
+    status: StatusExemplar.EMPRESTADO,
+  });
 
   const clube = await clubeLivroRepo.save(
     clubeLivroRepo.create({
