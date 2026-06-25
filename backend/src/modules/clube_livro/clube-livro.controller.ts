@@ -21,7 +21,7 @@ import type { RequestComUser } from '../../common/interfaces/request-com-usuario
 import { Roles } from '../../common/decorators/roles.decorator';
 import { TipoPerfil } from '../usuario/usuario.entity';
 
-@ApiTags('clubes')
+@ApiTags('Clubes')
 @ApiBearerAuth()
 @Controller('clubes')
 export class ClubeController {

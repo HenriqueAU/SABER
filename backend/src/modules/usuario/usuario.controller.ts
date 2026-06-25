@@ -15,7 +15,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
 import { Public } from '../../common/decorators/public.decorator';
 
-@ApiTags('Usuários')
+@ApiTags('Usuarios')
 @ApiBearerAuth()
 @Controller('usuario')
 export class UsuarioController {

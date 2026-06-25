@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RespostaMembro } from './resposta-membro.entity';
@@ -7,7 +11,7 @@ import { MembroClube } from '../membro_clube/membro-clube.entity';
 import { ItemPergunta } from '../item_pergunta/item-pergunta.entity';
 import { MembroClubeService } from '../membro_clube/membro-clube.service';
 import { ItemPerguntaService } from '../item_pergunta/item-pergunta.service';
-import { TipoPerfil } from '../usuario/usuario.entity'
+import { TipoPerfil } from '../usuario/usuario.entity';
 
 @Injectable()
 export class RespostaMembroService {
@@ -19,17 +23,18 @@ export class RespostaMembroService {
   ) {}
 
   async create(
-    createRespostaMembroDto: CreateRespostaMembroDto, alunoLogadoId:string,
+    createRespostaMembroDto: CreateRespostaMembroDto,
+    alunoLogadoId: string,
   ): Promise<RespostaMembro> {
     const { membro_id, item_pergunta_id, ...dadosRespostaMembro } =
       createRespostaMembroDto;
 
     const membro = await this.validarMembroClube(membro_id);
 
-    if(membro.usuario.id != alunoLogadoId){
+    if (membro.usuario.id != alunoLogadoId) {
       throw new ForbiddenException(
         'Você só pode responder utilizando a sua própria participação no clube',
-      )
+      );
     }
 
     await this.validarItemPergunta(item_pergunta_id);
@@ -43,14 +48,19 @@ export class RespostaMembroService {
     return await this.respostaMembroRepository.save(novaRespostaMembro);
   }
 
-   async findAll(
+  async findAll(
     usuarioLogadoId: string,
     perfilLogado: TipoPerfil,
   ): Promise<RespostaMembro[]> {
     if (perfilLogado === TipoPerfil.PROFESSOR) {
       return await this.respostaMembroRepository.find({
         where: { membro: { clube: { professor: { id: usuarioLogadoId } } } },
-        relations: ['membro', 'membro.clube', 'membro.clube.professor', 'itemPergunta'],
+        relations: [
+          'membro',
+          'membro.clube',
+          'membro.clube.professor',
+          'itemPergunta',
+        ],
       });
     }
 
@@ -60,41 +70,37 @@ export class RespostaMembroService {
     });
   }
 
-  async findOne(id: string, usuarioLogadoId: string, perfilLogado: TipoPerfil): Promise<RespostaMembro> {
+  async findOne(
+    id: string,
+    usuarioLogadoId: string,
+    perfilLogado: TipoPerfil,
+  ): Promise<RespostaMembro> {
     const respostaMembro = await this.respostaMembroRepository.findOne({
       where: { id },
-      relations: ['membro','membro.usuario', 'membro.clube', 'membro.clube.professor', 'itemPergunta'],
+      relations: [
+        'membro',
+        'membro.usuario',
+        'membro.clube',
+        'membro.clube.professor',
+        'itemPergunta',
+      ],
     });
 
     if (!respostaMembro) {
       throw new NotFoundException('Resposta do Membro não encontrada');
     }
-    if(perfilLogado === TipoPerfil.PROFESSOR){
-      if(respostaMembro.membro.clube.professor.id !== usuarioLogadoId){
+    if (perfilLogado === TipoPerfil.PROFESSOR) {
+      if (respostaMembro.membro.clube.professor.id !== usuarioLogadoId) {
         throw new ForbiddenException(
           'Apenas o professor responsavel pelo clube pode ver esta resposta',
         );
       }
-    }else{
-      if(respostaMembro.membro.usuario.id !== usuarioLogadoId){
+    } else {
+      if (respostaMembro.membro.usuario.id !== usuarioLogadoId) {
         throw new ForbiddenException(
-          'Você só pode ver as suas próprias respostas'
-        )
+          'Você só pode ver as suas próprias respostas',
+        );
       }
-    }
-    return respostaMembro;
-  }
-  async remove(id: string): Promise<void> {
-    const respostaMembro = await this.findOneSemFiltro(id);
-    await this.respostaMembroRepository.remove(respostaMembro);
-  }
-  private async findOneSemFiltro(id: string): Promise<RespostaMembro>{
-    const respostaMembro = await this.respostaMembroRepository.findOne({
-      where: { id },
-      relations: ['membro', 'itemPergunta'],
-    });
-    if(!respostaMembro){
-      throw new NotFoundException('Resposta do Membro não encontra');
     }
     return respostaMembro;
   }

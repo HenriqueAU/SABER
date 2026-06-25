@@ -12,7 +12,7 @@ import { InstituicaoService } from './instituicao.service';
 import { UpdateInstituicaoDto } from './dto/update-instituicao.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('Instituição')
+@ApiTags('Instituicao')
 @ApiBearerAuth()
 @Controller('instituicao')
 export class InstituicaoController {

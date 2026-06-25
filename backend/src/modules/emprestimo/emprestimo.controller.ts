@@ -30,7 +30,7 @@ export class EmprestimoController {
   }
 
   @Get()
-  @Roles()
+  @Roles(TipoPerfil.BIBLIOTECARIO, TipoPerfil.ALUNO)
   @ApiOperation({ summary: 'Obter todos os empréstimos' })
   findAll(@Req() request: RequestComUser) {
     const instituicao_id = request.user.instituicao;
@@ -44,7 +44,7 @@ export class EmprestimoController {
   }
 
   @Get(':id')
-  @Roles()
+  @Roles(TipoPerfil.BIBLIOTECARIO, TipoPerfil.ALUNO)
   @ApiOperation({ summary: 'Obter um empréstimo específico pelo ID' })
   findOne(@Param('id') id: string, @Req() request: RequestComUser) {
     return this.emprestimoService.findOne(
