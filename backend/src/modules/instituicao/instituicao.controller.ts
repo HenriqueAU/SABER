@@ -1,16 +1,11 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
 import { CreateInstituicaoDto } from './dto/create-instituicao.dto';
 import { InstituicaoService } from './instituicao.service';
 import { UpdateInstituicaoDto } from './dto/update-instituicao.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { TipoPerfil } from '../usuario/usuario.entity';
+import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
 
 @ApiTags('Instituicao')
 @ApiBearerAuth()
@@ -20,34 +15,40 @@ export class InstituicaoController {
 
   @ApiOperation({ summary: 'Cria uma nova instituição' })
   @Post()
+  @Roles(TipoPerfil.GESTOR)
   create(@Body() createInstituicaoDto: CreateInstituicaoDto) {
     return this.instituicaoService.create(createInstituicaoDto);
   }
 
   @ApiOperation({ summary: 'Busca todas as instituições' })
   @Get()
-  findAll() {
-    return this.instituicaoService.findAll();
+  @Roles(TipoPerfil.GESTOR)
+  findAll(@Req() request: RequestComUser) {
+    const instituicaoUsuarioId = request.user.instituicao;
+    return this.instituicaoService.findAll(instituicaoUsuarioId);
   }
 
   @ApiOperation({ summary: 'Busca instituição por Id' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.instituicaoService.findOne(id);
+  @Roles(TipoPerfil.GESTOR)
+  findOne(@Param('id') id: string, @Req() request: RequestComUser) {
+    const instituicaoUsuarioId = request.user.instituicao;
+    return this.instituicaoService.findOne(id, instituicaoUsuarioId);
   }
 
   @ApiOperation({ summary: 'Atualiza as informações da instituição' })
   @Patch(':id')
+  @Roles(TipoPerfil.GESTOR)
   update(
     @Param('id') id: string,
     @Body() updateInstituicaoDto: UpdateInstituicaoDto,
+    @Req() request: RequestComUser,
   ) {
-    return this.instituicaoService.update(id, updateInstituicaoDto);
-  }
-
-  @ApiOperation({ summary: 'Remove uma instituição' })
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.instituicaoService.remove(id);
+    const instituicaoUsuarioId = request.user.instituicao;
+    return this.instituicaoService.update(
+      id,
+      instituicaoUsuarioId,
+      updateInstituicaoDto,
+    );
   }
 }

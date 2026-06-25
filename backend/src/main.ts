@@ -12,7 +12,7 @@ async function bootstrap() {
   });
   const documentBuilder = new DocumentBuilder()
     .setTitle('SABER API')
-    .setDescription('DocumentaçÃo da api do app SABER')
+    .setDescription('Documentação da api do app SABER')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

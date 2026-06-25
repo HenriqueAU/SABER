@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Instituicao } from './instituicao.entity';
 import { Repository } from 'typeorm';
@@ -19,7 +23,15 @@ export class InstituicaoService {
     return await this.instituicaoRepository.save(instituicao);
   }
 
-  async findOne(id: string): Promise<Instituicao> {
+  async findOne(
+    id: string,
+    instituicaoUsuarioId: string,
+  ): Promise<Instituicao> {
+    if (instituicaoUsuarioId !== id) {
+      throw new ForbiddenException(
+        'Acesso negado: você não pertence a esta instituição',
+      );
+    }
     const instituicao = await this.instituicaoRepository.findOne({
       where: { id },
     });
@@ -27,21 +39,19 @@ export class InstituicaoService {
     return instituicao;
   }
 
-  async findAll(): Promise<Instituicao[]> {
-    return await this.instituicaoRepository.find();
+  async findAll(instituicaoUsuarioId: string): Promise<Instituicao[]> {
+    return await this.instituicaoRepository.find({
+      where: { id: instituicaoUsuarioId },
+    });
   }
 
   async update(
     id: string,
+    instituicaoUsuarioId: string,
     updateInstituicaoDto: UpdateInstituicaoDto,
   ): Promise<Instituicao> {
-    const instituicao = await this.findOne(id);
+    const instituicao = await this.findOne(id, instituicaoUsuarioId);
     this.instituicaoRepository.merge(instituicao, updateInstituicaoDto);
     return await this.instituicaoRepository.save(instituicao);
-  }
-
-  async remove(id: string): Promise<void> {
-    const instituicao = await this.findOne(id);
-    await this.instituicaoRepository.remove(instituicao);
   }
 }

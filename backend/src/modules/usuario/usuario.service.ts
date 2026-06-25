@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -76,8 +77,12 @@ export class UsuarioService {
 
   async update(
     id: string,
+    usuarioLogadoId: string,
     updateUsuarioDto: UpdateUsuarioDto,
   ): Promise<Usuario> {
+    if (usuarioLogadoId !== id) {
+      throw new ForbiddenException('Você só pode atualizar o próprio perfil');
+    }
     const usuario = await this.findOne(id);
     const { senha, ...dadosUsuario } = updateUsuarioDto;
     if (senha) {
