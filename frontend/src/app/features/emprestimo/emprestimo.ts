@@ -15,7 +15,6 @@ import { UsuariosService } from '../../../client/services/usuarios.service';
   styleUrl: './emprestimo.css',
 })
 export default class EmprestimoComponent implements OnInit {
-
   protected emprestimosService = inject(EmprestimosService);
   protected livrosService = inject(LivrosService);
   protected exemplaresService = inject(ExemplaresService);

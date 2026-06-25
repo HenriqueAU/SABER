@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { CoreAuthService } from '../../../core/auth/auth-session';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from "@angular/router";
-import { Observable, forkJoin } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { UsuariosService } from '../../../../client/services/usuarios.service';
 import { Location, CommonModule } from '@angular/common';
 import { PreferenciasGeneroService } from '../../../../client/services/preferenciasGenero.service';
@@ -15,7 +15,13 @@ import { Modal } from 'bootstrap';
   templateUrl: './perfil.html',
   styleUrl: './perfil.css',
 })
-export default class PerfilComponent {
+export default class PerfilComponent implements OnInit{
+  private coreAuthService = inject(CoreAuthService);
+  protected usuariosService = inject(UsuariosService);
+  protected preferenciasGeneroService = inject(PreferenciasGeneroService);
+  protected generosService = inject(GenerosService);
+  protected router = inject(Router);
+  private location = inject(Location);
 
   usuarioId!: string;
 
@@ -26,69 +32,53 @@ export default class PerfilComponent {
       validators: []
     }),
 
-    email: new FormControl('', {
-      validators: []
-    }),
+    email: new FormControl({ value: '', disabled: true }),
 
     foto_perfil: new FormControl('', {
       validators: []
     }),
   });
 
-  generos$?: Observable<any>;
+  @ViewChild('successModal')
+  successModalRef!: ElementRef;
+
+  generos$? = this.generosService.generoControllerFindAll();
 
   preferenciasOriginais: any[] = [];
 
   generosSelecionados: string[] = [];
 
-  constructor(
-    private coreAuthService: CoreAuthService,
-    protected usuariosService: UsuariosService,
-    protected preferenciasGeneroService: PreferenciasGeneroService,
-    protected generosService: GenerosService,
-    protected router: Router,
-    private location: Location,
-  ) {
-    const token = this.coreAuthService.getToken();
+  ngOnInit() {
+    this.usuarioId = this.coreAuthService.getId();
+    this.tipoPerfil = this.coreAuthService.getPerfil();
 
-    if (token) {
-      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-      const payload = JSON.parse(atob(base64));
+    this.usuariosService.usuarioControllerFindOne(this.usuarioId).subscribe(usuario => {
+      this.userForm.patchValue(usuario);
+    })
 
-      this.usuarioId = payload.id;
-      this.tipoPerfil = this.coreAuthService.getPerfil();
-
-      this.usuariosService.usuarioControllerFindOne(this.usuarioId).subscribe(usuario => {
-        this.userForm.patchValue(usuario);
-      })
-
-      if (this.tipoPerfil !== 'aluno') {
-        return;
-      }
-
-      this.generos$ = this.generosService.generoControllerFindAll();
-
-      this.preferenciasGeneroService
-        .preferenciaGeneroControllerFindAll()
-        .subscribe(data => {
-          this.preferenciasOriginais = data
-            .filter((pref: any) => pref.usuario.id === this.usuarioId);
-
-          this.generosSelecionados = this.preferenciasOriginais.map(
-            (pref: any) => pref.genero.id
-          );
-        });
-    }
-  }
-
-  private abrirModalSucesso() {
-    const modalElement = document.getElementById('successModal');
-
-    if (!modalElement) {
+    if (this.tipoPerfil !== 'aluno') {
       return;
     }
 
-    const modal = new Modal(modalElement);
+    this.preferenciasGeneroService
+      .preferenciaGeneroControllerFindAll()
+      .subscribe(data => {
+        this.preferenciasOriginais = data;
+
+        this.generosSelecionados = this.preferenciasOriginais.map(
+          (pref: any) => pref.genero.id
+        );
+      });
+  }
+
+  private abrirModalSucesso() {
+    const successModalElement = this.successModalRef.nativeElement;
+
+    if (!successModalElement) {
+      return;
+    }
+
+    const modal = new Modal(successModalElement);
     modal.show();
   }
 
@@ -96,9 +86,7 @@ export default class PerfilComponent {
     this.preferenciasGeneroService
       .preferenciaGeneroControllerFindAll()
       .subscribe(data => {
-        this.preferenciasOriginais = data.filter(
-          (pref: any) => pref.usuario.id === this.usuarioId
-        );
+        this.preferenciasOriginais = data;
 
         this.generosSelecionados = this.preferenciasOriginais.map(
           (pref: any) => pref.genero.id
