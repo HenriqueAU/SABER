@@ -13,33 +13,49 @@ import { CreateEmprestimoDto } from './dto/create-emprestimo.dto';
 import { UpdateEmprestimoDto } from './dto/update-emprestimo.dto';
 import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { TipoPerfil } from '../usuario/usuario.entity';
 
-@ApiTags('Empréstimos')
+@ApiTags('Emprestimos')
 @ApiBearerAuth()
 @Controller('emprestimos')
 export class EmprestimoController {
   constructor(private readonly emprestimoService: EmprestimoService) {}
 
   @Post()
+  @Roles(TipoPerfil.BIBLIOTECARIO)
   @ApiOperation({ summary: 'Criar um novo empréstimo' })
   create(@Body() createEmprestimoDto: CreateEmprestimoDto) {
     return this.emprestimoService.create(createEmprestimoDto);
   }
 
   @Get()
+  @Roles()
   @ApiOperation({ summary: 'Obter todos os empréstimos' })
   findAll(@Req() request: RequestComUser) {
     const instituicao_id = request.user.instituicao;
-    return this.emprestimoService.findAll(instituicao_id);
+    const perfilLogado = request.user.perfil;
+    const usuarioToken = request.user.id;
+    return this.emprestimoService.findAll(
+      instituicao_id,
+      perfilLogado,
+      usuarioToken,
+    );
   }
 
   @Get(':id')
+  @Roles()
   @ApiOperation({ summary: 'Obter um empréstimo específico pelo ID' })
-  findOne(@Param('id') id: string) {
-    return this.emprestimoService.findOne(id);
+  findOne(@Param('id') id: string, @Req() request: RequestComUser) {
+    return this.emprestimoService.findOne(
+      id,
+      request.user.perfil,
+      request.user.id,
+    );
   }
 
   @Patch(':id')
+  @Roles(TipoPerfil.BIBLIOTECARIO)
   @ApiOperation({ summary: 'Atualizar um empréstimo existente' })
   update(
     @Param('id') id: string,
@@ -49,6 +65,7 @@ export class EmprestimoController {
   }
 
   @Delete(':id')
+  @Roles(TipoPerfil.BIBLIOTECARIO)
   @ApiOperation({ summary: 'Excluir um empréstimo' })
   remove(@Param('id') id: string) {
     return this.emprestimoService.remove(id);

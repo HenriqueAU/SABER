@@ -26,15 +26,25 @@ export class PreferenciaGeneroService {
     return await this.preferenciaGeneroRepository.save(preferencia_genero);
   }
 
-  async findAll(): Promise<PreferenciaGenero[]> {
+  async findAll(usuarioId: string): Promise<PreferenciaGenero[]> {
     return await this.preferenciaGeneroRepository.find({
+      where: {
+        usuario: {
+          id: usuarioId,
+        },
+      },
       relations: ['usuario', 'genero'],
     });
   }
 
-  async findOne(id: string): Promise<PreferenciaGenero> {
+  async findOne(id: string, usuarioId: string): Promise<PreferenciaGenero> {
     const preferencia_genero = await this.preferenciaGeneroRepository.findOne({
-      where: { id },
+      where: {
+        id,
+        usuario: {
+          id: usuarioId,
+        },
+      },
       relations: ['usuario', 'genero'],
     });
     if (!preferencia_genero)
@@ -42,8 +52,8 @@ export class PreferenciaGeneroService {
     return preferencia_genero;
   }
 
-  async remove(id: string): Promise<void> {
-    const preferencia_genero = await this.findOne(id);
+  async remove(id: string, usuarioId: string): Promise<void> {
+    const preferencia_genero = await this.findOne(id, usuarioId);
     await this.preferenciaGeneroRepository.remove(preferencia_genero);
   }
 }
