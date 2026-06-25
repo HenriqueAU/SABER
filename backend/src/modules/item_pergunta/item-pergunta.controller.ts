@@ -16,8 +16,9 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { Roles } from'../../common/decorators/roles.decorator'
 
-@ApiTags('Item da pergunta')
+@ApiTags('item-da-pergunta')
 @ApiBearerAuth()
 @Controller('item-pergunta')
 export class ItemPerguntaController {
@@ -28,6 +29,7 @@ export class ItemPerguntaController {
     status: 201,
     description: 'Item da Pergunta criado com sucesso',
   })
+  @Roles()
   @Post()
   create(@Body() createItemPerguntaDto: CreateItemPerguntaDto) {
     return this.itemPerguntaService.create(createItemPerguntaDto);
@@ -57,6 +59,7 @@ export class ItemPerguntaController {
     description: 'Atualização realizada com sucesso',
   })
   @ApiResponse({ status: 404, description: 'Item não encontrado' })
+  @Roles()
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -68,6 +71,7 @@ export class ItemPerguntaController {
   @ApiOperation({ summary: 'Remove um item' })
   @ApiResponse({ status: 200, description: 'item removido com sucesso' })
   @ApiResponse({ status: 404, description: 'Item não encontrado' })
+  @Roles()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.itemPerguntaService.remove(id);
