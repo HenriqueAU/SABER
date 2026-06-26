@@ -12,7 +12,7 @@ export class Notificacao {
   @Column('text')
   mensagem!: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   data!: Date;
 
   @Column({ default: false })
