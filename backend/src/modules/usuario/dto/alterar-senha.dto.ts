@@ -10,6 +10,6 @@ export class AlterarSenhaDto {
   @ApiProperty({ description: 'Nova senha desejada' })
   @IsString()
   @IsNotEmpty()
-  @MinLength(6)
+  @MinLength(8)
   nova_senha!: string;
 }
