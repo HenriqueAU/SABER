@@ -1,4 +1,11 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+  MaxLength,
+} from 'class-validator';
 import { TipoInstituicao } from '../instituicao.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -8,9 +15,13 @@ export class CreateInstituicaoDto {
     example: 'Escola Estadual Exemplo',
   })
   @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(150)
   nome!: string;
 
   @ApiProperty({ description: 'Tipo de instituição', enum: TipoInstituicao })
+  @IsNotEmpty()
   @IsEnum(TipoInstituicao)
   tipo!: TipoInstituicao;
 
@@ -20,6 +31,8 @@ export class CreateInstituicaoDto {
   })
   @IsString()
   @IsOptional()
+  @MinLength(2)
+  @MaxLength(100)
   cidade?: string;
 
   @ApiProperty({
@@ -28,5 +41,7 @@ export class CreateInstituicaoDto {
   })
   @IsString()
   @IsOptional()
+  @MinLength(2)
+  @MaxLength(50)
   estado?: string;
 }
