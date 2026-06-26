@@ -1,4 +1,5 @@
 <div
+  #exemplaresModal
   class="modal fade"
   id="exemplaresModal"
   tabindex="-1">
@@ -67,7 +68,7 @@
     </div>
   </div>
 </div>
-<div class="modal fade" id="emprestimoModal" tabindex="-1" aria-labelledby="emprestimoModalLabel" aria-hidden="true">
+<div #emprestimoModal class="modal fade" id="emprestimoModal" tabindex="-1" aria-labelledby="emprestimoModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header bg-light">
@@ -139,7 +140,6 @@
               </div>
             }
 
-
             <div class="form-text">Pesquise por nome completo ou número de registro acadêmico.</div>
           </div>
 
@@ -176,7 +176,7 @@
   </div>
 </div>
 
-<div class="modal fade" id="successModal" tabindex="-1"
+<div #successModal class="modal fade" id="successModal" tabindex="-1"
   aria-labelledby="successModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content bg-success-subtle">
@@ -186,6 +186,24 @@
       </div>
       <div class="modal-body">
         Empréstimo realizado com sucesso!
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div #errorModal class="modal fade" id="errorModal" tabindex="-1"
+  aria-labelledby="errorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-danger-subtle">
+      <div class="modal-header bg-danger text-white">
+        <h1 class="modal-title fs-5" id="errorModalLabel">Erro</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Erro ao realizar empréstimo.
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>

@@ -1,6 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Observable } from 'rxjs';
 import { Modal } from 'bootstrap';
 import { EmprestimosService } from '../../../client/services/emprestimos.service';
 import { ExemplaresService } from '../../../client/services/exemplares.service';
@@ -15,7 +14,12 @@ import { UsuariosService } from '../../../client/services/usuarios.service';
   templateUrl: './emprestimo.html',
   styleUrl: './emprestimo.css',
 })
-export default class EmprestimoComponent {
+export default class EmprestimoComponent implements OnInit {
+  protected emprestimosService = inject(EmprestimosService);
+  protected livrosService = inject(LivrosService);
+  protected exemplaresService = inject(ExemplaresService);
+  protected usuariosService = inject(UsuariosService);
+
   emprestimoForm = new FormGroup({
 
     nome_aluno: new FormControl('', {
@@ -26,16 +30,25 @@ export default class EmprestimoComponent {
       validators: []
     }),
 
-    data_retirada: new FormControl('', {
-      validators: []
-    }),
-
-    data_devolucao_esperada: new FormControl('', {
+    data_devolucao_esperada: new FormControl(
+      this.getDataPadraoDevolucao(), {
       validators: []
     }),
   });
 
-  livros$: Observable<any>;
+  @ViewChild('emprestimoModal')
+  emprestimoModalRef!: ElementRef;
+
+  @ViewChild('exemplaresModal')
+  exemplaresModalRef!: ElementRef;
+
+  @ViewChild('successModal')
+  successModalRef!: ElementRef;
+
+  @ViewChild('errorModal')
+  errorModalRef!: ElementRef;
+
+  livros$ = this.livrosService.livroControllerFindAll();
   livroSelecionado: any = null;
 
   exemplares: any[] = [];
@@ -47,14 +60,7 @@ export default class EmprestimoComponent {
 
   termoPesquisa = '';
 
-  constructor(
-    protected emprestimosService: EmprestimosService,
-    protected livrosService: LivrosService,
-    protected exemplaresService: ExemplaresService,
-    protected usuariosService: UsuariosService,
-  ) {
-    this.livros$ = this.livrosService.livroControllerFindAll();
-
+  ngOnInit(): void {
     this.exemplaresService
       .exemplarControllerFindAll()
       .subscribe(data => {
@@ -74,7 +80,7 @@ export default class EmprestimoComponent {
     this.livroSelecionado = livro;
 
     const modal = new Modal(
-      document.getElementById('exemplaresModal')!
+      this.exemplaresModalRef.nativeElement
     );
 
     modal.show();
@@ -85,13 +91,13 @@ export default class EmprestimoComponent {
 
     const exemplaresModal =
       Modal.getInstance(
-        document.getElementById('exemplaresModal')!
+        this.exemplaresModalRef.nativeElement
       );
 
     exemplaresModal?.hide();
 
     const emprestimoModal = new Modal(
-      document.getElementById('emprestimoModal')!
+      this.emprestimoModalRef.nativeElement
     );
 
     emprestimoModal.show();
@@ -108,13 +114,24 @@ export default class EmprestimoComponent {
   }
 
   private abrirModalSucesso() {
-    const successModalElement = document.getElementById('successModal');
+    const successModalElement = this.successModalRef.nativeElement;
 
     if (!successModalElement) {
       return;
     }
 
     const modal = new Modal(successModalElement);
+    modal.show();
+  }
+
+  private abrirModalErro() {
+    const errorModalElement = this.errorModalRef.nativeElement;
+
+    if (!errorModalElement) {
+      return;
+    }
+
+    const modal = new Modal(errorModalElement);
     modal.show();
   }
 
@@ -134,22 +151,27 @@ export default class EmprestimoComponent {
 
   }
 
-filtrarAlunos() {
-  const termo =
-    this.emprestimoForm.get('nome_aluno')?.value
-      ?.toLowerCase() || '';
+  filtrarAlunos() {
+    const termo =
+      this.emprestimoForm.get('nome_aluno')?.value
+        ?.toLowerCase() || '';
 
-  if (!termo) {
-    this.alunosFiltrados = [];
-    return;
+    if (!termo) {
+      this.alunosFiltrados = [];
+      return;
+    }
+
+    this.alunosFiltrados =
+      this.alunos.filter((aluno: any) =>
+        aluno.nome.toLowerCase().includes(termo)
+      );
   }
 
-  this.alunosFiltrados =
-    this.alunos.filter((aluno: any) =>
-      aluno.nome.toLowerCase().includes(termo)
-    );
-
-}
+  getDataPadraoDevolucao(): string {
+    const data = new Date();
+    data.setDate(data.getDate() + 14);
+    return data.toISOString().split('T')[0];
+  }
 
   getExemplaresLivro(livroId: string) {
     return this.exemplares.filter(
@@ -220,16 +242,27 @@ filtrarAlunos() {
 
     this.emprestimosService
       .emprestimoControllerCreate(payload as any)
-      .subscribe(() => {
+      .subscribe({
+        next: () => {
+          const emprestimoModal =
+            Modal.getInstance(
+              this.emprestimoModalRef.nativeElement
+            );
 
-        const emprestimoModal =
-          Modal.getInstance(
-            document.getElementById('emprestimoModal')!
-          );
+          emprestimoModal?.hide();
 
-        emprestimoModal?.hide();
+          this.abrirModalSucesso();
+        },
+        error: err => {
+          const emprestimoModal =
+            Modal.getInstance(
+              this.emprestimoModalRef.nativeElement
+            );
 
-        this.abrirModalSucesso();
+          emprestimoModal?.hide();
+
+          this.abrirModalErro();
+        }
 
       });
 
