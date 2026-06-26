@@ -2,7 +2,7 @@ import { Component, Input, OnInit, OnChanges, SimpleChanges, inject, ChangeDetec
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GenerosService } from '../../../../client/services/generos.service';
-import { LivroGeneroService, LivroGenero } from './livro-genero.service';
+import { LivroGeneroService } from './livro-genero.service';
 
 interface Genero {
   id: string;
@@ -43,7 +43,6 @@ export default class GenerosComponent implements OnInit, OnChanges {
 
       this.cdr.detectChanges();
     },
-    error: (err) => console.error('Erro ao carregar gêneros', err)
   });
 }
 
@@ -71,16 +70,13 @@ export default class GenerosComponent implements OnInit, OnChanges {
 
   this.cdr.detectChanges();
 },
-      error: (err) => console.error('Erro ao carregar vínculos', err)
     });
   }
 
   vincular() {
     if (!this.generoSelecionadoId) return;
 
-    // check se já está vinculado
     if (this.generosVinculados.some(g => g.genero.id === this.generoSelecionadoId)) {
-      alert('Gênero já vinculado a este livro.');
       return;
     }
 
@@ -89,14 +85,12 @@ export default class GenerosComponent implements OnInit, OnChanges {
         this.generoSelecionadoId = '';
         this.carregarVinculos();
       },
-      error: (err) => console.error('Erro ao vincular', err)
     });
   }
 
   desvincular(relacaoId: string) {
     this.livroGeneroService.desvincular(relacaoId).subscribe({
       next: () => this.carregarVinculos(),
-      error: (err) => console.error('Erro ao desvincular', err)
     });
   }
 }

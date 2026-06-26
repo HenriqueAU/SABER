@@ -1,60 +1,68 @@
 <div class="bg-light min-vh-100 p-4 p-md-5">
   <div class="container" style="max-width: 1100px;">
-    <!-- Header -->
+    
     <div class="d-flex justify-content-between align-items-center mb-5">
       <h1 class="fw-light text-dark mb-0">Acervo de Livros</h1>
-      <ng-container *ngIf="isBibliotecario">
+      @if (isBibliotecario) {
         <button (click)="abrirFormCadastro()" class="btn btn-primary fw-medium shadow-sm">
           + Cadastrar Livro
         </button>
-      </ng-container>
+      }
     </div>
 
-    
     <div class="row g-4">
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let livro of livros; trackBy: trackById">
-        <div class="card h-100 shadow-sm border-0 overflow-hidden" style="cursor: pointer;" (click)="abrirDetalhes(livro)">
+      @for (livro of livros; track livro.id) {
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+          <div class="card h-100 shadow-sm border-0 overflow-hidden" style="cursor: pointer;" (click)="abrirDetalhes(livro)">
 
-          
-          <div class="position-relative bg-light border-bottom" style="aspect-ratio: 2/3; overflow: hidden;">
-            <img *ngIf="livro.capa_url" [src]="livro.capa_url" [alt]="livro.titulo" class="w-100 h-100" style="object-fit: cover;">
-            <div *ngIf="!livro.capa_url" class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center text-secondary bg-light">
-              <svg class="mb-2 opacity-50" width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-              <span class="text-uppercase fw-semibold" style="font-size: 10px; letter-spacing: 0.05em;">Sem capa</span>
-            </div>
-          </div>
-
-         
-          <div class="card-body d-flex flex-column">
-            <h3 class="fs-6 fw-bold text-dark mb-1 text-truncate-2" [title]="livro.titulo">{{ livro.titulo }}</h3>
-            <p class="text-secondary small text-truncate mb-2" [title]="livro.autor">{{ livro.autor }}</p>
-
-            <div class="d-flex flex-wrap gap-1 mb-2" *ngIf="generosPorLivro[livro.id]?.length">
-              <span *ngFor="let nome of generosPorLivro[livro.id]" class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle" style="font-size: 0.7rem;">
-                {{ nome }}
-              </span>
+            <div class="position-relative bg-light border-bottom" style="aspect-ratio: 2/3; overflow: hidden;">
+              @if (livro.capa_url) {
+                <img [src]="livro.capa_url" [alt]="livro.titulo" class="w-100 h-100" style="object-fit: cover;">
+              } @else {
+                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center text-secondary bg-light">
+                  <svg class="mb-2 opacity-50" width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                  <span class="text-uppercase fw-semibold" style="font-size: 10px; letter-spacing: 0.05em;">Sem capa</span>
+                </div>
+              }
             </div>
 
-            <div class="mt-auto pt-3" *ngIf="isBibliotecario">
-              <button (click)="abrirFormEdicao(livro); $event.stopPropagation()" class="btn btn-outline-primary btn-sm w-100">
-                Editar livro
-              </button>
+            <div class="card-body d-flex flex-column">
+              <h3 class="fs-6 fw-bold text-dark mb-1 text-truncate-2" [title]="livro.titulo">{{ livro.titulo }}</h3>
+              <p class="text-secondary small text-truncate mb-2" [title]="livro.autor">{{ livro.autor }}</p>
+
+              @if (generosPorLivro[livro.id]?.length) {
+                <div class="d-flex flex-wrap gap-1 mb-2">
+                  @for (nome of generosPorLivro[livro.id]; track nome) {
+                    <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle" style="font-size: 0.7rem;">
+                      {{ nome }}
+                    </span>
+                  }
+                </div>
+              }
+
+              @if (isBibliotecario) {
+                <div class="mt-auto pt-3">
+                  <button (click)="abrirFormEdicao(livro); $event.stopPropagation()" class="btn btn-outline-primary btn-sm w-100">
+                    Editar livro
+                  </button>
+                </div>
+              }
             </div>
           </div>
         </div>
-      </div>
+      }
     </div>
 
-   
-    <div *ngIf="livros.length === 0" class="card shadow-sm border-0 text-center p-5">
-      <svg class="text-secondary opacity-25 mx-auto mb-3" width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-      <h3 class="fs-5 fw-medium text-dark mb-1">Acervo Vazio</h3>
-      <p class="text-secondary mb-0">Nenhum livro foi cadastrado ainda.</p>
-    </div>
+    @if (livros.length === 0) {
+      <div class="card shadow-sm border-0 text-center p-5">
+        <svg class="text-secondary opacity-25 mx-auto mb-3" width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        <h3 class="fs-5 fw-medium text-dark mb-1">Acervo Vazio</h3>
+        <p class="text-secondary mb-0">Nenhum livro foi cadastrado ainda.</p>
+      </div>
+    }
   </div>
 
-  
-  <ng-container *ngIf="mostrarForm">
+  @if (mostrarForm) {
     <div class="modal d-block" style="background: rgba(17,24,39,0.4); backdrop-filter: blur(2px);" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 shadow-lg">
@@ -115,47 +123,44 @@
                 <textarea formControlName="sinopse" rows="3" class="form-control" placeholder="Breve resumo do livro..."></textarea>
               </div>
 
-              <ng-container *ngIf="isBibliotecario">
-                <div *ngIf="livroSelecionado">
+              @if (isBibliotecario) {
+                @if (livroSelecionado) {
                   <app-generos [livroId]="livroSelecionado.id"></app-generos>
-                </div>
-                <div *ngIf="!livroSelecionado" class="alert alert-info d-flex align-items-start gap-2 small">
-                  <svg class="flex-shrink-0" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                  <span>Salve o livro primeiro para poder associar gêneros literários a ele.</span>
-                </div>
-              </ng-container>
+                } @else {
+                  <div class="alert alert-info d-flex align-items-start gap-2 small">
+                    <svg class="flex-shrink-0" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Salve o livro primeiro para poder associar gêneros literários a ele.</span>
+                  </div>
+                }
+              }
             </div>
 
             <div class="modal-footer border-top">
-              <button type="button" (click)="fecharForm()" class="btn btn-light btn-sm">
-                Cancelar
-              </button>
-              <button type="submit" [disabled]="livroForm.invalid" class="btn btn-primary btn-sm shadow-sm">
-                Salvar
-              </button>
+              <button type="button" (click)="fecharForm()" class="btn btn-light btn-sm">Cancelar</button>
+              <button type="submit" [disabled]="livroForm.invalid" class="btn btn-primary btn-sm shadow-sm">Salvar</button>
             </div>
           </form>
         </div>
       </div>
     </div>
-  </ng-container>
+  }
 
-
-  <ng-container *ngIf="livroDetalhes">
+  @if (livroDetalhes) {
     <div class="modal d-block" style="background: rgba(17,24,39,0.6); backdrop-filter: blur(2px);" tabindex="-1" (click)="fecharDetalhes()">
       <div class="modal-dialog modal-dialog-centered modal-xl" (click)="$event.stopPropagation()">
         <div class="modal-content rounded-4 shadow-lg flex-row overflow-hidden" style="max-height: 92vh; min-height: 70vh;">
 
-     
           <div class="col-md-4 bg-light flex-shrink-0 position-relative d-none d-sm-block border-end">
-            <img *ngIf="livroDetalhes.capa_url" [src]="livroDetalhes.capa_url" [alt]="livroDetalhes.titulo" class="w-100 h-100" style="object-fit: cover;">
-            <div *ngIf="!livroDetalhes.capa_url" class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center text-secondary">
-              <svg class="mb-3 opacity-25" width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-              <span class="text-uppercase fw-semibold small" style="letter-spacing: 0.1em;">Sem capa</span>
-            </div>
+            @if (livroDetalhes.capa_url) {
+              <img [src]="livroDetalhes.capa_url" [alt]="livroDetalhes.titulo" class="w-100 h-100" style="object-fit: cover;">
+            } @else {
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center text-secondary">
+                <svg class="mb-3 opacity-25" width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                <span class="text-uppercase fw-semibold small" style="letter-spacing: 0.1em;">Sem capa</span>
+              </div>
+            }
           </div>
 
-         
           <div class="col-md-8 d-flex flex-column overflow-hidden position-relative">
             <div class="px-4 py-3 d-flex justify-content-between align-items-start bg-white border-bottom position-sticky top-0">
               <div class="pe-4">
@@ -167,18 +172,24 @@
 
             <div class="p-4 overflow-auto">
               <div class="d-flex flex-wrap gap-4 mb-4 bg-light rounded-3 p-3 border">
-                <div *ngIf="livroDetalhes.ano_publicacao">
-                  <span class="d-block text-secondary text-uppercase small">Ano</span>
-                  <span class="fw-semibold text-dark">{{ livroDetalhes.ano_publicacao }}</span>
-                </div>
-                <div *ngIf="livroDetalhes.editora">
-                  <span class="d-block text-secondary text-uppercase small">Editora</span>
-                  <span class="fw-semibold text-dark">{{ livroDetalhes.editora }}</span>
-                </div>
-                <div *ngIf="livroDetalhes.isbn">
-                  <span class="d-block text-secondary text-uppercase small">ISBN</span>
-                  <span class="fw-semibold text-dark">{{ livroDetalhes.isbn }}</span>
-                </div>
+                @if (livroDetalhes.ano_publicacao) {
+                  <div>
+                    <span class="d-block text-secondary text-uppercase small">Ano</span>
+                    <span class="fw-semibold text-dark">{{ livroDetalhes.ano_publicacao }}</span>
+                  </div>
+                }
+                @if (livroDetalhes.editora) {
+                  <div>
+                    <span class="d-block text-secondary text-uppercase small">Editora</span>
+                    <span class="fw-semibold text-dark">{{ livroDetalhes.editora }}</span>
+                  </div>
+                }
+                @if (livroDetalhes.isbn) {
+                  <div>
+                    <span class="d-block text-secondary text-uppercase small">ISBN</span>
+                    <span class="fw-semibold text-dark">{{ livroDetalhes.isbn }}</span>
+                  </div>
+                }
                 <div>
                   <span class="d-block text-secondary text-uppercase small">Faixa Etária</span>
                   <span class="badge bg-primary-subtle text-primary-emphasis mt-1">
@@ -192,14 +203,16 @@
                 <p class="text-secondary small text-justify">{{ livroDetalhes.sinopse || 'Nenhuma sinopse disponível para este livro.' }}</p>
               </div>
 
-              <div *ngIf="isBibliotecario" class="mt-4">
-                <app-exemplar [livroId]="livroDetalhes.id"></app-exemplar>
-              </div>
+              @if (isBibliotecario) {
+                <div class="mt-4">
+                  <app-exemplar [livroId]="livroDetalhes.id"></app-exemplar>
+                </div>
+              }
             </div>
           </div>
 
         </div>
       </div>
     </div>
-  </ng-container>
+  }
 </div>

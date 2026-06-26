@@ -7,7 +7,11 @@
   <div class="d-flex gap-2 mb-3">
     <select [(ngModel)]="generoSelecionadoId" class="form-select form-select-sm flex-grow-1">
       <option value="" disabled selected>Selecione um gênero...</option>
-      <option *ngFor="let g of todosGeneros" [value]="g.id">{{ g.nome }}</option>
+
+      @for (g of todosGeneros; track g.id) {
+        <option  [value]="g.id">{{ g.nome }}</option>
+      }
+      
     </select>
     <button type="button" (click)="vincular()" [disabled]="!generoSelecionadoId" class="btn btn-sm btn-primary text-nowrap">
       Vincular
@@ -15,15 +19,20 @@
   </div>
 
   <div class="d-flex flex-wrap gap-2">
-    <div *ngFor="let relacao of generosVinculados" class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle d-inline-flex align-items-center gap-1 fw-medium py-2 px-3">
+
+    @for (relacao of generosVinculados; track relacao.relacaoId) {
+
+       <div class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle d-inline-flex align-items-center gap-1 fw-medium py-2 px-3">
       {{ relacao.genero.nome }}
       <button (click)="desvincular(relacao.relacaoId)" class="btn btn-sm p-0 border-0 d-flex align-items-center text-primary-emphasis" style="line-height: 0;" title="Remover">
         <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
       </button>
     </div>
-
-    <div *ngIf="generosVinculados.length === 0" class="small text-secondary fst-italic mt-2">
-      Nenhum gênero vinculado a este livro.
-    </div>
+    }
+   @if (generosVinculados.length === 0) {
+      <div class="small text-secondary fst-italic mt-2">
+        Nenhum gênero vinculado a este livro.
+      </div>
+   }
   </div>
 </div>
