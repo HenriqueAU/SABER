@@ -23,7 +23,7 @@ export class NotificacaoService {
   async findAllByUser(usuarioId: string): Promise<Notificacao[]> {
     return await this.notificacaoRepository.find({
       where: { usuario: { id: usuarioId } },
-      order: { data: 'DESC' }, // As mais recentes primeiro
+      order: { data: 'DESC' }, 
     });
   }
 
@@ -35,7 +35,6 @@ export class NotificacaoService {
 
     if (!notificacao) throw new NotFoundException('Notificação não encontrada');
     
-    // Garante que o utilizador só lê as suas próprias notificações
     if (notificacao.usuario.id !== usuarioId) {
       throw new ForbiddenException('Acesso negado');
     }
