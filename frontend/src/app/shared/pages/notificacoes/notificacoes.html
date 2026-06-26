@@ -1,6 +1,10 @@
 <div class="notificacoes-container">
   <h2>Minhas Notificações</h2>
 
+  <div *ngIf="carregando" class="estado-vazio">
+    <p>A carregar notificações...</p>
+  </div>
+  
   <div *ngIf="notificacoes.length === 0" class="estado-vazio">
     <p>Não tem nenhuma notificação no momento.</p>
   </div>

@@ -2,7 +2,8 @@ import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom, forkJoin } from 'rxjs';
 import { MembroClubeService } from '../../../client/services/membroClube.service';
 import { ClubesService } from '../../../client/services/clubes.service';
 import { PerguntasService } from '../../../client/services/perguntas.service';
@@ -44,7 +45,7 @@ export default class ClubeLivroComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
-  private MembroClubeService = inject(MembroClubeService);
+  private http = inject(HttpClient);
   private clubesService = inject(ClubesService);
   private perguntasService = inject(PerguntasService);
   private itemPerguntaService = inject(ItemPerguntaService);
@@ -143,36 +144,22 @@ export default class ClubeLivroComponent implements OnInit {
     this.enviando = true;
     this.mensagemErro = '';
 
-    let usuarioIdReal = '';
+    let idDaInscricao = '';
     try {
-      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-      if (token) {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        usuarioIdReal = payload.id;
-      }
-    } catch (e) {
-      console.error('Falha ao decodificar o token', e);
+      const minhaInscricao = await firstValueFrom(
+        this.http.get<any>(`http://localhost:3000/membro-clube/me/${this.clubeId}`)
+      );
+      idDaInscricao = minhaInscricao.id;
+    } catch (error) {
+      this.mensagemErro = 'Apenas membros matriculados neste clube podem enviar avaliações.';
+      this.enviando = false;
+      this.cdr.detectChanges();
+      return;
     }
 
     try {
-      const resMembros = await firstValueFrom(this.MembroClubeService.membroClubeControllerFindAll(this.clubeId!));
-      const listaMembros = Array.isArray(resMembros) ? resMembros : (resMembros as any)?.data || (resMembros as any)?.items || [];
-
-      const minhaInscricao = listaMembros.find((m: any) =>
-        (m.usuario?.id === usuarioIdReal || m.usuario_id === usuarioIdReal || m.usuario === usuarioIdReal) &&
-        (m.clube?.id === this.clubeId || m.clube_id === this.clubeId || m.clube === this.clubeId)
-      );
-
-      if (!minhaInscricao) {
-        this.mensagemErro = 'Não foi possível encontrar a sua inscrição neste clube.';
-        this.enviando = false;
-        this.cdr.detectChanges();
-        return;
-      }
-
-      const idDaInscricao = minhaInscricao.id;
       const respostasFormulario = this.form.value;
-      const requisicoes: any[] = [];
+      const requisicoes: any[] = []; 
 
       Object.keys(respostasFormulario).forEach(perguntaId => {
         const payload = {
@@ -180,17 +167,30 @@ export default class ClubeLivroComponent implements OnInit {
           item_pergunta_id: respostasFormulario[perguntaId]
         } as any;
 
-        requisicoes.push(firstValueFrom(this.respostasService.respostaMembroControllerCreate(payload)));
+        requisicoes.push(this.respostasService.respostaMembroControllerCreate(payload));
       });
 
-      await Promise.all(requisicoes);
-      this.mensagemSucesso = 'Avaliação enviada com sucesso! Obrigado pelo seu feedback.';
-      this.form.disable();
+      if (requisicoes.length > 0) {
+        forkJoin(requisicoes).subscribe({
+          next: () => {
+            this.mensagemSucesso = 'Avaliação enviada com sucesso! Obrigado pelo seu feedback.';
+            this.form.disable();
+            this.enviando = false;
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            this.mensagemErro = 'Ocorreu um erro ao enviar a avaliação.';
+            this.enviando = false;
+            this.cdr.detectChanges();
+          }
+        });
+      } else {
+        this.enviando = false;
+        this.cdr.detectChanges();
+      }
 
     } catch (error) {
-      this.mensagemErro = 'Ocorreu um erro ao processar a avaliação.';
-      console.error('Erro de envio:', error);
-    } finally {
+      this.mensagemErro = 'Ocorreu um erro de comunicação com o servidor.';
       this.enviando = false;
       this.cdr.detectChanges();
     }

@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TipoPerfil, Usuario } from './usuario.entity';
@@ -113,6 +114,33 @@ export class UsuarioService {
       this.usuarioRepository.merge(usuario, updateUsuarioDto);
     }
     return await this.usuarioRepository.save(usuario);
+  }
+
+  async alterarSenha(
+    id: string,
+    usuarioLogadoId: string,
+    senhaAtual: string,
+    novaSenha: string,
+  ): Promise<void> {
+    if (usuarioLogadoId !== id) {
+      throw new ForbiddenException('Você só pode alterar a própria senha');
+    }
+
+    const usuario = await this.usuarioRepository.findOne({ where: { id } });
+    if (!usuario) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    const senhaValida = await bcrypt.compare(senhaAtual, usuario.senha_hash);
+    if (!senhaValida) {
+      throw new BadRequestException('A senha atual está incorreta.');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(novaSenha, salt);
+    
+    usuario.senha_hash = hash;
+    await this.usuarioRepository.save(usuario);
   }
 
   async remove(id: string, usuarioLogadoId: string, perfilLogado: TipoPerfil) {

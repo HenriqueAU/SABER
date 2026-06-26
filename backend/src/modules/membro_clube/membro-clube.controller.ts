@@ -6,7 +6,7 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
+  Req,
 } from '@nestjs/common';
 import { MembroClubeService } from './membro-clube.service';
 import { CreateMembroClubeDto } from './dto/create-membro-clube.dto';
@@ -19,6 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { TipoPerfil } from '../usuario/usuario.entity';
+import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
 
 @ApiTags('MembroClube')
 @ApiBearerAuth()
@@ -43,6 +44,15 @@ export class MembroClubeController {
   @Get()
   findAll(@Query('clube_id') clube_id: string) {
     return this.membroClubeService.findAll(clube_id);
+  }
+
+  @ApiOperation({ summary: 'Busca a inscrição do usuário logado num clube específico' })
+  @ApiResponse({ status: 200, description: 'Busca realizada com sucesso' })
+  @Roles(TipoPerfil.ALUNO, TipoPerfil.PROFESSOR)
+  @Get('me/:clube_id')
+  findMinhaInscricao(@Param('clube_id') clube_id: string, @Req() request: RequestComUser) {
+    const usuarioId = request.user.id;
+    return this.membroClubeService.findMinhaInscricao(usuarioId, clube_id);
   }
 
   @ApiOperation({ summary: 'Busca um membro pelo id' })
