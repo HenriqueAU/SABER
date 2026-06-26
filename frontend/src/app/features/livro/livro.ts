@@ -51,8 +51,6 @@ export default class LivroComponent implements OnInit {
     capa_url: ['']
   });
 
-  teste = Math.random();
-
   ngOnInit() {
     this.carregarLivros();
   }
