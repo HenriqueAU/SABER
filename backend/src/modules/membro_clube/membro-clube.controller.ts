@@ -42,8 +42,8 @@ export class MembroClubeController {
   })
   @Roles(TipoPerfil.PROFESSOR)
   @Get()
-  findAll() {
-    return this.membroClubeService.findAll;
+  findAll(@Query('clube_id') clube_id: string) {
+    return this.membroClubeService.findAll(clube_id);
   }
 
   @ApiOperation({ summary: 'Busca a inscrição do usuário logado num clube específico' })
