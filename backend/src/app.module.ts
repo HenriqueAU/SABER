@@ -32,6 +32,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { ClubeModule } from './modules/clube_livro/clube-livro.module';
+import { NotificacaoModule } from './modules/notificacao/notificacao.module';
+import { Notificacao } from './modules/notificacao/notificacao.entity';
 
 @Module({
   imports: [
@@ -60,6 +62,7 @@ import { ClubeModule } from './modules/clube_livro/clube-livro.module';
         PreferenciaGenero,
         RespostaMembro,
         LivroGenero,
+        Notificacao,
       ],
       synchronize: false,
     }),
@@ -77,6 +80,7 @@ import { ClubeModule } from './modules/clube_livro/clube-livro.module';
     ExemplarModule,
     EmprestimoModule,
     AuthModule,
+    NotificacaoModule,
   ],
   controllers: [],
   providers: [

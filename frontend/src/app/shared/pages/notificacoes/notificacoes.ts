@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 
 interface Notificacao {
-  id: number;
+  id: string;
   titulo: string;
   mensagem: string;
   data: Date;
@@ -16,25 +17,44 @@ interface Notificacao {
   templateUrl: './notificacoes.html',
   styleUrls: ['./notificacoes.css']
 })
-export default class NotificacoesComponent {
-  notificacoes: Notificacao[] = [
-    {
-      id: 1,
-      titulo: 'Novo Clube do Livro',
-      mensagem: 'O clube "Fãs de Ficção" acabou de ser criado na sua instituição. Participe!',
-      data: new Date(),
-      lida: false
-    },
-    {
-      id: 2,
-      titulo: 'Empréstimo Vencendo',
-      mensagem: 'Lembrete: O livro "1984" precisa de ser devolvido amanhã à biblioteca.',
-      data: new Date(Date.now() - 86400000),
-      lida: true
-    }
-  ];
+export default class NotificacoesComponent implements OnInit {
+  notificacoes: Notificacao[] = [];
+  carregando: boolean = true;
+  mensagemErro: string = '';
+
+  private http = inject(HttpClient);
+  private cdr = inject(ChangeDetectorRef);
+
+  ngOnInit(): void {
+    this.carregarNotificacoes();
+  }
+
+  carregarNotificacoes() {
+    this.carregando = true;
+    this.mensagemErro = '';
+
+    this.http.get<Notificacao[]>('http://localhost:3000/notificacoes').subscribe({
+      next: (dados) => {
+        this.notificacoes = dados;
+        this.carregando = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.mensagemErro = 'Não foi possível carregar as suas notificações.';
+        this.carregando = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   marcarComoLida(notificacao: Notificacao) {
-    notificacao.lida = true;
+    this.http.patch(`http://localhost:3000/notificacoes/${notificacao.id}/lida`, {}).subscribe({
+      next: () => {
+        notificacao.lida = true;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+      }
+    });
   }
 }

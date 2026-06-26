@@ -13,6 +13,7 @@ import { Pergunta } from '../modules/pergunta/pergunta.entity';
 import { PreferenciaGenero } from '../modules/preferencia_genero/preferencia-genero.entity';
 import { RespostaMembro } from '../modules/resposta_membro/resposta-membro.entity';
 import { LivroGenero } from '../modules/livro_genero/livro-genero.entity';
+import { Notificacao } from '../modules/notificacao/notificacao.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -35,6 +36,7 @@ export const AppDataSource = new DataSource({
     PreferenciaGenero,
     RespostaMembro,
     LivroGenero,
+    Notificacao,
   ],
   synchronize: false,
   migrations: ['src/database/migrations/*.ts'],

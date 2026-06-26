@@ -15,6 +15,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { RequestComUser } from '../../common/interfaces/request-com-usuario.interface';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { TipoPerfil } from './usuario.entity';
+import { AlterarSenhaDto } from './dto/alterar-senha.dto';
 
 @ApiTags('Usuarios')
 @ApiBearerAuth()
@@ -59,6 +60,22 @@ export class UsuarioController {
       usuarioLogadoId,
       perfilLogado,
       updateUsuarioDto,
+    );
+  }
+
+  @Patch(':id/alterar-senha')
+  @ApiOperation({ summary: 'Alterar a senha do usuário validando a senha atual' })
+  alterarSenha(
+    @Param('id') id: string,
+    @Body() alterarSenhaDto: AlterarSenhaDto,
+    @Req() request: RequestComUser,
+  ) {
+    const usuarioLogadoId = request.user.id;
+    return this.usuarioService.alterarSenha(
+      id,
+      usuarioLogadoId,
+      alterarSenhaDto.senha_atual,
+      alterarSenhaDto.nova_senha,
     );
   }
 

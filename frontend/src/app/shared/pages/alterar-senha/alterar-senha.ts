@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UsuariosService } from '../../../../client/services/usuarios.service';
+import { HttpClient } from '@angular/common/http';
 import { CoreAuthService } from '../../../core/auth/auth-session';
 
 @Component({
@@ -18,8 +18,9 @@ export default class AlterarSenhaComponent {
   carregando: boolean = false;
 
   private fb = inject(FormBuilder);
-  private usuariosService = inject(UsuariosService);
+  private http = inject(HttpClient);
   private authSession = inject(CoreAuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor() {
     this.form = this.fb.group({
@@ -40,32 +41,52 @@ export default class AlterarSenhaComponent {
     if (!token) {
       this.mensagemErro = 'Utilizador não autenticado.';
       this.carregando = false;
+      this.cdr.detectChanges();
       return;
     }
 
-    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(atob(base64));
-    const usuarioId = payload.id;
+    let usuarioId = '';
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64));
+      usuarioId = payload.id;
+    } catch (e) {
+      this.mensagemErro = 'Erro ao processar a sua sessão.';
+      this.carregando = false;
+      this.cdr.detectChanges();
+      return;
+    }
 
     if (!usuarioId) {
       this.mensagemErro = 'Não foi possível identificar a sua conta.';
       this.carregando = false;
+      this.cdr.detectChanges();
       return;
     }
 
-    const { novaSenha } = this.form.value;
-    const updatePayload = { senha: novaSenha } as any;
+    const { senhaAtual, novaSenha } = this.form.value;
+    const payload = { 
+      senha_atual: senhaAtual, 
+      nova_senha: novaSenha 
+    };
 
-    this.usuariosService.usuarioControllerUpdate(usuarioId, updatePayload).subscribe({
+    this.http.patch(`http://localhost:3000/usuario/${usuarioId}/alterar-senha`, payload).subscribe({
       next: () => {
         this.mensagemSucesso = 'Senha alterada com sucesso!';
         this.form.reset();
         this.carregando = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Erro na atualização:', err);
-        this.mensagemErro = 'Erro ao alterar a senha. Verifique os dados e tente novamente.';
+        const msg = err.error?.message;
+        if (err.status === 400 && msg) {
+          this.mensagemErro = Array.isArray(msg) ? msg[0] : msg;
+        } else {
+          this.mensagemErro = 'Ocorreu um erro ao alterar a senha. Tente novamente.';
+        }
+        
         this.carregando = false;
+        this.cdr.detectChanges();
       }
     });
   }
