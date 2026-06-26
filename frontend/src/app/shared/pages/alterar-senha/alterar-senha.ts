@@ -25,7 +25,7 @@ export default class AlterarSenhaComponent {
   constructor() {
     this.form = this.fb.group({
       senhaAtual: ['', [Validators.required]],
-      novaSenha: ['', [Validators.required, Validators.minLength(6)]]
+      novaSenha: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
 
