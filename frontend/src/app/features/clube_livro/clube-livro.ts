@@ -51,6 +51,7 @@ export default class ClubeLivroComponent implements OnInit {
   private itemPerguntaService = inject(ItemPerguntaService);
   private respostasService = inject(RespostaMembroService);
   private authService = inject(CoreAuthService);
+  private membroClubeService = inject(MembroClubeService)
 
   ngOnInit(): void {
     this.perfilUsuario = this.authService.getPerfil();
@@ -147,7 +148,7 @@ export default class ClubeLivroComponent implements OnInit {
     let idDaInscricao = '';
     try {
       const minhaInscricao = await firstValueFrom(
-        this.http.get<any>(`http://localhost:3000/membro-clube/me/${this.clubeId}`)
+        this.membroClubeService.membroClubeControllerFindMinhaInscricao(this.clubeId!)
       );
       idDaInscricao = minhaInscricao.id;
     } catch (error) {

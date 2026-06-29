@@ -55,6 +55,30 @@ export class MembroClubeService {
         return this.httpClient.get(url, requestOptions);
     }
 
+    membroClubeControllerFindMinhaInscricao(clubeId: string, observe?: 'body', options?: RequestOptions<'json'>): Observable<any>;
+    membroClubeControllerFindMinhaInscricao(clubeId: string, observe?: 'response', options?: RequestOptions<'json'>): Observable<HttpResponse<any>>;
+    membroClubeControllerFindMinhaInscricao(clubeId: string, observe?: 'events', options?: RequestOptions<'json'>): Observable<HttpEvent<any>>;
+    membroClubeControllerFindMinhaInscricao(clubeId: string, observe?: 'body' | 'events' | 'response', options?: RequestOptions<'arraybuffer' | 'blob' | 'json' | 'text'>): Observable<any> {
+        const url = `${this.basePath}/membro-clube/me/${clubeId}`;
+
+        let headers: HttpHeaders;
+        if (options?.headers instanceof HttpHeaders) {
+            headers = options.headers;
+        }else{
+            headers = new HttpHeaders(options?.headers);
+        }
+
+        const requestOptions: any = {
+            observe: observe as any,
+            headers,
+            reportProgress: options?.reportProgress,
+            withCredentials: options?.withCredentials,
+            context: this.createContextWithClientId(options?.context)
+        };
+
+        return this.httpClient.get(url, requestOptions);
+    }
+
     membroClubeControllerCreate(createMembroClubeDto: CreateMembroClubeDto, observe?: 'body', options?: RequestOptions<'json'>): Observable<any>;
     membroClubeControllerCreate(createMembroClubeDto: CreateMembroClubeDto, observe?: 'response', options?: RequestOptions<'json'>): Observable<HttpResponse<any>>;
     membroClubeControllerCreate(createMembroClubeDto: CreateMembroClubeDto, observe?: 'events', options?: RequestOptions<'json'>): Observable<HttpEvent<any>>;
