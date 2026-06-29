@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { CoreAuthService } from '../../../core/auth/auth-session';
+import { BASE_PATH_DEFAULT } from '../../../../client/tokens';
 
 @Component({
   selector: 'app-alterar-senha',
@@ -21,6 +22,7 @@ export default class AlterarSenhaComponent {
   private http = inject(HttpClient);
   private authSession = inject(CoreAuthService);
   private cdr = inject(ChangeDetectorRef);
+  private basePath = inject(BASE_PATH_DEFAULT);
 
   constructor() {
     this.form = this.fb.group({
@@ -70,7 +72,7 @@ export default class AlterarSenhaComponent {
       nova_senha: novaSenha 
     };
 
-    this.http.patch(`http://localhost:3000/usuario/${usuarioId}/alterar-senha`, payload).subscribe({
+    this.http.patch(`${this.basePath}/usuario/${usuarioId}/alterar-senha`, payload).subscribe({
       next: () => {
         this.mensagemSucesso = 'Senha alterada com sucesso!';
         this.form.reset();

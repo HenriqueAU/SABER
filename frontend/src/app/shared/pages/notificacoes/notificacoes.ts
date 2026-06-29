@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { BASE_PATH_DEFAULT } from '../../../../client/tokens';
 
 interface Notificacao {
   id: string;
@@ -24,6 +25,7 @@ export default class NotificacoesComponent implements OnInit {
 
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
+  private basePath = inject(BASE_PATH_DEFAULT);
 
   ngOnInit(): void {
     this.carregarNotificacoes();
@@ -33,7 +35,7 @@ export default class NotificacoesComponent implements OnInit {
     this.carregando = true;
     this.mensagemErro = '';
 
-    this.http.get<Notificacao[]>('http://localhost:3000/notificacoes').subscribe({
+    this.http.get<Notificacao[]>(`${this.basePath}/notificacoes`).subscribe({
       next: (dados) => {
         this.notificacoes = dados;
         this.carregando = false;
@@ -48,7 +50,7 @@ export default class NotificacoesComponent implements OnInit {
   }
 
   marcarComoLida(notificacao: Notificacao) {
-    this.http.patch(`http://localhost:3000/notificacoes/${notificacao.id}/lida`, {}).subscribe({
+    this.http.patch(`${this.basePath}/notificacoes/${notificacao.id}/lida`, {}).subscribe({
       next: () => {
         notificacao.lida = true;
         this.cdr.detectChanges();
