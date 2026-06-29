@@ -31,7 +31,7 @@ export class UsuarioController {
   }
 
   @Get()
-  @Roles(TipoPerfil.GESTOR)
+  @Roles(TipoPerfil.GESTOR, TipoPerfil.BIBLIOTECARIO)
   @ApiOperation({ summary: 'Buscar todos os usuários' })
   findAll(@Req() request: RequestComUser) {
     const instituicao_id = request.user.instituicao;

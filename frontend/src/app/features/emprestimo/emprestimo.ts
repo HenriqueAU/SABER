@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject, ChangeDetectorRef} from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Modal } from 'bootstrap';
 import { EmprestimosService } from '../../../client/services/emprestimos.service';
@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { LivrosService } from '../../../client/services/livros.service';
 import { RouterLink } from '@angular/router';
 import { UsuariosService } from '../../../client/services/usuarios.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-emprestimo',
@@ -15,10 +16,11 @@ import { UsuariosService } from '../../../client/services/usuarios.service';
   styleUrl: './emprestimo.css',
 })
 export default class EmprestimoComponent implements OnInit {
-  protected emprestimosService = inject(EmprestimosService);
-  protected livrosService = inject(LivrosService);
-  protected exemplaresService = inject(ExemplaresService);
-  protected usuariosService = inject(UsuariosService);
+  private emprestimosService = inject(EmprestimosService);
+  private livrosService = inject(LivrosService);
+  private exemplaresService = inject(ExemplaresService);
+  private usuariosService = inject(UsuariosService);
+  private cdr = inject(ChangeDetectorRef);
 
   emprestimoForm = new FormGroup({
 
@@ -60,11 +62,22 @@ export default class EmprestimoComponent implements OnInit {
 
   termoPesquisa = '';
 
+  abaAtiva: 'emprestimo' | 'devolucao' = 'emprestimo';
+  emprestimosAtivos: any[] = [];
+  enviandoDevolucao: boolean = false;
+  mensagemSucessoModal: string = 'Operação realizada com sucesso!';
+  mensagemErroModal: string = 'Ocorreu um erro na operação.';
+
   ngOnInit(): void {
+    this.carregarDadosIniciais();
+  }
+
+  carregarDadosIniciais() {
     this.exemplaresService
       .exemplarControllerFindAll()
       .subscribe(data => {
         this.exemplares = data;
+        this.cdr.detectChanges();
       });
 
     this.usuariosService
@@ -73,7 +86,85 @@ export default class EmprestimoComponent implements OnInit {
         this.alunos = data.filter(
           (usuario: any) => usuario.perfil === 'aluno'
         );
+        this.cdr.detectChanges();
       });
+    this.carregarEmprestimosAtivos();
+  }
+
+  carregarEmprestimosAtivos() {
+    this.emprestimosService.emprestimoControllerFindAll().subscribe({
+      next: (data) => {
+        this.emprestimosAtivos = data.filter((e: any) => !e.data_devolucao_efetiva);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+      }
+    });
+  }
+
+  estaAtrasado(dataEsperada: string | Date): boolean {
+    return new Date(dataEsperada) < new Date();
+  }
+
+  getNomeAluno(emp: any): string {
+    if (emp.usuario?.nome) return emp.usuario.nome;
+    const aluno = this.alunos.find(a => a.id === (emp.usuario?.id || emp.usuario));
+    return aluno?.nome || 'Desconhecido';
+  }
+
+  getEmailAluno(emp: any): string {
+    if (emp.usuario?.email) return emp.usuario.email;
+    const aluno = this.alunos.find(a => a.id === (emp.usuario?.id || emp.usuario));
+    return aluno?.email || '';
+  }
+
+  getTituloLivro(emp: any): string {
+    if (emp.exemplar?.livro?.titulo) return emp.exemplar.livro.titulo;
+    const exId = emp.exemplar?.id || emp.exemplar;
+    const ex = this.exemplares.find(e => e.id === exId);
+    return ex?.livro?.titulo || 'Livro Desconhecido';
+  }
+
+  getCodigoExemplar(emp: any): string {
+    if (emp.exemplar?.codigo) return emp.exemplar.codigo;
+    const exId = emp.exemplar?.id || emp.exemplar;
+    const ex = this.exemplares.find(e => e.id === exId);
+    return ex?.codigo || 'N/A';
+  }
+
+  devolverLivro(emprestimo: any) {
+    if (this.enviandoDevolucao) return;
+    this.enviandoDevolucao = true;
+    
+    const exemplarId = emprestimo.exemplar?.id || emprestimo.exemplar;
+    const dataDevolucao = new Date().toISOString();
+
+    const requestEmprestimo = this.emprestimosService.emprestimoControllerUpdate(emprestimo.id, {
+      data_devolucao_efetiva: dataDevolucao
+    } as any);
+
+    const requestExemplar = this.exemplaresService.exemplarControllerUpdate(exemplarId, {
+      status: 'disponivel'
+    } as any);
+
+    forkJoin([requestEmprestimo, requestExemplar]).subscribe({
+      next: () => {
+        this.mensagemSucessoModal = 'Devolução registrada com sucesso!';
+        this.abrirModalSucesso();
+        const ex = this.exemplares.find(e => e.id === exemplarId);
+        if (ex) ex.status = 'disponivel';
+
+        this.carregarEmprestimosAtivos();
+        this.enviandoDevolucao = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.mensagemErroModal = 'Erro ao registrar devolução. Tente novamente.';
+        this.abrirModalErro();
+        this.enviandoDevolucao = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   abrirModalExemplares(livro: any) {
@@ -96,6 +187,14 @@ export default class EmprestimoComponent implements OnInit {
 
     exemplaresModal?.hide();
 
+    this.emprestimoForm.patchValue({
+      nome_aluno: '',
+      aluno_id: '',
+      data_devolucao_esperada: this.getDataPadraoDevolucao()
+    });
+    
+    this.alunosFiltrados = [];
+
     const emprestimoModal = new Modal(
       this.emprestimoModalRef.nativeElement
     );
@@ -107,7 +206,8 @@ export default class EmprestimoComponent implements OnInit {
     this.alunoSelecionado = aluno;
 
     this.emprestimoForm.patchValue({
-      aluno_id: aluno.id
+      aluno_id: aluno.id,
+      nome_aluno: aluno.nome
     });
 
     this.alunosFiltrados = [];
@@ -251,9 +351,15 @@ export default class EmprestimoComponent implements OnInit {
 
           emprestimoModal?.hide();
 
+          this.mensagemSucessoModal = 'Empréstimo realizado com sucesso!';
           this.abrirModalSucesso();
+          const ex = this.exemplares.find(e => e.id === this.exemplarSelecionado.id);
+          if (ex) ex.status = 'emprestado';
+        
+          this.carregarEmprestimosAtivos();
+          this.cdr.detectChanges();
         },
-        error: err => {
+        error: () => {
           const emprestimoModal =
             Modal.getInstance(
               this.emprestimoModalRef.nativeElement
@@ -261,10 +367,10 @@ export default class EmprestimoComponent implements OnInit {
 
           emprestimoModal?.hide();
 
+          this.mensagemErroModal = 'Erro ao realizar o empréstimo.';
           this.abrirModalErro();
+          this.cdr.detectChanges();
         }
-
       });
-
   }
 }

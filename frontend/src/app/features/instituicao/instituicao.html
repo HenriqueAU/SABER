@@ -1,0 +1,65 @@
+<div class="instituicao-container">
+  <h2>Dados da Instituição</h2>
+  <p>Verifique e atualize as informações da sua instituição.</p>
+
+  <div *ngIf="carregando" class="loading">
+    A carregar os dados da instituição...
+  </div>
+
+  <div *ngIf="mensagemSucesso" class="alerta sucesso">{{ mensagemSucesso }}</div>
+  <div *ngIf="mensagemErro" class="alerta erro">{{ mensagemErro }}</div>
+
+  <form *ngIf="!carregando" [formGroup]="form" (ngSubmit)="onSubmit()">
+    
+    <div class="form-group">
+      <label for="nome">Nome da Instituição</label>
+      <input 
+        id="nome" 
+        type="text" 
+        formControlName="nome" 
+      >
+      <small *ngIf="form.get('nome')?.invalid && form.get('nome')?.touched" class="texto-erro">
+        O nome é obrigatório.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="tipo">Tipo de Instituição</label>
+      <select id="tipo" formControlName="tipo">
+        <option value="" disabled selected>Selecione o tipo</option>
+        <option *ngFor="let t of tiposInstituicao" [value]="t.value">{{ t.label }}</option>
+      </select>
+      <small *ngIf="form.get('tipo')?.invalid && form.get('tipo')?.touched" class="texto-erro">
+        O tipo é obrigatório.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="estado">Estado (UF)</label>
+      <select id="estado" formControlName="estado">
+        <option value="" disabled selected>Selecione o estado</option>
+        <option *ngFor="let uf of estados" [value]="uf.sigla">{{ uf.nome }} ({{ uf.sigla }})</option>
+      </select>
+      <small *ngIf="form.get('estado')?.invalid && form.get('estado')?.touched" class="texto-erro">
+        O estado é obrigatório.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="cidade">Cidade</label>
+      <select id="cidade" formControlName="cidade">
+        <option value="" disabled selected>
+          {{ carregandoCidades ? 'A carregar cidades...' : 'Selecione a cidade' }}
+        </option>
+        <option *ngFor="let cid of cidades" [value]="cid.nome">{{ cid.nome }}</option>
+      </select>
+      <small *ngIf="form.get('cidade')?.invalid && form.get('cidade')?.touched" class="texto-erro">
+        A cidade é obrigatória.
+      </small>
+    </div>
+
+    <button class="btn-enviar" type="submit" [disabled]="form.invalid || enviando || carregandoCidades">
+      {{ enviando ? 'A atualizar...' : 'Salvar Alterações' }}
+    </button>
+  </form>
+</div>
