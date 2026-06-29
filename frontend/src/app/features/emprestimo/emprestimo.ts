@@ -16,10 +16,10 @@ import { forkJoin } from 'rxjs';
   styleUrl: './emprestimo.css',
 })
 export default class EmprestimoComponent implements OnInit {
-  protected emprestimosService = inject(EmprestimosService);
-  protected livrosService = inject(LivrosService);
-  protected exemplaresService = inject(ExemplaresService);
-  protected usuariosService = inject(UsuariosService);
+  private emprestimosService = inject(EmprestimosService);
+  private livrosService = inject(LivrosService);
+  private exemplaresService = inject(ExemplaresService);
+  private usuariosService = inject(UsuariosService);
   private cdr = inject(ChangeDetectorRef);
 
   emprestimoForm = new FormGroup({
