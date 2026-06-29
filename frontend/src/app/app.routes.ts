@@ -65,7 +65,7 @@ export const routes: Routes = [
     data: {roles: [TipoPerfil.GESTOR]}
   },
   {
-    path: 'emprestimo',
+    path: 'emprestimos',
     loadComponent: () => import('./features/emprestimo/emprestimo'),
     canActivate: [authGuard, rolesGuard],
     data: {roles: [TipoPerfil.BIBLIOTECARIO]}
