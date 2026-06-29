@@ -10,7 +10,7 @@ import { CoreAuthService } from '../../core/auth/auth-session';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './instituicao.html',
-  styleUrls: ['./instituicao.css']
+  styleUrls: ['./instituicao.scss']
 })
 export default class InstituicaoComponent implements OnInit {
   form!: FormGroup;

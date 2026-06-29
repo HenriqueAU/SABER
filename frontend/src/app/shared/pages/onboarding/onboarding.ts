@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
   selector: 'app-onboarding',
   imports: [],
   templateUrl: './onboarding.html',
-  styleUrl: './onboarding.css',
+  styleUrl: './onboarding.scss',
 })
 export default class OnboardingComponent {
 

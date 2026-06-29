@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
   selector: 'app-login',
   imports: [ReactiveFormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.css',
+  styleUrl: './login.scss',
 })
 export default class LoginComponent  {
   sessionService = inject(CoreAuthService);

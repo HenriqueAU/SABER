@@ -5,7 +5,7 @@ import { CoreAuthService } from '../../../core/auth/auth-session';
   selector: 'app-home',
   imports: [],
   templateUrl: './home.html',
-  styleUrl: './home.css',
+  styleUrl: './home.scss',
 })
 export default class HomeComponent {
  sessionService = inject(CoreAuthService);

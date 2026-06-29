@@ -1,27 +1,4 @@
-@if (estaLogado() && !isRotaPublica) {
-<nav>
-  <a routerLink="/home">Home</a>
-  @if (perfil() === 'gestor') {
-    <a routerLink="/instituicao">Instituição</a>
-    <a routerLink="/usuarios">Usuários</a>
-  }
-  @if (perfil() === 'bibliotecario') {
-    <a routerLink="/livros">Livros</a>
-    <a routerLink="/emprestimos">Empréstimos</a>
-  }
-  @if (perfil() === 'professor') {
-    <a routerLink="/clubes">Clubes</a>
-    <a routerLink="/livros">Livros</a>
-  }
-  @if (perfil() === 'aluno') {
-    <a routerLink="/clubes">Clubes</a>
-    <a routerLink="/livros">Livros</a>
-  }
-  <a routerLink="notificacoes">Notificações</a>
-  <a routerLink="/perfil">Perfil</a>
-</nav>
-}
+<app-navbar />
 <main class="bg-light">
   <router-outlet />
 </main>
-

@@ -14,7 +14,7 @@ import { Component,
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './usuario.html',
-  styleUrl: './usuario.css',
+  styleUrl: './usuario.scss',
 })
 export default class UsuarioComponent implements OnInit {
   usuarios: any[] = [];

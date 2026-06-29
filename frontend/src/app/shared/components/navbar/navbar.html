@@ -1,0 +1,52 @@
+<nav
+  class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top"
+  [class.navbar-hidden]="navbarHidden">
+
+  <div class="container-fluid">
+
+    @if (estaLogado() && !isRotaPublica) {
+        <div class="d-flex align-items-center gap-3">
+          <a routerLink="/home">Home</a>
+          @if (perfil() === 'gestor') {
+            <a routerLink="/instituicao">Instituição</a>
+            <a routerLink="/usuarios">Usuários</a>
+          }
+          @if (perfil() === 'bibliotecario') {
+            <a routerLink="/livros">Livros</a>
+            <a routerLink="/emprestimos">Empréstimos</a>
+          }
+          @if (perfil() === 'professor') {
+            <a routerLink="/clubes">Clubes</a>
+            <a routerLink="/livros">Livros</a>
+          }
+          @if (perfil() === 'aluno') {
+            <a routerLink="/clubes">Clubes</a>
+            <a routerLink="/livros">Livros</a>
+          }
+        </div>
+        <div class="ms-auto">
+          <a routerLink="notificacoes">Notificações</a>
+          <a routerLink="/perfil">Perfil</a>
+        </div>
+    }
+    @else {
+      <div class="d-flex align-items-center gap-3">
+        <a class="navbar-brand mb-0 w-25" href="#" (click)="scrollToTop($event)">
+          <!-- <img src="assets/logo.png" class="me-2" style="height: 25px; width: auto;" alt="Logo" /> -->
+          SABER
+        </a>
+        <a class="navbar-brand mb-0 w-25" href="#" (click)="scrollToBottom($event)">
+          Sobre Nós
+        </a>
+        <a class="navbar-brand mb-0 w-25" href="#" (click)="scrollToBottom($event)">
+          Contato
+        </a>
+      </div>
+      <div class="ms-auto">
+        <a class="btn btn-primary" routerLink="/login">
+          Fazer Login
+        </a>
+      </div>
+    }
+  </div>
+</nav>
