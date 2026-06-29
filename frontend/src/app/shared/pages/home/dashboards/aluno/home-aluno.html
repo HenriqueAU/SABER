@@ -1,0 +1,92 @@
+<div class="container-fluid py-4 px-4">
+
+  @if (dashboard(); as d) {
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <p class="text-secondary small mb-1 text-uppercase fw-semibold">Livros lidos</p>
+            <h2 class="fw-bold mb-0">{{ d.totalLivrosLidos }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <p class="text-secondary small mb-1 text-uppercase fw-semibold">Gênero favorito</p>
+            <h2 class="fw-bold mb-0 fs-4">{{ d.generoFavorito }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <p class="text-secondary small mb-1 text-uppercase fw-semibold">Clubes participados</p>
+            <h2 class="fw-bold mb-0">{{ d.totalClubesParticipados }}</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3">Leituras por gênero</h6>
+            <div style="position: relative; height: 220px;">
+              <canvas id="generoAlunoChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3">Histórico de leitura</h6>
+            <ul class="list-unstyled mb-0">
+              @for (livro of d.historicoLeitura; track livro.id; let i = $index) {
+                <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
+                  <img
+                    [src]="livro.capaUrl || 'assets/imgs/teste2.png'"
+                    [alt]="livro.titulo"
+                    class="rounded"
+                    style="width: 36px; height: 50px; object-fit: cover;">
+                  <div class="flex-grow-1 overflow-hidden">
+                    <div class="fw-semibold text-truncate">{{ livro.titulo }}</div>
+                    <small class="text-secondary">{{ livro.autor }}</small>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-primary-subtle text-primary mb-1 d-block">{{ livro.genero }}</span>
+                    <small class="text-secondary">{{ livro.dataDevolucao | date:'dd/MM/yyyy' }}</small>
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row g-3">
+      <div class="col-12">
+        <h6 class="fw-bold mb-3">Recomendados para você</h6>
+      </div>
+      @for (livro of d.recomendacoes; track livro.id) {
+        <div class="col-12 col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <img
+              [src]="livro.capaUrl || 'assets/imgs/teste2.png'"
+              class="card-img-top object-fit-cover"
+              style="height: 160px;"
+              [alt]="livro.titulo">
+            <div class="card-body">
+              <h6 class="fw-semibold mb-1 text-truncate">{{ livro.titulo }}</h6>
+              <small class="text-secondary">{{ livro.autor }}</small>
+              <div class="mt-2">
+                <span class="badge bg-primary-subtle text-primary">{{ livro.genero }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
