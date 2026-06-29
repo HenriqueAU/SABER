@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Req,
+  Query,
 } from '@nestjs/common';
 import { MembroClubeService } from './membro-clube.service';
 import { CreateMembroClubeDto } from './dto/create-membro-clube.dto';
