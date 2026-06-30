@@ -11,7 +11,9 @@ import { CoreAuthService } from '../../../core/auth/auth-session';
 export class Navbar {
   private sessionService = inject(CoreAuthService);
   private router = inject(Router);
-  get isRotaPublica(): boolean {return ['/login', '/onboarding'].includes(this.router.url)}
+  get isLoginPage(): boolean {
+    return this.router.url === '/login'; 
+  }
   perfil = this.sessionService.perfil;
   estaLogado = this.sessionService.estaLogado;
 
