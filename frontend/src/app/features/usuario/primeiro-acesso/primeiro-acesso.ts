@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject} from "@angular/core";
+import { ChangeDetectorRef, Component, inject, OnInit } from "@angular/core";
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { GenerosService } from '../../../../client/services/generos.service';
@@ -9,7 +9,7 @@ import { CoreAuthService } from '../../../core/auth/auth-session';
   templateUrl: './primeiro-acesso.html',
   styleUrl: './primeiro-acesso.css',
 })
-export default class PrimeiroAcessoComponent {
+export default class PrimeiroAcessoComponent implements OnInit{
 
   private generosService = inject(GenerosService);
   private preferenciaGeneroService = inject(PreferenciasGeneroService);
