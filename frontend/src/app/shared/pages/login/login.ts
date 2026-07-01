@@ -3,6 +3,8 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { CoreAuthService } from '../../../core/auth/auth-session';
 import { AuthService } from '../../../../client/services/auth.service';
 import { Router } from '@angular/router';
+import { TipoPerfil } from '../../../core/auth/tipo-perfil.enum';
+import { PreferenciasGeneroService } from '../../../../client/services/preferenciasGenero.service';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +16,7 @@ export default class LoginComponent  {
   sessionService = inject(CoreAuthService);
   authHttpService = inject(AuthService);
   router = inject(Router);
+  preferenciaGeneroService = inject(PreferenciasGeneroService);
 
  loginForm = new FormGroup({
   email: new FormControl('', [Validators.required, Validators.email]),
@@ -33,11 +36,25 @@ export default class LoginComponent  {
       this.sessionService.setToken(res.access_token);
       this.sessionService.perfil.set(this.sessionService.getPerfil());
       this.sessionService.estaLogado.set(true);
-      this.router.navigate(['/home']);
+      this.redirecionarAposLogin();
     },
     error: (err) => {
       this.erroLogin.set('Credenciais inválidas!');
     },
   });
  };
+  private redirecionarAposLogin() {
+    if (this.sessionService.getPerfil() !== TipoPerfil.ALUNO) {
+      this.router.navigate(['/home']);
+      return;
+    }
+
+    this.preferenciaGeneroService.preferenciaGeneroControllerFindAll().subscribe({
+      next: (preferencias) => {
+        const semPreferencias = !preferencias || preferencias.length === 0;
+        this.router.navigate([semPreferencias ? '/primeiro-acesso' : '/home']);
+      },
+      error: () => this.router.navigate(['/home']), 
+    });
+  }
 }
