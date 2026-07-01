@@ -29,6 +29,13 @@ export class LivroController {
     return this.livroService.create(createLivroDto);
   }
 
+  @Get('buscar-isbn/:isbn')
+  @Roles(TipoPerfil.BIBLIOTECARIO)
+  @ApiOperation({ summary: 'Buscar dados de um livro pelo ISBN na Open Library' })
+  buscarPorIsbn(@Param('isbn') isbn: string) {
+    return this.livroService.buscarPorIsbn(isbn);
+  }
+
   @Get()
   @ApiOperation({ summary: 'Listar todos os livros da instituição' })
   findAll(@Req() request: RequestComUser) {

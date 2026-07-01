@@ -4,12 +4,17 @@ import { Repository } from 'typeorm';
 import { Livro } from './livro.entity';
 import { CreateLivroDto } from './dto/create-livro.dto';
 import { UpdateLivroDto } from './dto/update-livro.dto';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class LivroService {
   constructor(
     @InjectRepository(Livro)
     private readonly livroRepository: Repository<Livro>,
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
   ) {}
 
   async create(createLivroDto: CreateLivroDto): Promise<Livro> {
@@ -50,5 +55,30 @@ export class LivroService {
   async remove(id: string): Promise<void> {
     const livro = await this.findOne(id);
     await this.livroRepository.remove(livro);
+  }
+
+   async buscarPorIsbn(isbn: string) {
+    const baseUrl = this.configService.get<string>('OPEN_LIBRARY_BASE_URL');
+    const url = `${baseUrl}/api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`;
+
+    const { data } = await firstValueFrom(this.httpService.get(url));
+
+    const chave = `ISBN:${isbn}`;
+    const livroEncontrado = data[chave];
+
+    if (!livroEncontrado) {
+      throw new NotFoundException('Livro não encontrado para este ISBN');
+    }
+
+    return {
+      titulo: livroEncontrado.title ?? null,
+      autor: livroEncontrado.authors?.[0]?.name ?? null,
+      capa_url:
+        livroEncontrado.cover?.large ??
+        livroEncontrado.cover?.medium ??
+        null,
+      editora: livroEncontrado.publishers?.[0]?.name ?? null,
+      publicado_em: livroEncontrado.publish_date ?? null,
+    };
   }
 }
