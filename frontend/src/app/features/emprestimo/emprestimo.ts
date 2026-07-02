@@ -13,7 +13,7 @@ import { forkJoin } from 'rxjs';
   selector: 'app-emprestimo',
   imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
   templateUrl: './emprestimo.html',
-  styleUrl: './emprestimo.css',
+  styleUrl: './emprestimo.scss',
 })
 export default class EmprestimoComponent implements OnInit {
   private emprestimosService = inject(EmprestimosService);

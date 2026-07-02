@@ -10,7 +10,7 @@ import { PreferenciasGeneroService } from '../../../../client/services/preferenc
   selector: 'app-login',
   imports: [ReactiveFormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.css',
+  styleUrl: './login.scss',
 })
 export default class LoginComponent  {
   sessionService = inject(CoreAuthService);
@@ -24,6 +24,12 @@ export default class LoginComponent  {
  });
 
  erroLogin = signal('')
+
+ senhaVisivel = false;
+
+ toggleVisibilidadeSenha(): void {
+  this.senhaVisivel = !this.senhaVisivel;
+ }
 
  onSubmit() {
   const credenciais = {
@@ -39,7 +45,7 @@ export default class LoginComponent  {
       this.redirecionarAposLogin();
     },
     error: (err) => {
-      this.erroLogin.set('Credenciais inválidas!');
+      this.erroLogin.set('Credenciais inválidas. Por favor, tente novamente.');
     },
   });
  };

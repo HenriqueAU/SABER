@@ -1,18 +1,13 @@
-import { Component, inject, signal } from '@angular/core';
-import { RouterOutlet, RouterLink, Router} from '@angular/router';
-import { CoreAuthService } from './core/auth/auth-session';
+import { Component, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { Navbar } from './shared/components/navbar/navbar';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink],
+  imports: [RouterOutlet, Navbar],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.scss'
 })
 export class App {
   protected readonly title = signal('frontend');
-  private sessionService = inject(CoreAuthService);
-  private router = inject(Router);
-  get isRotaPublica(): boolean {return ['/login', '/onboarding'].includes(this.router.url)}
-  perfil = this.sessionService.perfil;
-  estaLogado = this.sessionService.estaLogado;
 }

@@ -1,0 +1,88 @@
+@media(prefers-reduced-motion:no-preference) {
+  .hidden {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 1s;
+  }
+
+  .show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .profile:nth-child(2) {
+    transition-delay: 200ms;
+  }
+
+  .profile:nth-child(3) {
+    transition-delay: 400ms;
+  }
+
+  .rating:nth-child(2) {
+    transition-delay: 200ms;
+  }
+
+  .rating:nth-child(3) {
+    transition-delay: 400ms;
+  }
+
+  .bar-ticker ul {
+    animation: scroll 20s linear infinite;
+  }
+
+  @keyframes scroll {
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+
+
+}
+
+.carousel-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.45) 35%,
+    rgba(0, 0, 0, 0) 70%
+  );
+}
+
+.bar-ticker {
+  padding: 0.5rem;
+  overflow: hidden;
+  user-select: none;
+
+  --gap: 4rem;
+  display: flex;
+  gap: var(--gap);
+
+  background-color: var(--bs-primary);
+  color: var(--bs-white);
+}
+
+.bar-ticker ul {
+  list-style: none;
+  flex-shrink: 0;
+  min-width: max-content;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gap);
+  margin: 0;
+  padding: 0;
+}
+
+.bar-ticker li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bar-ticker p {
+  margin: 0;
+}

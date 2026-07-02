@@ -19,7 +19,7 @@ interface Livro extends CreateLivroDto {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, ExemplarComponent, GenerosComponent],
   templateUrl: './livro.html',
-  styleUrl: './livro.css',
+  styleUrl: './livro.scss',
 })
 export default class LivroComponent implements OnInit {
   private livrosService = inject(LivrosService);
