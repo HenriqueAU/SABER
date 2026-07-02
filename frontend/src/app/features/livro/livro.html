@@ -10,8 +10,27 @@
       }
     </div>
 
+   <div style="display:flex; gap:12px; margin: 16px 0; flex-wrap: wrap;">
+  <input
+    type="text"
+    placeholder="Buscar por título ou autor"
+    [(ngModel)]="termoBusca"
+    style="flex:1; min-width:200px; padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px;"
+  />
+
+  <select
+    [(ngModel)]="generoSelecionado"
+    style="padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; background:#fff; min-width:160px;"
+  >
+    <option value="">Todos os gêneros</option>
+    @for (genero of generosDisponiveis; track genero) {
+      <option [value]="genero">{{ genero }}</option>
+    }
+  </select>
+</div>
+
     <div class="row g-4">
-      @for (livro of livros; track livro.id) {
+      @for (livro of livrosFiltrados; track livro.id) {
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
           <div class="card h-100 shadow-sm border-0 overflow-hidden" style="cursor: pointer;" (click)="abrirDetalhes(livro)">
 
@@ -75,6 +94,17 @@
           <form [formGroup]="livroForm" (ngSubmit)="onLivroSalvo()">
             <div class="modal-body">
               <div class="mb-3">
+                <label class="form-label fw-medium">ISBN</label>
+                <input type="text" formControlName="isbn" class="form-control" placeholder="Digite o ISBN-10 para preencher automaticamente">
+                @if (buscandoIsbn) {
+                  <div class="form-text text-primary d-flex align-items-center gap-2 mt-1">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Buscando informações do livro, aguarde...
+                  </div>
+                }
+              </div>
+
+              <div class="mb-3">
                 <label class="form-label fw-medium">Título *</label>
                 <input type="text" formControlName="titulo" class="form-control" placeholder="Ex: O Pequeno Príncipe">
               </div>
@@ -89,15 +119,9 @@
                 <input type="text" formControlName="capa_url" class="form-control" placeholder="https://exemplo.com/imagem.jpg">
               </div>
 
-              <div class="row g-3 mb-3">
-                <div class="col-6">
-                  <label class="form-label fw-medium">ISBN</label>
-                  <input type="text" formControlName="isbn" class="form-control" placeholder="Opcional">
-                </div>
-                <div class="col-6">
-                  <label class="form-label fw-medium">Editora</label>
-                  <input type="text" formControlName="editora" class="form-control" placeholder="Opcional">
-                </div>
+              <div class="mb-3">
+                <label class="form-label fw-medium">Editora</label>
+                <input type="text" formControlName="editora" class="form-control" placeholder="Opcional">
               </div>
 
               <div class="row g-3 mb-3">

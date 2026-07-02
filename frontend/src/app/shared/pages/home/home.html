@@ -1,12 +1,12 @@
 @if (perfil() === 'gestor') {
-  <h2>Painel do Gestor</h2>
+  <app-home-gestor />
 }
 @if (perfil() === 'bibliotecario') {
-  <h2>Painel do Bibliotecário</h2>
+  <app-home-bibliotecario />
 }
 @if (perfil() === 'professor') {
-  <h2>Painel do Professor</h2>
+  <app-home-professor />
 }
 @if (perfil() === 'aluno') {
-  <h2>Painel do Aluno</h2>
+  <app-home-aluno />
 }

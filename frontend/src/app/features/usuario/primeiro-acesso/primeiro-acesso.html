@@ -1,0 +1,60 @@
+<div class="min-vh-100 bg-light d-flex flex-column">
+
+  <!-- Header -->
+  <div class="text-center py-4">
+    <h1 class="fw-bold text-dark mb-1">SABER</h1>
+  </div>
+
+  <div class="d-flex justify-content-center px-3 pb-5">
+    <div style="width: 100%; max-width: 600px;">
+
+      <div class="card shadow-sm rounded-4 p-4 mb-4">
+        <div class="card-body">
+
+          <h5 class="fw-bold mb-1">Quais gêneros você gosta de ler?</h5>
+          <p class="text-muted small mb-4">Isso vai nos ajudar a recomendar livros pra você.</p>
+
+          @if (carregando) {
+            <p class="text-muted small">Carregando gêneros...</p>
+          } @else {
+
+            <div class="row g-2 mb-4">
+              @for (genero of generos; track genero.id) {
+                <div class="col-6 col-sm-4">
+                  <button
+                    type="button"
+                    class="btn w-100 rounded-3 fw-semibold small"
+                    [class.btn-primary]="generosSelecionados.has(genero.id)"
+                    [class.btn-outline-secondary]="!generosSelecionados.has(genero.id)"
+                    (click)="toggleGenero(genero.id)"
+                  >
+                    {{ genero.nome }}
+                  </button>
+                </div>
+              }
+            </div>
+
+            @if (mensagemErro) {
+              <p class="text-center text-danger fw-semibold small">{{ mensagemErro }}</p>
+            }
+
+            <div class="d-grid">
+              <button
+                type="button"
+                [disabled]="salvando"
+                class="btn btn-primary rounded-3 fw-semibold"
+                (click)="onSubmit()"
+              >
+                {{ salvando ? 'Salvando...' : 'Continuar →' }}
+              </button>
+            </div>
+
+          }
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
