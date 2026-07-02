@@ -67,6 +67,35 @@
           </ng-container>
 
         </div>
+
+        <ng-container *ngIf="perfilUsuario === TipoPerfilEnum.PROFESSOR && abaAtiva === 'detalhes'">
+          <hr class="divisor" style="margin-top: 30px; margin-bottom: 20px;">
+          <h3 style="margin-bottom: 15px; font-size: 1.2rem; color: #333;">Alunos Inscritos ({{ membrosDoClube.length }})</h3>
+
+          <div *ngIf="carregandoMembros" class="loading" style="padding: 15px 0;">
+            A carregar a lista de alunos...
+          </div>
+
+          <div *ngIf="erroMembros" class="alerta erro">{{ erroMembros }}</div>
+
+          <div *ngIf="!carregandoMembros && !erroMembros && membrosDoClube.length === 0" style="text-align: center; padding: 25px; background-color: #f8f9fa; border-radius: 8px; color: #6c757d;">
+            Nenhum aluno inscrito neste clube ainda.
+          </div>
+
+          <div *ngIf="!carregandoMembros && membrosDoClube.length > 0" style="display: flex; flex-direction: column; gap: 10px;">
+            <div *ngFor="let membro of membrosDoClube" style="display: flex; align-items: center; padding: 12px; border: 1px solid #e9ecef; border-radius: 8px; background-color: #ffffff;">
+              <img 
+                [src]="membro.usuario?.foto_perfil || 'assets/imgs/teste1.png'" 
+                alt="Foto do Aluno" 
+                style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 15px;">
+              <div>
+                <strong style="display: block; font-size: 0.95rem; color: #212529;">{{ membro.usuario?.nome || 'Aluno Desconhecido' }}</strong>
+                <small style="color: #6c757d;">{{ membro.usuario?.email || 'Sem e-mail' }}</small>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
       </div>
 
       <hr class="divisor" *ngIf="abaAtiva !== 'detalhes'">

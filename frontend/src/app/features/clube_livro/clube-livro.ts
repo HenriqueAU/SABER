@@ -37,7 +37,9 @@ export default class ClubeLivroComponent implements OnInit {
   mensagemSucesso: string = '';
   mensagemErro: string = '';
   clubeId: string | null = null;
-
+  membrosDoClube: any[] = [];
+  carregandoMembros: boolean = false;
+  erroMembros: string = '';
   perfilUsuario: TipoPerfil | null = null;
   TipoPerfilEnum = TipoPerfil;
 
@@ -110,6 +112,18 @@ export default class ClubeLivroComponent implements OnInit {
 
       const resItens = await firstValueFrom(this.itemPerguntaService.itemPerguntaControllerFindAll());
       this.itensPergunta = resItens || [];
+
+      if (this.perfilUsuario === TipoPerfil.PROFESSOR) {
+        this.carregandoMembros = true;
+        try {
+          const resMembros = await firstValueFrom(this.membroClubeService.membroClubeControllerFindAll(this.clubeId!));
+          this.membrosDoClube = Array.isArray(resMembros) ? resMembros : (resMembros as any)?.data || (resMembros as any)?.items || [];
+        } catch (err) {
+          this.erroMembros = 'Não foi possível carregar a lista de alunos inscritos.';
+        } finally {
+          this.carregandoMembros = false;
+        }
+      }
 
     } catch (error) {
       this.mensagemErro = 'Não foi possível carregar os detalhes deste clube.';
