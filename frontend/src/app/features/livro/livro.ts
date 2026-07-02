@@ -87,7 +87,6 @@ ngOnInit() {
 })
   ).subscribe((dados: any) => {
     this.buscandoIsbn = false;
-    console.log('Dados recebidos da API:', dados);
     if (!dados) return;
     if (dados.titulo) this.livroForm.patchValue({ titulo: dados.titulo }, { emitEvent: false });
     if (dados.autor) this.livroForm.patchValue({ autor: dados.autor }, { emitEvent: false });
