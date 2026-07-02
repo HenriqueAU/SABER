@@ -1,0 +1,60 @@
+<div class="container-fluid py-4 px-4">
+
+  <div class="mb-4">
+    <h5 class="fw-bold mb-1">Perfil de leitura</h5>
+    <p class="text-secondary small mb-0">Veja seu histórico e distribuição de leituras por gênero.</p>
+  </div>
+
+  @if (dados(); as d) {
+    <div class="row g-4">
+
+      <div class="col-12 col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3">Leituras por gênero</h6>
+            <div style="position: relative; height: 260px;">
+              <canvas id="perfilLeituraChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3">Histórico de leitura</h6>
+
+            @if (d.historicoLeitura.length === 0) {
+              <div class="text-center py-5 text-secondary">
+                <i class="bi bi-book fs-2"></i>
+                <p class="small mt-2 mb-0">Nenhum livro lido ainda.</p>
+              </div>
+            }
+
+            <ul class="list-unstyled mb-0">
+              @for (livro of d.historicoLeitura; track livro.id; let i = $index) {
+                <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
+                  <img
+                    [src]="livro.capaUrl || 'assets/imgs/teste2.png'"
+                    [alt]="livro.titulo"
+                    class="rounded"
+                    style="width: 36px; height: 50px; object-fit: cover;">
+                  <div class="flex-grow-1 overflow-hidden">
+                    <div class="fw-semibold text-truncate">{{ livro.titulo }}</div>
+                    <small class="text-secondary">{{ livro.autor }}</small>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-primary-subtle text-primary mb-1 d-block">{{ livro.genero }}</span>
+                    <small class="text-secondary">{{ livro.dataDevolucao | date:'dd/MM/yyyy' }}</small>
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  }
+
+</div>

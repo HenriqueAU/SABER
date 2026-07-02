@@ -47,11 +47,16 @@ export class MembroClubeController {
     return this.membroClubeService.findAll(clube_id);
   }
 
-  @ApiOperation({ summary: 'Busca a inscrição do usuário logado num clube específico' })
+  @ApiOperation({
+    summary: 'Busca a inscrição do usuário logado num clube específico',
+  })
   @ApiResponse({ status: 200, description: 'Busca realizada com sucesso' })
   @Roles(TipoPerfil.ALUNO, TipoPerfil.PROFESSOR)
   @Get('me/:clube_id')
-  findMinhaInscricao(@Param('clube_id') clube_id: string, @Req() request: RequestComUser) {
+  findMinhaInscricao(
+    @Param('clube_id') clube_id: string,
+    @Req() request: RequestComUser,
+  ) {
     const usuarioId = request.user.id;
     return this.membroClubeService.findMinhaInscricao(usuarioId, clube_id);
   }
