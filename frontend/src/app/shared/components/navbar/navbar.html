@@ -4,9 +4,35 @@
     [class.navbar-hidden]="navbarHidden">
 
     <div class="container-fluid">
+      @if (isOnboardingPage) {
+        <a
+          class="navbar-brand fw-bold"
+          href="#"
+          (click)="scrollToTop($event)">
+          <!-- <img src="assets/logo.png" class="me-2" style="height: 25px; width: auto;" alt="Logo" /> -->
+          SABER
+        </a>
 
-      @if (estaLogado()) {
+        <ul class="navbar-nav fw-bold flex-row ms-4 gap-3">
+          <li class="nav-item">
+            <a class="nav-link" href="#" (click)="scrollToBottom($event)">
+              Sobre Nós
+            </a>
+          </li>
 
+          <li class="nav-item fw-bold">
+            <a class="nav-link" href="#" (click)="scrollToBottom($event)">
+              Contato
+            </a>
+          </li>
+        </ul>
+
+        <div class="ms-auto">
+          <a class="btn btn-primary" [routerLink]="getLoginOrHomeRoute()">
+            Fazer Login
+          </a>
+        </div>
+      } @else {
           <ul class="navbar-nav flex-row gap-3">
             <li class="nav-item">
               <a class="nav-link fw-bold" routerLink="/home">Home</a>
@@ -45,46 +71,29 @@
               </li>
             }
           </ul>
-          <ul class="navbar-nav flex-row ms-auto gap-3">
-            <li class="nav-item">
-              <a class="nav-link fw-bold" routerLink="/notificacoes">Notificações</a>
+          <ul class="navbar-nav flex-row ms-auto gap-1">
+            <li class="nav-item fs-5">
+              <a class="nav-link" routerLink="/notificacoes" aria-label="Notificações">
+                <i class="bi bi-bell"></i>
+              </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link fw-bold" routerLink="/perfil">Perfil</a>
+            <li class="nav-item fs-5">
+              <a class="nav-link" routerLink="/perfil" aria-label="Perfil">
+                <i class="bi bi-person-circle"></i>
+              </a>
+            </li>
+            <li class="nav-item fs-5">
+              <button
+                type="button"
+                class="nav-link"
+                (click)="logOut()"
+                aria-label="Sair">
+                <i class="bi bi-box-arrow-right"></i>
+              </button>
             </li>
           </ul>
-          
-      } @else {
-
-        <a
-          class="navbar-brand fw-bold"
-          href="#"
-          (click)="scrollToTop($event)">
-          <!-- <img src="assets/logo.png" class="me-2" style="height: 25px; width: auto;" alt="Logo" /> -->
-          SABER
-        </a>
-
-        <ul class="navbar-nav fw-bold flex-row ms-4 gap-3">
-          <li class="nav-item">
-            <a class="nav-link" href="#" (click)="scrollToBottom($event)">
-              Sobre Nós
-            </a>
-          </li>
-
-          <li class="nav-item fw-bold">
-            <a class="nav-link" href="#" (click)="scrollToBottom($event)">
-              Contato
-            </a>
-          </li>
-        </ul>
-
-        <div class="ms-auto">
-          <a class="btn btn-primary" routerLink="/login">
-            Fazer Login
-          </a>
-        </div>
       }
     </div>
   </nav>
-
+  
 }

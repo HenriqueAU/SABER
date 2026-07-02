@@ -14,6 +14,10 @@ export class Navbar {
   get isLoginPage(): boolean {
     return this.router.url === '/login'; 
   }
+  get isOnboardingPage(): boolean {
+    return this.router.url === '/onboarding';
+  }
+
   perfil = this.sessionService.perfil;
   estaLogado = this.sessionService.estaLogado;
 
@@ -52,4 +56,11 @@ export class Navbar {
       this.lastScrollTop = Math.max(currentScroll, 0);
   }
 
+  logOut() {
+    
+  }
+
+  getLoginOrHomeRoute(): string {
+    return this.estaLogado() ? '/home' : '/login';
+  }
 }

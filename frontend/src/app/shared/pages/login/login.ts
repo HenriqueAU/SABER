@@ -22,6 +22,12 @@ export default class LoginComponent  {
 
  erroLogin = signal('')
 
+ senhaVisivel = false;
+
+ toggleVisibilidadeSenha(): void {
+  this.senhaVisivel = !this.senhaVisivel;
+ }
+
  onSubmit() {
   const credenciais = {
     email: this.loginForm.value.email!,
@@ -36,7 +42,7 @@ export default class LoginComponent  {
       this.router.navigate(['/home']);
     },
     error: (err) => {
-      this.erroLogin.set('Credenciais inválidas!');
+      this.erroLogin.set('Credenciais inválidas. Por favor, tente novamente.');
     },
   });
  };
