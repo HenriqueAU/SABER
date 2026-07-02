@@ -72,6 +72,19 @@ export default class ClubeLivroComponent implements OnInit {
     });
   }
 
+  getDiasParaInicio(dataInicio: string | Date): number | null {
+    if (!dataInicio) return null;
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const inicio = new Date(dataInicio);
+    inicio.setHours(0, 0, 0, 0);
+    
+    const diffTime = inicio.getTime() - hoje.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays > 0 ? diffDays : null;
+  }
+
   async carregarClubes() {
     this.carregando = true;
     try {

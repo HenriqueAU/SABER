@@ -1,26 +1,55 @@
 @if (estaLogado() && !isRotaPublica) {
-<nav>
-  <a routerLink="/home">Home</a>
-  @if (perfil() === 'gestor') {
-    <a routerLink="/instituicao">Instituição</a>
-    <a routerLink="/usuarios">Usuários</a>
+@if (!esconderNavbar) {
+  <nav>
+    <a routerLink="/home">Home</a>
+    @if (perfil() === 'gestor') {
+      <a routerLink="/instituicao">Instituição</a>
+      <a routerLink="/usuarios">Usuários</a>
+    }
+    @if (perfil() === 'bibliotecario') {
+      <a routerLink="/livros">Livros</a>
+      <a routerLink="/emprestimos">Empréstimos</a>
+    }
+    @if (perfil() === 'professor') {
+      <a routerLink="/livros">Livros</a>
+    }
+    @if (perfil() === 'aluno') {
+      <a routerLink="/clubes">Clubes</a>
+      <a routerLink="/livros">Livros</a>
+    }
+    <a routerLink="/notificacoes">Notificações</a>
+    
+    <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#globalPerfilModal">
+      <i class="bi bi-person-circle me-1"></i> Perfil
+    </a>
+  </nav>
   }
-  @if (perfil() === 'bibliotecario') {
-    <a routerLink="/livros">Livros</a>
-    <a routerLink="/emprestimos">Empréstimos</a>
-  }
-  @if (perfil() === 'professor') {
-    <a routerLink="/livros">Livros</a>
-  }
-  @if (perfil() === 'aluno') {
-    <a routerLink="/clubes">Clubes</a>
-    <a routerLink="/livros">Livros</a>
-  }
-  <a routerLink="notificacoes">Notificações</a>
-  <a routerLink="/perfil">Perfil</a>
-</nav>
+
+  <div class="modal fade" id="globalPerfilModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-light border-0">
+          <h5 class="modal-title fw-bold">Meu Perfil</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body text-center p-4">
+          <img [src]="usuarioData()?.foto_perfil || 'assets/imgs/teste1.png'" alt="Foto de Perfil" class="rounded-circle mb-3 shadow-sm border" width="120" height="120" style="object-fit: cover;">
+          <h4 class="fw-bold mb-1">{{ usuarioData()?.nome || 'A carregar...' }}</h4>
+          <p class="text-secondary mb-3">{{ usuarioData()?.email }}</p>
+          <span class="badge bg-primary text-uppercase px-3 py-2 rounded-pill">{{ perfil() }}</span>
+        </div>
+        
+        <div class="modal-footer bg-light border-0 d-flex justify-content-end">
+          <a routerLink="/perfil" class="btn btn-primary" data-bs-dismiss="modal">
+            <i class="bi bi-pencil-square me-1"></i> Editar Perfil
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 }
+
 <main class="bg-light">
   <router-outlet />
 </main>
-

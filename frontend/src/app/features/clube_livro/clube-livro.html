@@ -15,7 +15,11 @@
           <h3>{{ c.nome || c.livro?.titulo || 'Clube de Leitura' }}</h3>
         </div>
         <div class="clube-card-body">
-          <p><strong>Início:</strong> {{ c.data_inicio | date:'dd/MM/yyyy' }}</p>
+          
+          <p *ngIf="getDiasParaInicio(c.data_inicio) as dias">
+            <strong>Início:</strong> <span style="color: #007bff; font-weight: 500;">Começará em {{ dias }} dia(s)</span>
+          </p>
+
           <p><strong>Fim:</strong> {{ c.data_fim | date:'dd/MM/yyyy' }}</p>
           <p *ngIf="c.local_encontro"><strong>Local:</strong> {{ c.local_encontro }}</p>
         </div>
@@ -32,20 +36,51 @@
 
     <div *ngIf="!carregando && clubeDetalhes" class="detalhes-container">
       
+      <div class="livro-detalhes-card">
+        <img [src]="clubeDetalhes.livro?.capa_url || clubeDetalhes.livro?.capaUrl || 'assets/imgs/teste2.png'" alt="Capa do Livro" class="livro-capa-grande">
+        
+        <div class="livro-info-completa">
+          <span class="badge-clube">Clube de Leitura</span>
+          
+          <h2>{{ clubeDetalhes.nome || 'Clube de Leitura' }}</h2>
+          
+          <h4 style="margin-top: 10px; margin-bottom: 4px; font-size: 1.25rem; color: #222;">
+            <i class="bi bi-book me-2 text-secondary"></i>{{ clubeDetalhes.livro?.titulo || 'Título não informado' }}
+          </h4>
+          
+          <h5 class="livro-autor" style="font-size: 1rem; color: #555;">
+            {{ clubeDetalhes.livro?.autor || 'Autor Desconhecido' }}
+          </h5>
+          
+          <p class="livro-sinopse">{{ clubeDetalhes.livro?.sinopse || 'Nenhuma sinopse disponível para este livro no momento.' }}</p>
+          
+          <div class="livro-meta">
+            <span *ngIf="clubeDetalhes.livro?.isbn"><strong>ISBN:</strong> {{ clubeDetalhes.livro?.isbn }}</span>
+            <span *ngIf="clubeDetalhes.livro?.editora"><strong>Editora:</strong> {{ clubeDetalhes.livro?.editora }}</span>
+            <span *ngIf="clubeDetalhes.livro?.ano_publicacao || clubeDetalhes.livro?.ano">
+              <strong>Ano:</strong> {{ clubeDetalhes.livro?.ano_publicacao || clubeDetalhes.livro?.ano }}
+            </span>
+          </div>
+        </div>
+      </div>
+
       <div class="clube-info-card">
-        <h2>{{ clubeDetalhes.nome || clubeDetalhes.livro?.titulo || 'Detalhes do Clube' }}</h2>
+        <h3 style="margin-bottom: 20px; color: #333; font-size: 1.3rem;">Informações do Encontro</h3>
         <div class="info-grid">
-          <div class="info-item">
+          
+          <div class="info-item" *ngIf="clubeDetalhes.local_encontro">
             <span>Local do Encontro</span>
-            <strong>{{ clubeDetalhes.local_encontro || 'Não definido' }}</strong>
+            <strong>{{ clubeDetalhes.local_encontro }}</strong>
           </div>
-          <div class="info-item">
-            <span>Data de Início</span>
-            <strong>{{ clubeDetalhes.data_inicio | date:'dd/MM/yyyy' }}</strong>
+          
+          <div class="info-item" *ngIf="getDiasParaInicio(clubeDetalhes.data_inicio) as dias">
+            <span>Início</span>
+            <strong style="color: #007bff;">Começará em {{ dias }} dia(s)</strong>
           </div>
+
           <div class="info-item">
-            <span>Data de Fim</span>
-            <strong>{{ clubeDetalhes.data_fim | date:'dd/MM/yyyy' }}</strong>
+            <span>Data de encerramento</span>
+            <strong>{{ (clubeDetalhes.data_fim | date:'dd/MM/yyyy') || 'Não definido' }}</strong>
           </div>
         </div>
 
@@ -61,9 +96,12 @@
           </ng-container>
 
           <ng-container *ngIf="perfilUsuario === TipoPerfilEnum.PROFESSOR">
-            <button class="btn-acao-primario" (click)="abrirFeedbacks()">
+            <button *ngIf="clubeEncerrado" class="btn-acao-primario" (click)="abrirFeedbacks()">
               Ver Feedbacks dos Alunos
             </button>
+            <div *ngIf="!clubeEncerrado" class="aviso-bloqueio">
+              <i class="icone-relogio">🕒</i> Os feedbacks dos alunos só estarão disponíveis após o encerramento do clube.
+            </div>
           </ng-container>
 
         </div>
@@ -137,7 +175,6 @@
 
         <div class="lista-perguntas-analise">
           <div class="pergunta-analise-card" *ngFor="let pergunta of perguntas; let i = index">
-            
             <button class="btn-pergunta" 
                     [class.ativo]="perguntaSelecionadaId === pergunta.id"
                     (click)="selecionarPerguntaParaAnalise(pergunta.id)">
@@ -153,7 +190,6 @@
                 </span>
               </div>
             </div>
-
           </div>
         </div>
       </div>
