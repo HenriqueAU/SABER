@@ -26,6 +26,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'perfil-leitura',
+    loadComponent: () => import('./features/perfil_leitura/perfil-leitura'),
+    canActivate: [authGuard, rolesGuard],
+    data: { roles: [TipoPerfil.ALUNO] }
+  },
+  {
     path: 'alterar-senha',
     loadComponent: () => import('./shared/pages/alterar-senha/alterar-senha'),
     canActivate: [authGuard],

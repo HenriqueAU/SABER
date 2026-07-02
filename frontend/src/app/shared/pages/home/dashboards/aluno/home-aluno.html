@@ -1,92 +1,128 @@
 <div class="container-fluid py-4 px-4">
 
-  @if (dashboard(); as d) {
-    <div class="row g-3 mb-4">
-      <div class="col-12 col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body">
-            <p class="text-secondary small mb-1 text-uppercase fw-semibold">Livros lidos</p>
-            <h2 class="fw-bold mb-0">{{ d.totalLivrosLidos }}</h2>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body">
-            <p class="text-secondary small mb-1 text-uppercase fw-semibold">Gênero favorito</p>
-            <h2 class="fw-bold mb-0 fs-4">{{ d.generoFavorito }}</h2>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body">
-            <p class="text-secondary small mb-1 text-uppercase fw-semibold">Clubes participados</p>
-            <h2 class="fw-bold mb-0">{{ d.totalClubesParticipados }}</h2>
-          </div>
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <p class="text-secondary small mb-1 text-uppercase fw-semibold">Livros lidos</p>
+          <h2 class="fw-bold mb-0">{{ totalLivrosLidos() }}</h2>
         </div>
       </div>
     </div>
-    <div class="row g-4 mb-4">
-      <div class="col-12 col-lg-5">
+    <div class="col-12 col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <p class="text-secondary small mb-1 text-uppercase fw-semibold">Clubes que participei</p>
+          <h2 class="fw-bold mb-0">{{ totalClubes() }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">Livros com você</h6>
+
+          @if (carregandoEmprestimos()) {
+            <p class="text-secondary small">Carregando...</p>
+          }
+
+          @if (!carregandoEmprestimos() && emprestimosAtivos().length === 0) {
+            <div class="text-center py-4 text-secondary">
+              <i class="bi bi-book fs-2"></i>
+              <p class="small mt-2 mb-0">Nenhum livro em seu poder no momento.</p>
+            </div>
+          }
+
+          <ul class="list-unstyled mb-0">
+            @for (emp of emprestimosAtivos(); track emp.id; let i = $index) {
+              <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
+                <img
+                  [src]="emp.capaUrl || 'assets/imgs/teste2.png'"
+                  [alt]="emp.titulo"
+                  class="rounded"
+                  style="width: 36px; height: 50px; object-fit: cover;">
+                <div class="flex-grow-1 overflow-hidden">
+                  <div class="fw-semibold text-truncate">{{ emp.titulo }}</div>
+                  <small [class.text-danger]="estaAtrasado(emp.dataDevolucaoEsperada)"
+                         [class.text-secondary]="!estaAtrasado(emp.dataDevolucaoEsperada)">
+                    Devolver até {{ emp.dataDevolucaoEsperada | date:'dd/MM/yyyy' }}
+                    @if (estaAtrasado(emp.dataDevolucaoEsperada)) {
+                      <span class="ms-1">⚠ Atrasado</span>
+                    }
+                  </small>
+                </div>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">Meus clubes</h6>
+
+          @if (clubes().length === 0) {
+            <div class="text-center py-4 text-secondary">
+              <i class="bi bi-people fs-2"></i>
+              <p class="small mt-2 mb-0">Você não está participando de nenhum clube.</p>
+            </div>
+          }
+
+          <ul class="list-unstyled mb-0">
+            @for (clube of clubes(); track clube.id; let i = $index) {
+              <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
+                <img
+                  [src]="clube.capaUrl || 'assets/imgs/teste2.png'"
+                  [alt]="clube.nomeLivro"
+                  class="rounded"
+                  style="width: 36px; height: 50px; object-fit: cover;">
+                <div class="flex-grow-1 overflow-hidden">
+                  <div class="fw-semibold text-truncate">{{ clube.nomeLivro }}</div>
+                  <small class="text-secondary">Encerra em {{ clube.dataEncerramento | date:'dd/MM/yyyy' }}</small>
+                </div>
+                @if (clube.status === 'ativo') {
+                  <span class="badge bg-success-subtle text-success">Ativo</span>
+                }
+                @if (clube.status === 'encerrado') {
+                  <span class="badge bg-secondary-subtle text-secondary">Encerrado</span>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12">
+      <h6 class="fw-bold mb-3">Recomendados para você</h6>
+    </div>
+    @for (livro of recomendacoes(); track livro.id) {
+      <div class="col-12 col-md-4">
         <div class="card border-0 shadow-sm h-100">
+          <img
+            [src]="livro.capaUrl || 'assets/imgs/teste2.png'"
+            class="card-img-top object-fit-cover"
+            style="height: 160px;"
+            [alt]="livro.titulo">
           <div class="card-body">
-            <h6 class="fw-bold mb-3">Leituras por gênero</h6>
-            <div style="position: relative; height: 220px;">
-              <canvas id="generoAlunoChart"></canvas>
+            <h6 class="fw-semibold mb-1 text-truncate">{{ livro.titulo }}</h6>
+            <small class="text-secondary">{{ livro.autor }}</small>
+            <div class="mt-2">
+              <span class="badge bg-primary-subtle text-primary">{{ livro.genero }}</span>
             </div>
           </div>
         </div>
       </div>
-      <div class="col-12 col-lg-7">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body">
-            <h6 class="fw-bold mb-3">Histórico de leitura</h6>
-            <ul class="list-unstyled mb-0">
-              @for (livro of d.historicoLeitura; track livro.id; let i = $index) {
-                <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
-                  <img
-                    [src]="livro.capaUrl || 'assets/imgs/teste2.png'"
-                    [alt]="livro.titulo"
-                    class="rounded"
-                    style="width: 36px; height: 50px; object-fit: cover;">
-                  <div class="flex-grow-1 overflow-hidden">
-                    <div class="fw-semibold text-truncate">{{ livro.titulo }}</div>
-                    <small class="text-secondary">{{ livro.autor }}</small>
-                  </div>
-                  <div class="text-end">
-                    <span class="badge bg-primary-subtle text-primary mb-1 d-block">{{ livro.genero }}</span>
-                    <small class="text-secondary">{{ livro.dataDevolucao | date:'dd/MM/yyyy' }}</small>
-                  </div>
-                </li>
-              }
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row g-3">
-      <div class="col-12">
-        <h6 class="fw-bold mb-3">Recomendados para você</h6>
-      </div>
-      @for (livro of d.recomendacoes; track livro.id) {
-        <div class="col-12 col-md-4">
-          <div class="card border-0 shadow-sm h-100">
-            <img
-              [src]="livro.capaUrl || 'assets/imgs/teste2.png'"
-              class="card-img-top object-fit-cover"
-              style="height: 160px;"
-              [alt]="livro.titulo">
-            <div class="card-body">
-              <h6 class="fw-semibold mb-1 text-truncate">{{ livro.titulo }}</h6>
-              <small class="text-secondary">{{ livro.autor }}</small>
-              <div class="mt-2">
-                <span class="badge bg-primary-subtle text-primary">{{ livro.genero }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-    </div>
-  }
+    }
+  </div>
+
 </div>
