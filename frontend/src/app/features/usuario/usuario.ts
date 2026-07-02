@@ -4,7 +4,7 @@ import { Component,
   ChangeDetectorRef
  } from '@angular/core';
  import { CommonModule } from '@angular/common';
- import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'
+ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms'
  import { UsuariosService } from '../../../client/services/usuarios.service'; 
  import { CoreAuthService } from '../../core/auth/auth-session';
  import { TipoPerfil } from '../../core/auth/tipo-perfil.enum'
@@ -12,7 +12,7 @@ import { Component,
 @Component({
   selector: 'app-usuario',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './usuario.html',
   styleUrl: './usuario.css',
 })
@@ -27,10 +27,28 @@ export default class UsuarioComponent implements OnInit {
   TipoPerfilEnum = TipoPerfil;
   perfis = Object.values(TipoPerfil);
 
+  mostrarForm = false;
+  termoBusca = '';
+  PerfilSelecionado = '';
+
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
   private usuariosService = inject(UsuariosService);
   private authService = inject(CoreAuthService);
+
+  get usuariosFiltrados(): any[] {
+    return this.usuarios.filter((usuario) => {
+      const nomeOk =
+      !this.termoBusca ||
+        usuario.nome.toLowerCase().includes(this.termoBusca.toLowerCase());
+
+      const perfilOk =
+      !this.PerfilSelecionado ||
+        usuario.perfil === this.PerfilSelecionado;
+
+      return nomeOk && perfilOk;
+    });
+  }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -58,6 +76,15 @@ export default class UsuarioComponent implements OnInit {
     });
 
     this.carregarUsuarios();
+  }
+
+  abrirFormCadastro(){
+    this.form.reset();
+    this.mostrarForm = true;
+  }
+
+  fecharFormCadastro(){
+    this.mostrarForm = false;
   }
 
   private getInstituicaoId(): string | null {

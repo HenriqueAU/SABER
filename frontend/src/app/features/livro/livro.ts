@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { LivrosService } from '../../../client/services/livros.service';
 import { CoreAuthService } from '../../core/auth/auth-session';
 import { TipoPerfil } from '../../core/auth/tipo-perfil.enum';
@@ -8,6 +8,8 @@ import { CreateLivroDto } from '../../../client/models/index';
 import ExemplarComponent from './exemplar/exemplar';
 import GenerosComponent from './generos/generos';
 import { LivroGeneroService } from './generos/livro-genero.service';
+import { catchError, debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 interface Livro extends CreateLivroDto {
   id: string;
@@ -15,7 +17,7 @@ interface Livro extends CreateLivroDto {
 @Component({
   selector: 'app-livro',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ExemplarComponent, GenerosComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ExemplarComponent, GenerosComponent],
   templateUrl: './livro.html',
   styleUrl: './livro.css',
 })
@@ -31,6 +33,11 @@ export default class LivroComponent implements OnInit {
   livroSelecionado: Livro | null = null;
   livroDetalhes: Livro | null = null;
   generosPorLivro: Record<string, string[]> = {};
+  buscandoIsbn = false;
+
+  termoBusca ='';
+  generoSelecionado = '';
+  generosDisponiveis: string[] = [];
   
   trackById(index: number, livro: Livro): string {
     return livro.id;
@@ -51,9 +58,47 @@ export default class LivroComponent implements OnInit {
     capa_url: ['']
   });
 
-  ngOnInit() {
-    this.carregarLivros();
+  get livrosFiltrados(): Livro[] {
+    return this.livros.filter((livro)=>{
+      const textoOk = 
+        !this.termoBusca ||
+        livro.titulo.toLowerCase().includes(this.termoBusca.toLowerCase()) ||
+        livro.autor.toLowerCase().includes(this.termoBusca.toLowerCase());
+      
+      const generoDoLivro = this.generosPorLivro[livro.id] ?? [];
+      const generoOk = !this.generoSelecionado || generoDoLivro.includes(this.generoSelecionado);
+      return textoOk && generoOk;
+      
+    })
   }
+
+ngOnInit() {
+  this.carregarLivros();
+
+  this.livroForm.get('isbn')?.valueChanges.pipe(
+    debounceTime(600),
+    distinctUntilChanged(),
+    filter((isbn: string) => !!isbn && isbn.length >= 10),
+    switchMap((isbn: string) => {
+    this.buscandoIsbn = true;
+    return this.livrosService.livroControllerBuscarPorIsbn(isbn).pipe(
+      catchError(() => of(null))
+  );
+})
+  ).subscribe((dados: any) => {
+    this.buscandoIsbn = false;
+    if (!dados) return;
+    if (dados.titulo) this.livroForm.patchValue({ titulo: dados.titulo }, { emitEvent: false });
+    if (dados.autor) this.livroForm.patchValue({ autor: dados.autor }, { emitEvent: false });
+    if (dados.capa_url) this.livroForm.patchValue({ capa_url: dados.capa_url }, { emitEvent: false });
+    if (dados.editora) this.livroForm.patchValue({ editora: dados.editora }, { emitEvent: false });
+    if (dados.publicado_em){
+      const ano = new Date(dados.publicado_em).getFullYear();
+       if (!isNaN(ano)) this.livroForm.patchValue({ ano_publicacao: ano }, { emitEvent: false });
+    }
+    if (dados.sinopse) this.livroForm.patchValue({ sinopse: dados.sinopse }, { emitEvent: false });
+  });
+}
 
  carregarLivros() {
   this.livrosService.livroControllerFindAll().subscribe({
@@ -68,15 +113,21 @@ carregarGeneros() {
   this.livroGeneroService.listar().subscribe({
     next: (relacoes) => {
       this.generosPorLivro = {};
+      const generosSet = new Set<string>();
+
       relacoes.forEach((relacao: any) => {
         const livroId = relacao.livro.id;
         const nomeGenero = relacao.genero.nome;
+
         if (!this.generosPorLivro[livroId]) {
           this.generosPorLivro[livroId] = [];
         }
         this.generosPorLivro[livroId].push(nomeGenero);
+        generosSet.add(nomeGenero);
       });
-      this.cdr.detectChanges(); 
+
+      this.generosDisponiveis = Array.from(generosSet).sort();
+      this.cdr.detectChanges();
     },
   });
 }
