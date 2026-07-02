@@ -6,137 +6,43 @@
   </div>
 
   <div class="d-flex justify-content-center px-3 pb-5">
-    <div style="width: 100%; max-width: 600px;">
+    <div style="width: 100%; max-width: 900px;">
 
-     
-      <div class="card shadow-sm rounded-4 p-4 mb-4">
-        <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fs-4 fw-light text-dark mb-0">Usuários</h2>
+        <button (click)="abrirFormCadastro()" class="btn btn-primary fw-medium shadow-sm">
+          + Cadastrar usuário
+        </button>
+      </div>
 
-          <h5 class="fw-bold mb-1">Cadastrar novo usuário</h5>
-          <p class="text-muted small mb-4">Preencha os dados do novo usuário para cadastrá-lo no sistema.</p>
+      <div style="display:flex; gap:12px; margin-bottom: 16px; flex-wrap: wrap;">
+        <input
+          type="text"
+          placeholder="Buscar por nome"
+          [(ngModel)]="termoBusca"
+          [ngModelOptions]="{standalone: true}"
+          style="flex:1; min-width:200px; padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px;"
+        />
 
-          <form [formGroup]="form" (ngSubmit)="onSubmit()">
-
-            <div class="mb-3">
-              <label for="nome" class="form-label small fw-semibold">Nome</label>
-              <input id="nome" type="text" formControlName="nome" class="form-control form-control-sm" placeholder="Ex: João da Silva">
-              @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
-                @if (form.get('nome')?.errors?.['required']) {
-                  <small class="text-danger">Nome é obrigatório.</small>
-                }
-                @if (form.get('nome')?.errors?.['minlength']) {
-                  <small class="text-danger">Nome deve ter no mínimo 2 caracteres.</small>
-                }
-                @if (form.get('nome')?.errors?.['maxlength']) {
-                  <small class="text-danger">Nome deve ter no máximo 150 caracteres.</small>
-                }
-                @if (form.get('nome')?.errors?.['pattern']) {
-                  <small class="text-danger">Nome contém caracteres inválidos.</small>
-                }
-              }
-            </div>
-
-            <div class="mb-3">
-              <label for="email" class="form-label small fw-semibold">Email</label>
-              <input id="email" type="email" formControlName="email" class="form-control form-control-sm" placeholder="Ex: joao@email.com">
-              @if (form.get('email')?.invalid && form.get('email')?.touched) {
-                @if (form.get('email')?.errors?.['required']) {
-                  <small class="text-danger">Email é obrigatório.</small>
-                }
-                @if (form.get('email')?.errors?.['email']) {
-                  <small class="text-danger">Email inválido.</small>
-                }
-                @if (form.get('email')?.errors?.['minlength']) {
-                  <small class="text-danger">Email deve ter no mínimo 3 caracteres.</small>
-                }
-                @if (form.get('email')?.errors?.['maxlength']) {
-                  <small class="text-danger">Email deve ter no máximo 255 caracteres.</small>
-                }
-              }
-            </div>
-
-            <div class="mb-3">
-              <label for="senha" class="form-label small fw-semibold">Senha</label>
-              <input id="senha" type="password" formControlName="senha" class="form-control form-control-sm" placeholder="Mínimo 8 caracteres">
-              @if (form.get('senha')?.invalid && form.get('senha')?.touched) {
-                @if (form.get('senha')?.errors?.['required']) {
-                  <small class="text-danger">Senha é obrigatória.</small>
-                }
-                @if (form.get('senha')?.errors?.['minlength']) {
-                  <small class="text-danger">Senha deve ter no mínimo 8 caracteres.</small>
-                }
-                @if (form.get('senha')?.errors?.['maxlength']) {
-                  <small class="text-danger">Senha deve ter no máximo 72 caracteres.</small>
-                }
-                @if (form.get('senha')?.errors?.['pattern']) {
-                  <small class="text-danger">A senha deve conter ao menos uma letra maiúscula, uma minúscula, um número e um caractere especial.</small>
-                }
-              }
-            </div>
-
-            <div class="row g-3 mb-3">
-              <div class="col-6">
-                <label for="perfil" class="form-label small fw-semibold">Perfil</label>
-                <select id="perfil" formControlName="perfil" class="form-select form-select-sm">
-                  <option value="">Selecione</option>
-                  @for (p of perfis; track p) {
-                    <option [value]="p">{{ p }}</option>
-                  }
-                </select>
-                @if (form.get('perfil')?.invalid && form.get('perfil')?.touched) {
-                  @if (form.get('perfil')?.errors?.['required']) {
-                    <small class="text-danger">Obrigatório.</small>
-                  }
-                }
-              </div>
-              <div class="col-6">
-                <label for="data_nasc" class="form-label small fw-semibold">Data de Nascimento</label>
-                <input id="data_nasc" type="date" formControlName="data_nasc" class="form-control form-control-sm">
-                @if (form.get('data_nasc')?.invalid && form.get('data_nasc')?.touched) {
-                  @if (form.get('data_nasc')?.errors?.['required']) {
-                    <small class="text-danger">Obrigatória.</small>
-                  }
-                }
-              </div>
-            </div>
-
-            <div class="mb-4">
-              <label for="foto_perfil" class="form-label small fw-semibold">
-                Foto de Perfil <span class="text-muted fw-normal">(opcional)</span>
-              </label>
-              <input id="foto_perfil" type="text" formControlName="foto_perfil" class="form-control form-control-sm" placeholder="URL da imagem">
-              @if (form.get('foto_perfil')?.invalid && form.get('foto_perfil')?.touched) {
-                @if (form.get('foto_perfil')?.errors?.['maxlength']) {
-                  <small class="text-danger">URL deve ter no máximo 500 caracteres.</small>
-                }
-              }
-            </div>
-
-            <div class="d-grid">
-              <button type="submit" [disabled]="enviando" class="btn btn-primary rounded-3 fw-semibold">
-                {{ enviando ? 'Cadastrando...' : 'Cadastrar usuário →' }}
-              </button>
-            </div>
-
-          </form>
-
-          @if (mensagemSucesso) {
-            <p class="mt-3 text-center text-success fw-semibold small">{{ mensagemSucesso }}</p>
+        <select
+          [(ngModel)]="PerfilSelecionado"
+          [ngModelOptions]="{standalone: true}"
+          style="padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; background:#fff; min-width:160px;"
+        >
+          <option value="">Todos os perfis</option>
+          @for (p of perfis; track p) {
+            <option [value]="p">{{ p }}</option>
           }
-          @if (mensagemErro) {
-            <p class="mt-3 text-center text-danger fw-semibold small">{{ mensagemErro }}</p>
-          }
-
-        </div>
+        </select>
       </div>
 
       @if (carregando) {
         <p class="text-muted small">Carregando usuários...</p>
       }
-      @if (!carregando && usuarios.length === 0) {
+      @if (!carregando && usuariosFiltrados.length === 0) {
         <p class="text-muted small">Nenhum usuário encontrado.</p>
       }
-      @if (!carregando && usuarios.length > 0) {
+      @if (!carregando && usuariosFiltrados.length > 0) {
         <div class="rounded overflow-hidden border shadow-sm">
           <table class="table table-bordered table-striped table-hover mb-3">
             <thead class="table-primary">
@@ -148,7 +54,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (usuario of usuarios; track usuario.id) {
+              @for (usuario of usuariosFiltrados; track usuario.id) {
                 <tr>
                   <td>{{ usuario.nome }}</td>
                   <td>{{ usuario.email }}</td>
@@ -163,5 +69,135 @@
 
     </div>
   </div>
+
+  @if (mostrarForm) {
+    <div class="modal d-block" style="background: rgba(17,24,39,0.4); backdrop-filter: blur(2px);" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 shadow-lg">
+          <div class="modal-header border-bottom">
+            <h2 class="modal-title fs-4 fw-medium text-dark">Cadastrar novo usuário</h2>
+            <button type="button" class="btn-close" (click)="fecharFormCadastro()"></button>
+          </div>
+
+          <div class="modal-body">
+            <p class="text-muted small mb-4">Preencha os dados do novo usuário para cadastrá-lo no sistema.</p>
+
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+              <div class="mb-3">
+                <label for="nome" class="form-label small fw-semibold">Nome</label>
+                <input id="nome" type="text" formControlName="nome" class="form-control" placeholder="Ex: João da Silva">
+                @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
+                  @if (form.get('nome')?.errors?.['required']) {
+                    <small class="text-danger">Nome é obrigatório.</small>
+                  }
+                  @if (form.get('nome')?.errors?.['minlength']) {
+                    <small class="text-danger">Nome deve ter no mínimo 2 caracteres.</small>
+                  }
+                  @if (form.get('nome')?.errors?.['maxlength']) {
+                    <small class="text-danger">Nome deve ter no máximo 150 caracteres.</small>
+                  }
+                  @if (form.get('nome')?.errors?.['pattern']) {
+                    <small class="text-danger">Nome contém caracteres inválidos.</small>
+                  }
+                }
+              </div>
+
+              <div class="mb-3">
+                <label for="email" class="form-label small fw-semibold">Email</label>
+                <input id="email" type="email" formControlName="email" class="form-control" placeholder="Ex: joao@email.com">
+                @if (form.get('email')?.invalid && form.get('email')?.touched) {
+                  @if (form.get('email')?.errors?.['required']) {
+                    <small class="text-danger">Email é obrigatório.</small>
+                  }
+                  @if (form.get('email')?.errors?.['email']) {
+                    <small class="text-danger">Email inválido.</small>
+                  }
+                  @if (form.get('email')?.errors?.['minlength']) {
+                    <small class="text-danger">Email deve ter no mínimo 3 caracteres.</small>
+                  }
+                  @if (form.get('email')?.errors?.['maxlength']) {
+                    <small class="text-danger">Email deve ter no máximo 255 caracteres.</small>
+                  }
+                }
+              </div>
+
+              <div class="mb-3">
+                <label for="senha" class="form-label small fw-semibold">Senha</label>
+                <input id="senha" type="password" formControlName="senha" class="form-control" placeholder="Mínimo 8 caracteres">
+                @if (form.get('senha')?.invalid && form.get('senha')?.touched) {
+                  @if (form.get('senha')?.errors?.['required']) {
+                    <small class="text-danger">Senha é obrigatória.</small>
+                  }
+                  @if (form.get('senha')?.errors?.['minlength']) {
+                    <small class="text-danger">Senha deve ter no mínimo 8 caracteres.</small>
+                  }
+                  @if (form.get('senha')?.errors?.['maxlength']) {
+                    <small class="text-danger">Senha deve ter no máximo 72 caracteres.</small>
+                  }
+                  @if (form.get('senha')?.errors?.['pattern']) {
+                    <small class="text-danger">A senha deve conter ao menos uma letra maiúscula, uma minúscula, um número e um caractere especial.</small>
+                  }
+                }
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-6">
+                  <label for="perfil" class="form-label small fw-semibold">Perfil</label>
+                  <select id="perfil" formControlName="perfil" class="form-select form-select-sm">
+                    <option value="">Selecione</option>
+                    @for (p of perfis; track p) {
+                      <option [value]="p">{{ p }}</option>
+                    }
+                  </select>
+                  @if (form.get('perfil')?.invalid && form.get('perfil')?.touched) {
+                    @if (form.get('perfil')?.errors?.['required']) {
+                      <small class="text-danger">Obrigatório.</small>
+                    }
+                  }
+                </div>
+                <div class="col-6">
+                  <label for="data_nasc" class="form-label small fw-semibold">Data de Nascimento</label>
+                  <input id="data_nasc" type="date" formControlName="data_nasc" class="form-control">
+                  @if (form.get('data_nasc')?.invalid && form.get('data_nasc')?.touched) {
+                    @if (form.get('data_nasc')?.errors?.['required']) {
+                      <small class="text-danger">Obrigatória.</small>
+                    }
+                  }
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <label for="foto_perfil" class="form-label small fw-semibold">
+                  Foto de Perfil <span class="text-muted fw-normal">(opcional)</span>
+                </label>
+                <input id="foto_perfil" type="text" formControlName="foto_perfil" class="form-control" placeholder="URL da imagem">
+                @if (form.get('foto_perfil')?.invalid && form.get('foto_perfil')?.touched) {
+                  @if (form.get('foto_perfil')?.errors?.['maxlength']) {
+                    <small class="text-danger">URL deve ter no máximo 500 caracteres.</small>
+                  }
+                }
+              </div>
+
+              @if (mensagemSucesso) {
+                <p class="text-center text-success fw-semibold small">{{ mensagemSucesso }}</p>
+              }
+              @if (mensagemErro) {
+                <p class="text-center text-danger fw-semibold small">{{ mensagemErro }}</p>
+              }
+
+              <div class="modal-footer border-top px-0 pb-0">
+                <button type="button" (click)="fecharFormCadastro()" class="btn btn-light btn-sm">Cancelar</button>
+                <button type="submit" [disabled]="enviando" class="btn btn-primary btn-sm shadow-sm">
+                  {{ enviando ? 'Cadastrando...' : 'Cadastrar usuário' }}
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 
 </div>
