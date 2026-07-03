@@ -1,123 +1,270 @@
 <div class="clube-container">
 
-  <ng-container *ngIf="modoListagem">
+  @if (modoListagem) {
     <header class="clube-header">
-      <h1>Catálogo de Clubes</h1>
-      <p>Explore os clubes de leitura disponíveis na sua instituição e participe!</p>
+      <h1>Clubes de Leitura</h1>
+      <p>Explore os clubes disponíveis na sua instituição.</p>
     </header>
 
-    <div *ngIf="carregando" class="loading">A carregar clubes...</div>
-    <div *ngIf="mensagemErro" class="alerta erro">{{ mensagemErro }}</div>
-
-    <div class="clubes-grid" *ngIf="!carregando && clubes.length > 0">
-      <div class="clube-card clicavel" *ngFor="let c of clubes" (click)="abrirClube(c.id)">
-        <div class="clube-card-header">
-          <h3>{{ c.nome || c.livro?.titulo || 'Clube de Leitura' }}</h3>
-        </div>
-        <div class="clube-card-body">
-          <p *ngIf="getDiasParaInicio(c.data_inicio) as dias">
-            <strong>Início:</strong> <span style="color: #007bff; font-weight: 500;">Começará em {{ dias }} dia(s)</span>
-          </p>
-          <p><strong>Fim:</strong> {{ c.data_fim | date:'dd/MM/yyyy' }}</p>
-          <p *ngIf="c.local_encontro"><strong>Local:</strong> {{ c.local_encontro }}</p>
-        </div>
-      </div>
+  <div style="display: flex; justify-content: center; margin-bottom: 28px;">
+  <div style="display: flex; gap: 10px; align-items: center; width: 100%; max-width: 700px;">
+    
+    <div style="position: relative; flex: 1;">
+      <input
+        type="text"
+        [(ngModel)]="termoBusca"
+        (ngModelChange)="onFiltroChange()"
+        placeholder="Buscar por título ou autor"
+        style="width: 100%; padding: 9px 12px 9px 34px; border: 1px solid #e8edf2; border-radius: 8px; font-size: 14px; color: #444; background: #fafbfc; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
+        (focus)="$event.target.style.borderColor='#a0b4c8'"
+        (blur)="$event.target.style.borderColor='#e8edf2'"
+      />
     </div>
-  </ng-container>
 
-  <ng-container *ngIf="!modoListagem">
+    <select
+      [(ngModel)]="generoFiltro"
+      (ngModelChange)="onFiltroChange()"
+      style="padding: 9px 12px; border: 1px solid #e8edf2; border-radius: 8px; font-size: 14px; min-width: 160px; background: #fafbfc; color: #555; outline: none; cursor: pointer;"
+    >
+      <option value="">Todos os gêneros</option>
+      @for (genero of generosDisponiveis; track genero) {
+        <option [value]="genero">{{ genero }}</option>
+      }
+    </select>
+  </div>
+</div>
+
+    @if (carregando) {
+      <div class="loading">A carregar clubes...</div>
+    }
+    
+    @if (mensagemErro) {
+      <div class="alerta erro">{{ mensagemErro }}</div>
+    }
+
+    @if (!carregando && clubesFiltrados.length > 0) {
+      <div class="clubes-grid">
+        @for (c of clubesPaginados; track c.id) {
+          <div class="clube-card clicavel" (click)="abrirClube(c.id)">
+            <div class="clube-card-header">
+              <h3>{{ c.livro?.titulo || c.nome || 'Clube de Leitura' }}</h3>
+              @if (c.livro?.titulo && c.nome) {
+                <small style="opacity: 0.7; display: block; margin-top: 4px;">{{ c.nome }}</small>
+              }
+            </div>
+            <div class="clube-card-body">
+              <p><strong>Início:</strong> {{ c.data_inicio | date:'dd/MM/yyyy' }}</p>
+              <p><strong>Fim:</strong> {{ c.data_fim | date:'dd/MM/yyyy' }}</p>
+              @if (c.local_encontro) {
+                <p><strong>Local:</strong> {{ c.local_encontro }}</p>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (totalPaginas > 1) {
+        <div class="paginacao-container" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 30px; padding: 20px 0;">
+          <button 
+            [disabled]="paginaAtual === 1" 
+            (click)="mudarPagina(paginaAtual - 1)"
+            style="padding: 8px 16px; border: 1px solid #ccc; background: #fff; border-radius: 4px; cursor: pointer;"
+            [style.opacity]="paginaAtual === 1 ? '0.5' : '1'"
+            [style.cursor]="paginaAtual === 1 ? 'not-allowed' : 'pointer'">
+            ← Anterior
+          </button>
+          
+          <span style="font-weight: 500; color: #555;">
+            Página <strong>{{ paginaAtual }}</strong> de {{ totalPaginas }}
+          </span>
+          
+          <button 
+            [disabled]="paginaAtual === totalPaginas" 
+            (click)="mudarPagina(paginaAtual + 1)"
+            style="padding: 8px 16px; border: 1px solid #ccc; background: #fff; border-radius: 4px; cursor: pointer;"
+            [style.opacity]="paginaAtual === totalPaginas ? '0.5' : '1'"
+            [style.cursor]="paginaAtual === totalPaginas ? 'not-allowed' : 'pointer'">
+            Próxima →
+          </button>
+        </div>
+      }
+    } @else if (!carregando) {
+      <div style="text-align: center; color: #777; padding: 30px; background: #f9f9f9; border-radius: 8px;">
+        Nenhum clube encontrado para os filtros selecionados.
+      </div>
+    }
+  }
+
+  @if (!modoListagem) {
     <button class="btn-voltar" (click)="voltarParaListagem()">← Voltar à Lista</button>
 
-    <div *ngIf="carregando" class="loading">A carregar dados...</div>
-    <div *ngIf="mensagemErro" class="alerta erro">{{ mensagemErro }}</div>
-    <div *ngIf="mensagemSucesso" class="alerta sucesso">{{ mensagemSucesso }}</div>
+    @if (carregando) {
+      <div class="loading">A carregar dados...</div>
+    }
+    @if (mensagemErro) {
+      <div class="alerta erro">{{ mensagemErro }}</div>
+    }
+    @if (mensagemSucesso) {
+      <div class="alerta sucesso">{{ mensagemSucesso }}</div>
+    }
 
-    <div *ngIf="!carregando && clubeDetalhes" class="detalhes-container">
-      
-      <div class="livro-detalhes-card">
-        <img [src]="clubeDetalhes.livro?.capa_url || clubeDetalhes.livro?.capaUrl || 'assets/imgs/teste2.png'" alt="Capa do Livro" class="livro-capa-grande">
+    @if (!carregando && clubeDetalhes) {
+      <div class="detalhes-container">
         
-        <div class="livro-info-completa">
-          <span class="badge-clube">Clube de Leitura</span>
-          <h2>{{ clubeDetalhes.nome || 'Clube de Leitura' }}</h2>
-          <h4 style="margin-top: 10px; margin-bottom: 4px; font-size: 1.25rem; color: #222;">
-            <i class="bi bi-book me-2 text-secondary"></i>{{ clubeDetalhes.livro?.titulo || 'Título não informado' }}
-          </h4>
-          <h5 class="livro-autor" style="font-size: 1rem; color: #555;">
-            {{ clubeDetalhes.livro?.autor || 'Autor Desconhecido' }}
-          </h5>
-          <p class="livro-sinopse">{{ clubeDetalhes.livro?.sinopse || 'Nenhuma sinopse disponível para este livro no momento.' }}</p>
-          
-          <div class="livro-meta">
-            <span *ngIf="clubeDetalhes.livro?.isbn"><strong>ISBN:</strong> {{ clubeDetalhes.livro?.isbn }}</span>
-            <span *ngIf="clubeDetalhes.livro?.editora"><strong>Editora:</strong> {{ clubeDetalhes.livro?.editora }}</span>
-            <span *ngIf="clubeDetalhes.livro?.ano_publicacao || clubeDetalhes.livro?.ano">
-              <strong>Ano:</strong> {{ clubeDetalhes.livro?.ano_publicacao || clubeDetalhes.livro?.ano }}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="clube-info-card">
-        <h3 style="margin-bottom: 20px; color: #333; font-size: 1.3rem;">Informações do Encontro</h3>
-        <div class="info-grid">
-          
-          <div class="info-item" *ngIf="clubeDetalhes.local_encontro">
-            <span>Local do Encontro</span>
-            <strong>{{ clubeDetalhes.local_encontro }}</strong>
-          </div>
-          
-          <div class="info-item" *ngIf="getDiasParaInicio(clubeDetalhes.data_inicio) as dias">
-            <span>Início</span>
-            <strong style="color: #007bff;">Começará em {{ dias }} dia(s)</strong>
-          </div>
-
-          <div class="info-item">
-            <span>Data de encerramento</span>
-            <strong>{{ (clubeDetalhes.data_fim | date:'dd/MM/yyyy') || 'Não definido' }}</strong>
-          </div>
-        </div>
-
-        <div class="acoes-clube" *ngIf="abaAtiva === 'detalhes'">
-          <ng-container *ngIf="perfilUsuario === TipoPerfilEnum.ALUNO">
-            <button *ngIf="clubeEncerrado" class="btn-acao-primario" (click)="abrirAvaliacao()">
-              Avaliar Clube
-            </button>
-            <div *ngIf="!clubeEncerrado" class="aviso-bloqueio">
-              <i class="icone-relogio">🕒</i> A avaliação deste clube só estará disponível após o encerramento no dia {{ clubeDetalhes.data_fim | date:'dd/MM/yyyy' }}.
+        @if (clubeDetalhes.livro) {
+          <div class="livro-detalhes-card" style="background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 20px; align-items: start;">
+            @if (clubeDetalhes.livro.capa_url) {
+              <img [src]="clubeDetalhes.livro.capa_url" alt="Capa do livro" style="width: 120px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
+            }
+            <div style="flex: 1;">
+              <span style="background: #e3f2fd; color: #0d47a1; font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px;">LIVRO DO CLUBE</span>
+              <h2 style="margin: 0 0 8px 0; color: #333;">{{ clubeDetalhes.livro.titulo }}</h2>
+              <p style="margin: 0 0 12px 0; color: #666;"><strong>Autor:</strong> {{ clubeDetalhes.livro.autor || 'Não informado' }}</p>
+              
+              @if (clubeDetalhes.livro.sinopse) {
+                <p style="margin: 0 0 12px 0; color: #555; line-height: 1.5; font-size: 14px;">{{ clubeDetalhes.livro.sinopse }}</p>
+              }
+              
+              <div style="display: flex; gap: 20px; font-size: 13px; color: #777; border-top: 1px solid #eee; padding-top: 10px;">
+                @if (clubeDetalhes.livro.editora) {
+                  <span><strong>Editora:</strong> {{ clubeDetalhes.livro.editora }}</span>
+                }
+                @if (clubeDetalhes.livro.ano_publicacao) {
+                  <span><strong>Ano:</strong> {{ clubeDetalhes.livro.ano_publicacao }}</span>
+                }
+              </div>
             </div>
-          </ng-container>
-        </div>
-      </div>
-
-      <hr class="divisor" *ngIf="abaAtiva !== 'detalhes'">
-
-      <div class="questionario-card" *ngIf="abaAtiva === 'avaliacao'">
-        <header class="clube-header">
-          <h2>Avaliação do Clube</h2>
-          <p>Preencha o questionário abaixo com o seu feedback.</p>
-        </header>
-
-        <form [formGroup]="form" (ngSubmit)="onSubmit()">
-          <div class="pergunta-bloco" *ngFor="let pergunta of perguntas; let i = index">
-            <h3>{{ i + 1 }}. {{ pergunta.texto }}</h3>
-            <div class="opcoes-lista">
-              <label class="opcao-item" *ngFor="let item of getItensDaPergunta(pergunta.id)">
-                <input type="radio" [formControlName]="pergunta.id" [value]="item.id">
-                <span class="opcao-texto">{{ item.texto }}</span>
-              </label>
-            </div>
-            <small class="texto-erro" *ngIf="form.get(pergunta.id)?.invalid && form.get(pergunta.id)?.touched">
-              Por favor, selecione uma opção.
-            </small>
           </div>
-          <button class="btn-enviar" type="submit" [disabled]="form.invalid || enviando || form.disabled">
-            {{ enviando ? 'A enviar...' : 'Enviar Avaliação' }}
-          </button>
-        </form>
-      </div>
+        }
 
-    </div>
-  </ng-container>
+        <div class="clube-info-card">
+          <h2>Informações do Clube</h2>
+          @if (clubeDetalhes.nome) {
+            <p class="text-muted" style="margin-top: -10px; margin-bottom: 20px; font-style: italic;">Identificação: {{ clubeDetalhes.nome }}</p>
+          }
+          
+          <div class="info-grid">
+            <div class="info-item">
+              <span>Local do Encontro</span>
+              <strong>{{ clubeDetalhes.local_encontro || 'Não definido' }}</strong>
+            </div>
+            <div class="info-item">
+              <span>Data de Início</span>
+              <strong>{{ clubeDetalhes.data_inicio | date:'dd/MM/yyyy' }}</strong>
+            </div>
+            <div class="info-item">
+              <span>Data de Fim</span>
+              <strong>{{ clubeDetalhes.data_fim | date:'dd/MM/yyyy' }}</strong>
+            </div>
+          </div>
+
+          @if (abaAtiva === 'detalhes') {
+            <div class="acoes-clube">
+              @if (perfilUsuario === TipoPerfilEnum.ALUNO) {
+                @if (clubeEncerrado) {
+                  <button class="btn-acao-primario" (click)="abrirAvaliacao()">
+                    Avaliar Clube
+                  </button>
+                }
+                @if (!clubeEncerrado) {
+                  <div class="aviso-bloqueio">
+                    <i class="icone-relogio">🕒</i> A avaliação deste clube só estará disponível após o encerramento no dia {{ clubeDetalhes.data_fim | date:'dd/MM/yyyy' }}.
+                  </div>
+                }
+              }
+
+              @if (perfilUsuario === TipoPerfilEnum.PROFESSOR) {
+                <button class="btn-acao-primario" (click)="abrirFeedbacks()">
+                  Ver Feedbacks dos Alunos
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        @if (abaAtiva !== 'detalhes') {
+          <hr class="divisor">
+        }
+
+        @if (abaAtiva === 'avaliacao') {
+          <div class="questionario-card">
+            <header class="clube-header">
+              <h2>Avaliação do Clube</h2>
+              <p>Preencha o questionário abaixo com o seu feedback.</p>
+            </header>
+
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+              @for (pergunta of perguntas; track pergunta.id; let i = $index) {
+                <div class="pergunta-bloco">
+                  <h3>{{ i + 1 }}. {{ pergunta.texto }}</h3>
+                  <div class="opcoes-lista">
+                    @for (item of getItensDaPergunta(pergunta.id); track item.id) {
+                      <label class="opcao-item">
+                        <input type="radio" [formControlName]="pergunta.id" [value]="item.id">
+                        <span class="opcao-texto">{{ item.texto }}</span>
+                      </label>
+                    }
+                  </div>
+                  @if (form.get(pergunta.id)?.invalid && form.get(pergunta.id)?.touched) {
+                    <small class="texto-erro">
+                      Por favor, selecione uma opção.
+                    </small>
+                  }
+                </div>
+              }
+              <button class="btn-enviar" type="submit" [disabled]="form.invalid || enviando || form.disabled">
+                {{ enviando ? 'A enviar...' : 'Enviar Avaliação' }}
+              </button>
+            </form>
+          </div>
+        }
+
+        @if (abaAtiva === 'feedbacks') {
+          <div class="questionario-card">
+            <header class="clube-header">
+              <h2>Resultados dos Feedbacks</h2>
+              <p>Selecione uma pergunta abaixo para ver a votação dos alunos.</p>
+            </header>
+
+            @if (perguntas.length === 0) {
+              <div class="sem-perguntas">
+                Não há perguntas configuradas.
+              </div>
+            }
+
+            <div class="lista-perguntas-analise">
+              @for (pergunta of perguntas; track pergunta.id; let i = $index) {
+                <div class="pergunta-analise-card">
+                  
+                  <button class="btn-pergunta" 
+                          [class.ativo]="perguntaSelecionadaId === pergunta.id"
+                          (click)="selecionarPerguntaParaAnalise(pergunta.id)">
+                    <span>{{ i + 1 }}. {{ pergunta.texto }}</span>
+                    <span class="seta">{{ perguntaSelecionadaId === pergunta.id ? '▲' : '▼' }}</span>
+                  </button>
+
+                  @if (perguntaSelecionadaId === pergunta.id) {
+                    <div class="estatisticas-box">
+                      @for (stat of estatisticas; track stat.texto) {
+                        <div class="stat-item">
+                          <span class="stat-texto">{{ stat.texto }}</span>
+                          <span class="stat-badge" [class.destaque]="stat.quantidade > 0">
+                            {{ stat.quantidade }} voto(s)
+                          </span>
+                        </div>
+                      }
+                    </div>
+                  }
+
+                </div>
+              }
+            </div>
+
+          </div>
+        }
+
+      </div>
+    }
+  }
 
 </div>

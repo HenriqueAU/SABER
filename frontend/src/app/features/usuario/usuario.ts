@@ -31,6 +31,9 @@ export default class UsuarioComponent implements OnInit {
   termoBusca = '';
   PerfilSelecionado = '';
 
+  readonly ITENS_POR_PAGINA = 30;
+  paginaAtual = 1;
+
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
   private usuariosService = inject(UsuariosService);
@@ -39,15 +42,40 @@ export default class UsuarioComponent implements OnInit {
   get usuariosFiltrados(): any[] {
     return this.usuarios.filter((usuario) => {
       const nomeOk =
-      !this.termoBusca ||
+        !this.termoBusca ||
         usuario.nome.toLowerCase().includes(this.termoBusca.toLowerCase());
 
       const perfilOk =
-      !this.PerfilSelecionado ||
+        !this.PerfilSelecionado ||
         usuario.perfil === this.PerfilSelecionado;
 
       return nomeOk && perfilOk;
     });
+  }
+
+  get fimDaPagina(): number {
+  return Math.min(this.paginaAtual * this.ITENS_POR_PAGINA, this.usuariosFiltrados.length);
+}
+  get totalPaginas(): number {
+    return Math.ceil(this.usuariosFiltrados.length / this.ITENS_POR_PAGINA) || 1;
+  }
+
+  get usuariosPaginados(): any[] {
+    const inicio = (this.paginaAtual - 1) * this.ITENS_POR_PAGINA;
+    return this.usuariosFiltrados.slice(inicio, inicio + this.ITENS_POR_PAGINA);
+  }
+
+  get paginas(): number[] {
+    return Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
+  }
+
+  irParaPagina(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginas) return;
+    this.paginaAtual = pagina;
+  }
+
+  onFiltroChange(): void {
+    this.paginaAtual = 1;
   }
 
   ngOnInit(): void {
@@ -107,6 +135,7 @@ export default class UsuarioComponent implements OnInit {
     this.usuariosService.usuarioControllerFindAll().subscribe({
       next: (dados: any) => {
         this.usuarios = Array.isArray(dados) ? dados : (dados?.data || dados?.items || []);
+        this.paginaAtual = 1;
         this.carregando = false;
         this.cdr.detectChanges();
       },

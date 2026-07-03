@@ -16,6 +16,7 @@ export default class InstituicaoComponent implements OnInit {
   form!: FormGroup;
   carregando: boolean = true;
   enviando: boolean = false;
+  mostrarModal: boolean = false;
   mensagemSucesso: string = '';
   mensagemErro: string = '';
   instituicaoId: string | null = null;
@@ -162,7 +163,8 @@ export default class InstituicaoComponent implements OnInit {
       next: () => {
         this.mensagemSucesso = 'Dados da instituição atualizados com sucesso!';
         this.enviando = false;
-        this.cdr.detectChanges();
+        setTimeout(() => this.fecharModal(), 1500);
+          this.cdr.detectChanges();
       },
       error: (err: any) => {
         const msg = err.error?.message;
@@ -176,4 +178,13 @@ export default class InstituicaoComponent implements OnInit {
       }
     });
   }
+  abrirModal(): void {
+  this.mostrarModal = true;
+}
+
+fecharModal(): void {
+  this.mostrarModal = false;
+  this.mensagemSucesso = '';
+  this.mensagemErro = '';
+}
 }

@@ -19,12 +19,14 @@
           type="text"
           placeholder="Buscar por nome"
           [(ngModel)]="termoBusca"
+          (ngModelChange)="onFiltroChange()"
           [ngModelOptions]="{standalone: true}"
           style="flex:1; min-width:200px; padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px;"
         />
 
         <select
           [(ngModel)]="PerfilSelecionado"
+          (ngModelChange)="onFiltroChange()"
           [ngModelOptions]="{standalone: true}"
           style="padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; background:#fff; min-width:160px;"
         >
@@ -43,7 +45,7 @@
       }
       @if (!carregando && usuariosFiltrados.length > 0) {
         <div class="rounded overflow-hidden border shadow-sm">
-          <table class="table table-bordered table-striped table-hover mb-3">
+          <table class="table table-bordered table-striped table-hover mb-0">
             <thead class="table-primary">
               <tr>
                 <th>Nome</th>
@@ -53,7 +55,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (usuario of usuariosFiltrados; track usuario.id) {
+              @for (usuario of usuariosPaginados; track usuario.id) {
                 <tr>
                   <td>{{ usuario.nome }}</td>
                   <td>{{ usuario.email }}</td>
@@ -64,12 +66,35 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Paginação -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <span class="text-muted small">
+            Exibindo {{ (paginaAtual - 1) * ITENS_POR_PAGINA + 1 }}–{{ paginaAtual * ITENS_POR_PAGINA > usuariosFiltrados.length ? usuariosFiltrados.length : paginaAtual * ITENS_POR_PAGINA }} de {{ usuariosFiltrados.length }} usuários
+          </span>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="paginaAtual === 1">
+                <button class="page-link" (click)="irParaPagina(paginaAtual - 1)">‹</button>
+              </li>
+              @for (p of paginas; track p) {
+                <li class="page-item" [class.active]="p === paginaAtual">
+                  <button class="page-link" (click)="irParaPagina(p)">{{ p }}</button>
+                </li>
+              }
+              <li class="page-item" [class.disabled]="paginaAtual === totalPaginas">
+                <button class="page-link" (click)="irParaPagina(paginaAtual + 1)">›</button>
+              </li>
+            </ul>
+          </nav>
+        </div>
       }
 
     </div>
   </div>
 
   @if (mostrarForm) {
+    <!-- modal de cadastro — sem alterações -->
     <div class="modal d-block" style="background: rgba(17,24,39,0.4); backdrop-filter: blur(2px);" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content rounded-4 shadow-lg">
