@@ -119,6 +119,7 @@ export class EmprestimoService {
       .select('genero.nome', 'genero')
       .addSelect('COUNT(emprestimo.id)', 'quantidade')
       .where('emprestimo.usuario_id = :usuarioId', { usuarioId })
+      .andWhere('emprestimo.data_devolucao_efetiva IS NOT NULL')
       .groupBy('genero.nome')
       .getRawMany();
 
