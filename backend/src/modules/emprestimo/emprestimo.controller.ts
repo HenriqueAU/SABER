@@ -43,6 +43,13 @@ export class EmprestimoController {
     );
   }
 
+  @ApiOperation({ summary: 'Obter estatísticas de leituras por gênero' })
+  @Roles(TipoPerfil.ALUNO)
+  @Get('estatisticas/generos')
+  getLeiturasPorGenero(@Req() request: RequestComUser) {
+    return this.emprestimoService.getLeiturasPorGenero(request.user.id);
+  }
+  
   @Get(':id')
   @Roles(TipoPerfil.BIBLIOTECARIO, TipoPerfil.ALUNO)
   @ApiOperation({ summary: 'Obter um empréstimo específico pelo ID' })

@@ -49,6 +49,14 @@ export class ClubeController {
     return this.clubeService.findAll(instituicao_id);
   }
 
+  @ApiOperation({ summary: 'Busca os clubes em que o aluno logado está matriculado' })
+  @ApiResponse({ status: 200, description: 'Lista retornada com sucesso' })
+  @Roles(TipoPerfil.ALUNO)
+  @Get('meus-clubes')
+  findMeusClubes(@Req() request: RequestComUser) {
+    return this.clubeService.findMeusClubes(request.user.id);
+  }
+
   @ApiOperation({ summary: 'Busca um clube do livro pelo id' })
   @ApiResponse({ status: 200, description: 'Busca realizada com sucesso' })
   @ApiResponse({ status: 404, description: 'Clube do livro não encontrado' })

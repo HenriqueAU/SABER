@@ -13,6 +13,7 @@ import { UsuarioService } from '../usuario/usuario.service';
 import { LivroService } from '../livro/livro.service';
 import { Usuario, TipoPerfil } from '../usuario/usuario.entity';
 import { Livro } from '../livro/livro.entity';
+import { MembroClube } from '../membro_clube/membro-clube.entity';
 
 @Injectable()
 export class ClubeService {
@@ -103,5 +104,14 @@ export class ClubeService {
         'Livro não pertence à instituição do professor',
       );
     }
+  }
+
+  async findMeusClubes(alunoId: string): Promise<ClubeLivro[]> {
+    return await this.clubeLivroRepository.createQueryBuilder('clube')
+      .innerJoin(MembroClube, 'membro', 'membro.clube_id = clube.id')
+      .leftJoinAndSelect('clube.professor', 'professor')
+      .leftJoinAndSelect('clube.livro', 'livro')
+      .where('membro.usuario_id = :alunoId', { alunoId })
+      .getMany();
   }
 }
