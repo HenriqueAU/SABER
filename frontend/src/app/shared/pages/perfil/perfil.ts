@@ -14,8 +14,8 @@ import { Modal } from 'bootstrap';
 })
 export default class PerfilComponent implements OnInit{
   private coreAuthService = inject(CoreAuthService);
-  protected usuariosService = inject(UsuariosService);
-  protected router = inject(Router);
+  private usuariosService = inject(UsuariosService);
+  private router = inject(Router);
   private location = inject(Location);
 
   usuarioId!: string;
