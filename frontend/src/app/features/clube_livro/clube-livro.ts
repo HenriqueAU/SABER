@@ -2,7 +2,6 @@ import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { MembroClubeService } from '../../../client/services/membroClube.service';
 import { ClubesService } from '../../../client/services/clubes.service';
@@ -29,17 +28,14 @@ export default class ClubeLivroComponent implements OnInit {
   itensPergunta: any[] = [];
   respostasMembros: any[] = [];
   clubeEncerrado: boolean = false;
-  perguntaSelecionadaId: string | null = null;
-  estatisticas: any[] = [];
+
   form!: FormGroup;
   carregando: boolean = true;
   enviando: boolean = false;
   mensagemSucesso: string = '';
   mensagemErro: string = '';
   clubeId: string | null = null;
-  membrosDoClube: any[] = [];
-  carregandoMembros: boolean = false;
-  erroMembros: string = '';
+  
   perfilUsuario: TipoPerfil | null = null;
   TipoPerfilEnum = TipoPerfil;
 
@@ -47,7 +43,6 @@ export default class ClubeLivroComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
-  private http = inject(HttpClient);
   private clubesService = inject(ClubesService);
   private perguntasService = inject(PerguntasService);
   private itemPerguntaService = inject(ItemPerguntaService);
@@ -57,6 +52,12 @@ export default class ClubeLivroComponent implements OnInit {
 
   ngOnInit(): void {
     this.perfilUsuario = this.authService.getPerfil();
+
+    if (this.perfilUsuario === TipoPerfil.PROFESSOR) {
+      this.router.navigate(['/home']);
+      return;
+    }
+    
     this.form = this.fb.group({});
 
     this.route.paramMap.subscribe(params => {
@@ -125,18 +126,6 @@ export default class ClubeLivroComponent implements OnInit {
 
       const resItens = await firstValueFrom(this.itemPerguntaService.itemPerguntaControllerFindAll());
       this.itensPergunta = resItens || [];
-
-      if (this.perfilUsuario === TipoPerfil.PROFESSOR) {
-        this.carregandoMembros = true;
-        try {
-          const resMembros = await firstValueFrom(this.membroClubeService.membroClubeControllerFindAll(this.clubeId!));
-          this.membrosDoClube = Array.isArray(resMembros) ? resMembros : (resMembros as any)?.data || (resMembros as any)?.items || [];
-        } catch (err) {
-          this.erroMembros = 'Não foi possível carregar a lista de alunos inscritos.';
-        } finally {
-          this.carregandoMembros = false;
-        }
-      }
 
     } catch (error) {
       this.mensagemErro = 'Não foi possível carregar os detalhes deste clube.';
@@ -222,47 +211,5 @@ export default class ClubeLivroComponent implements OnInit {
       this.enviando = false;
       this.cdr.detectChanges();
     }
-  }
-
-  async abrirFeedbacks() {
-    this.abaAtiva = 'feedbacks';
-    this.perguntaSelecionadaId = null;
-    this.carregando = true;
-
-    try {
-      const res = await firstValueFrom(this.respostasService.respostaMembroControllerFindAll());
-      this.respostasMembros = Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || [];
-    } catch (error) {
-      this.mensagemErro = 'Erro ao buscar respostas dos alunos.';
-    } finally {
-      this.carregando = false;
-      this.cdr.detectChanges();
-    }
-  }
-
-  selecionarPerguntaParaAnalise(perguntaId: string) {
-    if (this.perguntaSelecionadaId === perguntaId) {
-      this.perguntaSelecionadaId = null;
-      return;
-    }
-
-    this.perguntaSelecionadaId = perguntaId;
-    const itensDestaPergunta = this.getItensDaPergunta(perguntaId);
-
-    this.estatisticas = itensDestaPergunta.map(item => {
-      const votos = this.respostasMembros.filter(resposta => {
-        const respostaItemId = resposta.itemPergunta?.id
-                            || resposta.item_pergunta?.id
-                            || resposta.item_pergunta_id
-                            || resposta.item_pergunta;
-
-        return respostaItemId === item.id;
-      }).length;
-
-      return {
-        texto: item.texto,
-        quantidade: votos
-      };
-    });
   }
 }

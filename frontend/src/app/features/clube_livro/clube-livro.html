@@ -2,8 +2,8 @@
 
   <ng-container *ngIf="modoListagem">
     <header class="clube-header">
-      <h1>Clubes de Leitura</h1>
-      <p>Explore os clubes disponíveis na sua instituição.</p>
+      <h1>Catálogo de Clubes</h1>
+      <p>Explore os clubes de leitura disponíveis na sua instituição e participe!</p>
     </header>
 
     <div *ngIf="carregando" class="loading">A carregar clubes...</div>
@@ -15,11 +15,9 @@
           <h3>{{ c.nome || c.livro?.titulo || 'Clube de Leitura' }}</h3>
         </div>
         <div class="clube-card-body">
-          
           <p *ngIf="getDiasParaInicio(c.data_inicio) as dias">
             <strong>Início:</strong> <span style="color: #007bff; font-weight: 500;">Começará em {{ dias }} dia(s)</span>
           </p>
-
           <p><strong>Fim:</strong> {{ c.data_fim | date:'dd/MM/yyyy' }}</p>
           <p *ngIf="c.local_encontro"><strong>Local:</strong> {{ c.local_encontro }}</p>
         </div>
@@ -41,17 +39,13 @@
         
         <div class="livro-info-completa">
           <span class="badge-clube">Clube de Leitura</span>
-          
           <h2>{{ clubeDetalhes.nome || 'Clube de Leitura' }}</h2>
-          
           <h4 style="margin-top: 10px; margin-bottom: 4px; font-size: 1.25rem; color: #222;">
             <i class="bi bi-book me-2 text-secondary"></i>{{ clubeDetalhes.livro?.titulo || 'Título não informado' }}
           </h4>
-          
           <h5 class="livro-autor" style="font-size: 1rem; color: #555;">
             {{ clubeDetalhes.livro?.autor || 'Autor Desconhecido' }}
           </h5>
-          
           <p class="livro-sinopse">{{ clubeDetalhes.livro?.sinopse || 'Nenhuma sinopse disponível para este livro no momento.' }}</p>
           
           <div class="livro-meta">
@@ -85,7 +79,6 @@
         </div>
 
         <div class="acoes-clube" *ngIf="abaAtiva === 'detalhes'">
-          
           <ng-container *ngIf="perfilUsuario === TipoPerfilEnum.ALUNO">
             <button *ngIf="clubeEncerrado" class="btn-acao-primario" (click)="abrirAvaliacao()">
               Avaliar Clube
@@ -94,46 +87,7 @@
               <i class="icone-relogio">🕒</i> A avaliação deste clube só estará disponível após o encerramento no dia {{ clubeDetalhes.data_fim | date:'dd/MM/yyyy' }}.
             </div>
           </ng-container>
-
-          <ng-container *ngIf="perfilUsuario === TipoPerfilEnum.PROFESSOR">
-            <button *ngIf="clubeEncerrado" class="btn-acao-primario" (click)="abrirFeedbacks()">
-              Ver Feedbacks dos Alunos
-            </button>
-            <div *ngIf="!clubeEncerrado" class="aviso-bloqueio">
-              <i class="icone-relogio">🕒</i> Os feedbacks dos alunos só estarão disponíveis após o encerramento do clube.
-            </div>
-          </ng-container>
-
         </div>
-
-        <ng-container *ngIf="perfilUsuario === TipoPerfilEnum.PROFESSOR && abaAtiva === 'detalhes'">
-          <hr class="divisor" style="margin-top: 30px; margin-bottom: 20px;">
-          <h3 style="margin-bottom: 15px; font-size: 1.2rem; color: #333;">Alunos Inscritos ({{ membrosDoClube.length }})</h3>
-
-          <div *ngIf="carregandoMembros" class="loading" style="padding: 15px 0;">
-            A carregar a lista de alunos...
-          </div>
-
-          <div *ngIf="erroMembros" class="alerta erro">{{ erroMembros }}</div>
-
-          <div *ngIf="!carregandoMembros && !erroMembros && membrosDoClube.length === 0" style="text-align: center; padding: 25px; background-color: #f8f9fa; border-radius: 8px; color: #6c757d;">
-            Nenhum aluno inscrito neste clube ainda.
-          </div>
-
-          <div *ngIf="!carregandoMembros && membrosDoClube.length > 0" style="display: flex; flex-direction: column; gap: 10px;">
-            <div *ngFor="let membro of membrosDoClube" style="display: flex; align-items: center; padding: 12px; border: 1px solid #e9ecef; border-radius: 8px; background-color: #ffffff;">
-              <img 
-                [src]="membro.usuario?.foto_perfil || 'assets/imgs/teste1.png'" 
-                alt="Foto do Aluno" 
-                style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 15px;">
-              <div>
-                <strong style="display: block; font-size: 0.95rem; color: #212529;">{{ membro.usuario?.nome || 'Aluno Desconhecido' }}</strong>
-                <small style="color: #6c757d;">{{ membro.usuario?.email || 'Sem e-mail' }}</small>
-              </div>
-            </div>
-          </div>
-        </ng-container>
-
       </div>
 
       <hr class="divisor" *ngIf="abaAtiva !== 'detalhes'">
@@ -161,37 +115,6 @@
             {{ enviando ? 'A enviar...' : 'Enviar Avaliação' }}
           </button>
         </form>
-      </div>
-
-      <div class="questionario-card" *ngIf="abaAtiva === 'feedbacks'">
-        <header class="clube-header">
-          <h2>Resultados dos Feedbacks</h2>
-          <p>Selecione uma pergunta abaixo para ver a votação dos alunos.</p>
-        </header>
-
-        <div *ngIf="perguntas.length === 0" class="sem-perguntas">
-          Não há perguntas configuradas.
-        </div>
-
-        <div class="lista-perguntas-analise">
-          <div class="pergunta-analise-card" *ngFor="let pergunta of perguntas; let i = index">
-            <button class="btn-pergunta" 
-                    [class.ativo]="perguntaSelecionadaId === pergunta.id"
-                    (click)="selecionarPerguntaParaAnalise(pergunta.id)">
-              <span>{{ i + 1 }}. {{ pergunta.texto }}</span>
-              <span class="seta">{{ perguntaSelecionadaId === pergunta.id ? '▲' : '▼' }}</span>
-            </button>
-
-            <div class="estatisticas-box" *ngIf="perguntaSelecionadaId === pergunta.id">
-              <div class="stat-item" *ngFor="let stat of estatisticas">
-                <span class="stat-texto">{{ stat.texto }}</span>
-                <span class="stat-badge" [class.destaque]="stat.quantidade > 0">
-                  {{ stat.quantidade }} voto(s)
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
     </div>
