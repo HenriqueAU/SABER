@@ -9,7 +9,7 @@ import HomeAlunoComponent from './dashboards/aluno/home-aluno';
   selector: 'app-home',
   imports: [HomeGestorComponent, HomeBibliotecarioComponent, HomeProfessorComponent, HomeAlunoComponent],
   templateUrl: './home.html',
-  styleUrl: './home.css',
+  styleUrl: './home.scss',
 })
 export default class HomeComponent {
  sessionService = inject(CoreAuthService);

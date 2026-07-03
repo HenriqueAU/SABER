@@ -1,0 +1,124 @@
+$primary: #003A79;
+$link-color: $primary;
+
+$body-color: #1F2232;
+$dark: #1F2232;
+
+$secondary: #8696AC;
+$success: #16A34A;
+$warning: #EAB308;
+$danger: #DC2626;
+$info: #0EA5E9;
+
+$light: #F5F5F7;
+$body-bg: #F5F5F7;
+
+$card-bg: #FFFFFF;
+$modal-content-bg: #FFFFFF;
+$input-bg: #FFFFFF;
+
+$border-color: #D9E0EA;
+$input-border-color: #D9E0EA;
+$form-select-border-color: #D9E0EA;
+$table-border-color: #D9E0EA;
+
+$input-placeholder-color: $secondary;
+
+$link-hover-color: #1D4ED8;
+
+$enable-gradients: false;
+
+$navbar-brand-color: $link-color;
+$navbar-brand-hover-color: $link-hover-color;
+
+$navbar-light-color: $link-color;
+$navbar-light-hover-color: $link-hover-color;
+$navbar-light-active-color: $link-hover-color;
+
+$navbar-dark-color: $link-color;
+$navbar-dark-hover-color: $link-hover-color;
+$navbar-dark-active-color: $link-hover-color;
+
+$font-family-sans-serif: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-family-base: $font-family-sans-serif;
+
+$h1-font-size: 2.5rem; // 40px
+$h2-font-size: 2rem;   // 32px
+$h3-font-size: 1.5rem; // 24px
+
+$font-size-base: 1rem; // 16px (Body)
+$small-font-size: 0.875rem; // 14px (Small)
+
+$enable-responsive-font-sizes: false;
+
+@import "../node_modules/bootstrap/scss/bootstrap";
+
+.bg-primary-gradient {
+  background: linear-gradient(135deg, #003A79 0%, #53ADED 100%);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #003A79 0%, #53ADED 100%);
+  border: none;
+}
+
+.bg-primary-soft {
+  background-color: #DBEAFE;
+}
+
+.bg-success-soft {
+  background-color: #DCFCE7;
+}
+
+.bg-warning-soft {
+  background-color: #FEF3C7;
+}
+
+.bg-danger-soft {
+  background-color: #FEE2E2;
+}
+
+.card {
+  border-color: #D9E0EA;
+}
+
+.table {
+  --bs-table-border-color: #D9E0EA;
+}
+
+.form-control,
+.form-select {
+  border-color: #D9E0EA;
+
+  &:focus {
+    border-color: #53ADED;
+    box-shadow: 0 0 0 0.2rem rgba(83, 173, 237, 0.25);
+  }
+}
+
+.btn {
+  transition: all 0.3s;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.text-body-large {
+  font-size: 1.125rem !important; /* 18px */
+}
+
+.text-caption {
+  font-size: 0.75rem !important; /* 12px */
+}
+
+@include media-breakpoint-down(md) {
+  h1, .h1 { font-size: 2rem !important; }      /* 32px */
+  h2, .h2 { font-size: 1.75rem !important; }   /* 28px */
+  h3, .h3 { font-size: 1.375rem !important; }  /* 22px */
+}
+
+body {
+  background-color: #F5F5F7;
+}

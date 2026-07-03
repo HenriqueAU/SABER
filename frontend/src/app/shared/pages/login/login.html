@@ -1,15 +1,87 @@
-<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+<div class="container-fluid p-0">
+  <div class="row g-0">
 
-  @if (erroLogin()) {
-    <p>{{ erroLogin() }}</p>
-  }
+    <div class="col-lg-6 d-none d-lg-block vh-100">
+      <div class="login-hero position-relative h-100 w-100">
+        <img
+          src="assets/imgs/login/login.png"
+          class="h-100 w-auto" 
+          style="object-fit: inherit;"
+          alt="Imagem Login"
+        >
+      </div>
+    </div>
 
-  <label for="email">Email: </label>
-  <input id="email" type="text" formControlName="email">
+    <div class="col-12 col-lg-6 d-flex align-items-center justify-content-center vh-100">
+      <div class="w-100 px-4 px-md-5 mx-auto" style="max-width: 500px;">
+        <img
+          src="assets/imgs/teste2.png"
+          alt="SABER"
+          class="img-fluid  d-block mx-auto mb-4"
+          style="max-width: 120px;"
+        >
 
-  <label for="senha">Senha: </label>
-  <input  id="senha" type="password" formControlName="senha">
+        <h2 class="fw-bold mb-2">
+          É um prazer ter você aqui!
+        </h2>
 
-  <button type="submit" [disabled]="!loginForm.valid">Confirmar</button>
+        <p class="text-secondary mb-4">
+          Entre para acessar uma experiência completa de leitura e aprendizado.
+        </p>
 
-</form>
+        @if (erroLogin()) {
+          <div class="alert alert-danger">
+            {{ erroLogin() }}
+          </div>
+        }
+
+        <form
+          [formGroup]="loginForm"
+          (ngSubmit)="onSubmit()">
+
+          <div class="mb-3">
+            <label for="email" class="form-label fw-semibold">Email</label>
+            <div class="position-relative">
+              <i class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary fs-5"></i>
+              <input id="email" type="email" class="form-control ps-5 py-3" placeholder="nome@instituicao.edu.br" formControlName="email">
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="senha" class="form-label fw-semibold">Senha</label>
+            <div class="position-relative">
+              <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary fs-5"></i>
+              <input
+                id="senha"
+                [type]="senhaVisivel ? 'text' : 'password'"
+                class="form-control ps-5 py-3"
+                placeholder="Digite sua senha"
+                formControlName="senha"
+              />
+              <button
+                id="visibilidade-senha"
+                type="button" 
+                class="btn btn-icon position-absolute top-50 end-0 me-3 text-secondary"
+                (click)="toggleVisibilidadeSenha()"
+              >
+                <i
+                  class="bi fs-5"
+                  [class.bi-eye]="!senhaVisivel"
+                  [class.bi-eye-slash]="senhaVisivel"
+                ></i>
+              </button>
+            </div>
+          </div>
+          
+
+          <button class="btn btn-primary w-100 py-3 fw-bold" [disabled]="!loginForm.valid">
+            Login
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>

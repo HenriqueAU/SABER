@@ -10,7 +10,7 @@ import { Modal } from 'bootstrap';
   selector: 'app-perfil',
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './perfil.html',
-  styleUrl: './perfil.css',
+  styleUrl: './perfil.scss',
 })
 export default class PerfilComponent implements OnInit{
   private coreAuthService = inject(CoreAuthService);

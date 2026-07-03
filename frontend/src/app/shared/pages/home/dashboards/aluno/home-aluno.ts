@@ -1,16 +1,20 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Chart, registerables } from 'chart.js';
+import { EmprestimosService } from '../../../../../../client/services';
 
-Chart.register(...registerables);
-
-interface LivroHistorico {
+interface EmprestimoAtivo {
   id: string;
   titulo: string;
-  autor: string;
   capaUrl: string | null;
-  genero: string;
-  dataDevolucao: Date;
+  dataDevolucaoEsperada: Date;
+}
+
+interface ClubeParticipando {
+  id: string;
+  nomeLivro: string;
+  capaUrl: string | null;
+  dataEncerramento: Date;
+  status: 'ativo' | 'encerrado';
 }
 
 interface LivroRecomendado {
@@ -21,15 +25,6 @@ interface LivroRecomendado {
   genero: string;
 }
 
-interface DashboardAluno {
-  totalLivrosLidos: number;
-  generoFavorito: string;
-  totalClubesParticipados: number;
-  leiturasPorGenero: { nome: string; total: number }[];
-  historicoLeitura: LivroHistorico[];
-  recomendacoes: LivroRecomendado[];
-}
-
 @Component({
   selector: 'app-home-aluno',
   standalone: true,
@@ -37,70 +32,78 @@ interface DashboardAluno {
   templateUrl: './home-aluno.html',
 })
 export default class HomeAlunoComponent implements OnInit {
-  dashboard = signal<DashboardAluno | null>(null);
-  private generoChartInstance: Chart | null = null;
+  private emprestimosService = inject(EmprestimosService);
+
+  totalLivrosLidos = signal<number>(0);
+  totalClubes = signal<number>(0);
+  emprestimosAtivos = signal<EmprestimoAtivo[]>([]);
+  clubes = signal<ClubeParticipando[]>([]);
+  recomendacoes = signal<LivroRecomendado[]>([]);
+  carregandoEmprestimos = signal(true);
 
   ngOnInit(): void {
-    this.dashboard.set(this.getMockData());
-    setTimeout(() => {
-      this.renderGeneroChart();
-    }, 0);
+    this.carregarEmprestimos();
+    this.clubes.set(this.getMockClubes());
+    this.recomendacoes.set(this.getMockRecomendacoes());
+    this.totalClubes.set(this.getMockClubes().length);
   }
 
-  private renderGeneroChart(): void {
-    const dados = this.dashboard();
-    if (!dados) return;
+  estaAtrasado(data: Date): boolean {
+    return new Date(data) < new Date();
+  }
 
-    const canvas = document.getElementById('generoAlunoChart') as HTMLCanvasElement;
-    if (!canvas) return;
+  private carregarEmprestimos(): void {
+    this.emprestimosService.emprestimoControllerFindAll().subscribe({
+      next: (dados: any[]) => {
+        const todos = Array.isArray(dados) ? dados : [];
 
-    if (this.generoChartInstance) {
-      this.generoChartInstance.destroy();
-    }
+        this.totalLivrosLidos.set(
+          todos.filter(e => e.data_devolucao_efetiva).length
+        );
 
-    this.generoChartInstance = new Chart(canvas, {
-      type: 'doughnut',
-      data: {
-        labels: dados.leiturasPorGenero.map(g => g.nome),
-        datasets: [{
-          data: dados.leiturasPorGenero.map(g => g.total),
-          backgroundColor: ['#4f46e5', '#7c3aed', '#a855f7', '#c084fc', '#e9d5ff'],
-          borderWidth: 0,
-        }],
+        this.emprestimosAtivos.set(
+          todos
+            .filter(e => !e.data_devolucao_efetiva)
+            .map(e => ({
+              id: e.id,
+              titulo: e.exemplar?.livro?.titulo ?? 'Título desconhecido',
+              capaUrl: e.exemplar?.livro?.capa_url ?? null,
+              dataDevolucaoEsperada: new Date(e.data_devolucao_esperada),
+            }))
+        );
+
+        this.carregandoEmprestimos.set(false);
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-        legend: { position: 'right' },
-        },
+      error: () => {
+        this.carregandoEmprestimos.set(false);
       },
     });
   }
 
-  private getMockData(): DashboardAluno {
-    return {
-      totalLivrosLidos: 12,
-      generoFavorito: 'Ficção Científica',
-      totalClubesParticipados: 3,
-      leiturasPorGenero: [
-        { nome: 'Ficção', total: 5 },
-        { nome: 'Aventura', total: 3 },
-        { nome: 'História', total: 2 },
-        { nome: 'Romance', total: 2 },
-      ],
-      historicoLeitura: [
-        { id: '1', titulo: '1984', autor: 'George Orwell', capaUrl: null, genero: 'Ficção', dataDevolucao: new Date('2025-06-10') },
-        { id: '2', titulo: 'O Alquimista', autor: 'Paulo Coelho', capaUrl: null, genero: 'Romance', dataDevolucao: new Date('2025-05-22') },
-        { id: '3', titulo: 'Duna', autor: 'Frank Herbert', capaUrl: null, genero: 'Ficção', dataDevolucao: new Date('2025-04-15') },
-        { id: '4', titulo: 'Dom Casmurro', autor: 'Machado de Assis', capaUrl: null, genero: 'Romance', dataDevolucao: new Date('2025-03-08') },
-        { id: '5', titulo: 'Sapiens', autor: 'Yuval Noah Harari', capaUrl: null, genero: 'História', dataDevolucao: new Date('2025-02-20') },
-      ],
-      recomendacoes: [
-        { id: '1', titulo: 'Admirável Mundo Novo', autor: 'Aldous Huxley', capaUrl: null, genero: 'Ficção' },
-        { id: '2', titulo: 'Fundação', autor: 'Isaac Asimov', capaUrl: null, genero: 'Ficção' },
-        { id: '3', titulo: 'Fahrenheit 451', autor: 'Ray Bradbury', capaUrl: null, genero: 'Ficção' },
-      ],
-    };
+  private getMockClubes(): ClubeParticipando[] {
+    return [
+      {
+        id: '1',
+        nomeLivro: 'Duna',
+        capaUrl: null,
+        dataEncerramento: new Date('2025-08-15'),
+        status: 'ativo',
+      },
+      {
+        id: '2',
+        nomeLivro: 'O Senhor dos Anéis',
+        capaUrl: null,
+        dataEncerramento: new Date('2025-09-01'),
+        status: 'ativo',
+      },
+    ];
+  }
+
+  private getMockRecomendacoes(): LivroRecomendado[] {
+    return [
+      { id: '1', titulo: 'Admirável Mundo Novo', autor: 'Aldous Huxley',   capaUrl: null, genero: 'Ficção' },
+      { id: '2', titulo: 'Fundação',             autor: 'Isaac Asimov',    capaUrl: null, genero: 'Ficção' },
+      { id: '3', titulo: 'Fahrenheit 451',       autor: 'Ray Bradbury',    capaUrl: null, genero: 'Ficção' },
+    ];
   }
 }

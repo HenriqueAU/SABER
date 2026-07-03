@@ -16,7 +16,7 @@ interface Notificacao {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './notificacoes.html',
-  styleUrls: ['./notificacoes.css']
+  styleUrls: ['./notificacoes.scss']
 })
 export default class NotificacoesComponent implements OnInit {
   notificacoes: Notificacao[] = [];

@@ -72,7 +72,10 @@ export class MembroClubeService {
     }
     return membroClube;
   }
-  async findMinhaInscricao(usuario_id: string, clube_id: string): Promise<MembroClube> {
+  async findMinhaInscricao(
+    usuario_id: string,
+    clube_id: string,
+  ): Promise<MembroClube> {
     const membro = await this.membroClubeRepository.findOne({
       where: {
         usuario: { id: usuario_id },
@@ -80,7 +83,9 @@ export class MembroClubeService {
       },
     });
     if (!membro) {
-      throw new NotFoundException('Inscrição não encontrada para este usuário neste clube');
+      throw new NotFoundException(
+        'Inscrição não encontrada para este usuário neste clube',
+      );
     }
     return membro;
   }

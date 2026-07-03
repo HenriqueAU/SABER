@@ -10,7 +10,7 @@ import { BASE_PATH_DEFAULT } from '../../../../client/tokens';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './alterar-senha.html',
-  styleUrls: ['./alterar-senha.css']
+  styleUrls: ['./alterar-senha.scss']
 })
 export default class AlterarSenhaComponent {
   form: FormGroup;

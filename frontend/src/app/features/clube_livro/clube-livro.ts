@@ -17,7 +17,7 @@ import { TipoPerfil } from '../../core/auth/tipo-perfil.enum';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './clube-livro.html',
-  styleUrls: ['./clube-livro.css']
+  styleUrls: ['./clube-livro.scss']
 })
 export default class ClubeLivroComponent implements OnInit {
   modoListagem: boolean = true;

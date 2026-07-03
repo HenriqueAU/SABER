@@ -54,7 +54,7 @@ export class EmprestimoService {
             id: usuarioId,
           },
         },
-        relations: ['exemplar', 'usuario'],
+        relations: ['exemplar', 'usuario', 'exemplar.livro'],
       });
     }
 
@@ -64,7 +64,7 @@ export class EmprestimoService {
           instituicao: { id: instituicao_id },
         },
       },
-      relations: ['exemplar', 'usuario'],
+      relations: ['exemplar', 'usuario', 'exemplar.livro'],
     });
   }
 
