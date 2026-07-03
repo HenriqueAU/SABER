@@ -8,6 +8,8 @@ import { ExemplarService } from '../exemplar/exemplar.service';
 import { StatusExemplar } from '../exemplar/exemplar.entity';
 import { TipoPerfil } from '../usuario/usuario.entity';
 import { FindOptionsWhere } from 'typeorm';
+import { LivroGenero } from '../livro_genero/livro-genero.entity';
+import { Genero } from '../genero/genero.entity';
 
 @Injectable()
 export class EmprestimoService {
@@ -106,5 +108,23 @@ export class EmprestimoService {
   async remove(id: string): Promise<void> {
     const emprestimo = await this.findOne(id);
     await this.emprestimoRepository.remove(emprestimo);
+  }
+
+  async getLeiturasPorGenero(usuarioId: string) {
+    const result = await this.emprestimoRepository.createQueryBuilder('emprestimo')
+      .innerJoin('emprestimo.exemplar', 'exemplar')
+      .innerJoin('exemplar.livro', 'livro')
+      .innerJoin(LivroGenero, 'livro_genero', 'livro_genero.livro_id = livro.id')
+      .innerJoin(Genero, 'genero', 'livro_genero.genero_id = genero.id')
+      .select('genero.nome', 'genero')
+      .addSelect('COUNT(emprestimo.id)', 'quantidade')
+      .where('emprestimo.usuario_id = :usuarioId', { usuarioId })
+      .groupBy('genero.nome')
+      .getRawMany();
+
+    return result.map(row => ({
+      genero: row.genero,
+      quantidade: Number(row.quantidade)
+    }));
   }
 }
