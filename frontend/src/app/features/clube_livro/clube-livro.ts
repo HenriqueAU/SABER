@@ -2,7 +2,6 @@ import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { MembroClubeService } from '../../../client/services/membroClube.service';
 import { ClubesService } from '../../../client/services/clubes.service';
@@ -29,15 +28,14 @@ export default class ClubeLivroComponent implements OnInit {
   itensPergunta: any[] = [];
   respostasMembros: any[] = [];
   clubeEncerrado: boolean = false;
-  perguntaSelecionadaId: string | null = null;
-  estatisticas: any[] = [];
+
   form!: FormGroup;
   carregando: boolean = true;
   enviando: boolean = false;
   mensagemSucesso: string = '';
   mensagemErro: string = '';
   clubeId: string | null = null;
-
+  
   perfilUsuario: TipoPerfil | null = null;
   TipoPerfilEnum = TipoPerfil;
 
@@ -45,7 +43,6 @@ export default class ClubeLivroComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
-  private http = inject(HttpClient);
   private clubesService = inject(ClubesService);
   private perguntasService = inject(PerguntasService);
   private itemPerguntaService = inject(ItemPerguntaService);
@@ -55,6 +52,12 @@ export default class ClubeLivroComponent implements OnInit {
 
   ngOnInit(): void {
     this.perfilUsuario = this.authService.getPerfil();
+
+    if (this.perfilUsuario === TipoPerfil.PROFESSOR) {
+      this.router.navigate(['/home']);
+      return;
+    }
+    
     this.form = this.fb.group({});
 
     this.route.paramMap.subscribe(params => {
@@ -68,6 +71,19 @@ export default class ClubeLivroComponent implements OnInit {
         this.carregarClubes();
       }
     });
+  }
+
+  getDiasParaInicio(dataInicio: string | Date): number | null {
+    if (!dataInicio) return null;
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const inicio = new Date(dataInicio);
+    inicio.setHours(0, 0, 0, 0);
+    
+    const diffTime = inicio.getTime() - hoje.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays > 0 ? diffDays : null;
   }
 
   async carregarClubes() {
@@ -195,47 +211,5 @@ export default class ClubeLivroComponent implements OnInit {
       this.enviando = false;
       this.cdr.detectChanges();
     }
-  }
-
-  async abrirFeedbacks() {
-    this.abaAtiva = 'feedbacks';
-    this.perguntaSelecionadaId = null;
-    this.carregando = true;
-
-    try {
-      const res = await firstValueFrom(this.respostasService.respostaMembroControllerFindAll());
-      this.respostasMembros = Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || [];
-    } catch (error) {
-      this.mensagemErro = 'Erro ao buscar respostas dos alunos.';
-    } finally {
-      this.carregando = false;
-      this.cdr.detectChanges();
-    }
-  }
-
-  selecionarPerguntaParaAnalise(perguntaId: string) {
-    if (this.perguntaSelecionadaId === perguntaId) {
-      this.perguntaSelecionadaId = null;
-      return;
-    }
-
-    this.perguntaSelecionadaId = perguntaId;
-    const itensDestaPergunta = this.getItensDaPergunta(perguntaId);
-
-    this.estatisticas = itensDestaPergunta.map(item => {
-      const votos = this.respostasMembros.filter(resposta => {
-        const respostaItemId = resposta.itemPergunta?.id
-                            || resposta.item_pergunta?.id
-                            || resposta.item_pergunta_id
-                            || resposta.item_pergunta;
-
-        return respostaItemId === item.id;
-      }).length;
-
-      return {
-        texto: item.texto,
-        quantidade: votos
-      };
-    });
   }
 }

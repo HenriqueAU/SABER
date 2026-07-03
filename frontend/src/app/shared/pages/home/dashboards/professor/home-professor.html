@@ -1,56 +1,141 @@
-<div class="container-fluid py-4 px-4">
-  <div class="mb-4">
-    <h5 class="fw-bold mb-1">Meus clubes de leitura</h5>
-    <p class="text-secondary small mb-0">Acompanhe o andamento dos clubes que você coordena.</p>
-  </div>
-  @if (clubes().length === 0) {
-    <div class="card border-0 shadow-sm">
-      <div class="card-body text-center py-5 text-secondary">
-        <i class="bi bi-people fs-1"></i>
-        <h6 class="mt-3">Nenhum clube encontrado.</h6>
-        <p class="small mb-0">Você ainda não coordena nenhum clube de leitura.</p>
+<div class="clube-container">
+
+  <ng-container *ngIf="modoListagem">
+    <header class="clube-header">
+      <h1>Meus Clubes de Leitura</h1>
+      <p>Gerencie os clubes de leitura em que você é o coordenador.</p>
+    </header>
+
+    <div *ngIf="carregando" class="loading">A carregar os seus clubes...</div>
+    <div *ngIf="mensagemErro" class="alerta erro">{{ mensagemErro }}</div>
+
+    <div *ngIf="!carregando && !mensagemErro && clubes.length === 0" style="text-align: center; padding: 40px; color: #666;">
+      <h3>Você ainda não possui clubes de leitura.</h3>
+    </div>
+
+    <div class="clubes-grid" *ngIf="!carregando && clubes.length > 0">
+      <div class="clube-card clicavel" *ngFor="let c of clubes" (click)="abrirClube(c)">
+        <div class="clube-card-header">
+          <h3>{{ c.nome || c.livro?.titulo || 'Clube de Leitura' }}</h3>
+        </div>
+        <div class="clube-card-body">
+          <p *ngIf="getDiasParaInicio(c.data_inicio) as dias">
+            <strong>Início:</strong> <span style="color: #007bff; font-weight: 500;">Começará em {{ dias }} dia(s)</span>
+          </p>
+          <p><strong>Fim:</strong> {{ c.data_fim | date:'dd/MM/yyyy' }}</p>
+          <p *ngIf="c.local_encontro"><strong>Local:</strong> {{ c.local_encontro }}</p>
+        </div>
       </div>
     </div>
-  }
-  <div class="row g-4">
-    @for (clube of clubes(); track clube.id) {
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card border-0 shadow-sm h-100">
-          <img
-            [src]="clube.capaUrl || 'assets/imgs/teste2.png'"
-            class="card-img-top object-fit-cover"
-            style="height: 180px;"
-            [alt]="clube.nomeLivro">
-          <div class="card-body d-flex flex-column">
-            <h6 class="fw-bold mb-3">{{ clube.nomeLivro }}</h6>
-            <div class="d-flex flex-column gap-2 mb-3">
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-secondary small">
-                  <i class="bi bi-people me-1"></i>Membros
-                </span>
-                <span class="fw-semibold small">
-                  {{ clube.membrosAtivos }}
-                  <span class="text-secondary fw-normal">/ {{ vagasDisponiveis(clube) }} vagas disponíveis</span>
-                </span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-secondary small">
-                  <i class="bi bi-calendar-event me-1"></i>Encerramento
-                </span>
-                <span class="fw-semibold small">{{ clube.dataEncerramento | date:'dd/MM/yyyy' }}</span>
+  </ng-container>
+
+  <ng-container *ngIf="!modoListagem">
+    <button class="btn-voltar" (click)="voltarParaListagem()">← Voltar à Lista</button>
+
+    <div *ngIf="clubeDetalhes" class="detalhes-container">
+      
+      <div class="livro-detalhes-card">
+        <img [src]="clubeDetalhes.livro?.capa_url || clubeDetalhes.livro?.capaUrl || 'assets/imgs/teste2.png'" alt="Capa do Livro" class="livro-capa-grande">
+        
+        <div class="livro-info-completa">
+          <span class="badge-clube">Clube de Leitura</span>
+          <h2>{{ clubeDetalhes.nome || 'Clube de Leitura' }}</h2>
+          <h4 style="margin-top: 10px; margin-bottom: 4px; font-size: 1.25rem; color: #222;">
+            <i class="bi bi-book me-2 text-secondary"></i>{{ clubeDetalhes.livro?.titulo || 'Título não informado' }}
+          </h4>
+          <h5 class="livro-autor" style="font-size: 1rem; color: #555;">{{ clubeDetalhes.livro?.autor || 'Autor Desconhecido' }}</h5>
+          <p class="livro-sinopse">{{ clubeDetalhes.livro?.sinopse || 'Nenhuma sinopse disponível para este livro no momento.' }}</p>
+          
+          <div class="livro-meta">
+            <span *ngIf="clubeDetalhes.livro?.isbn"><strong>ISBN:</strong> {{ clubeDetalhes.livro?.isbn }}</span>
+            <span *ngIf="clubeDetalhes.livro?.editora"><strong>Editora:</strong> {{ clubeDetalhes.livro?.editora }}</span>
+            <span *ngIf="clubeDetalhes.livro?.ano_publicacao || clubeDetalhes.livro?.ano">
+              <strong>Ano:</strong> {{ clubeDetalhes.livro?.ano_publicacao || clubeDetalhes.livro?.ano }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="clube-info-card">
+        <h3 style="margin-bottom: 20px; color: #333; font-size: 1.3rem;">Informações do Encontro</h3>
+        <div class="info-grid">
+          <div class="info-item" *ngIf="clubeDetalhes.local_encontro">
+            <span>Local do Encontro</span>
+            <strong>{{ clubeDetalhes.local_encontro }}</strong>
+          </div>
+          <div class="info-item" *ngIf="getDiasParaInicio(clubeDetalhes.data_inicio) as dias">
+            <span>Início</span>
+            <strong style="color: #007bff;">Começará em {{ dias }} dia(s)</strong>
+          </div>
+          <div class="info-item">
+            <span>Data de encerramento</span>
+            <strong>{{ (clubeDetalhes.data_fim | date:'dd/MM/yyyy') || 'Não definido' }}</strong>
+          </div>
+        </div>
+
+        <div class="acoes-clube" *ngIf="abaAtiva === 'detalhes'">
+          <button *ngIf="clubeEncerrado" class="btn-acao-primario" (click)="abrirFeedbacks()">Ver Feedbacks dos Alunos</button>
+          <div *ngIf="!clubeEncerrado" class="aviso-bloqueio">
+            <i class="icone-relogio">🕒</i> Os feedbacks dos alunos só estarão disponíveis após o encerramento do clube.
+          </div>
+        </div>
+
+        <ng-container *ngIf="abaAtiva === 'detalhes'">
+          <hr class="divisor" style="margin-top: 30px; margin-bottom: 20px;">
+          <h3 style="margin-bottom: 15px; font-size: 1.2rem; color: #333;">Alunos Inscritos ({{ membrosDoClube.length }})</h3>
+
+          <div *ngIf="carregandoMembros" class="loading" style="padding: 15px 0;">A carregar a lista de alunos...</div>
+          <div *ngIf="erroMembros" class="alerta erro">{{ erroMembros }}</div>
+
+          <div *ngIf="!carregandoMembros && !erroMembros && membrosDoClube.length === 0" style="text-align: center; padding: 25px; background-color: #f8f9fa; border-radius: 8px; color: #6c757d;">
+            Nenhum aluno inscrito neste clube ainda.
+          </div>
+
+          <div *ngIf="!carregandoMembros && membrosDoClube.length > 0" style="display: flex; flex-direction: column; gap: 10px;">
+            <div *ngFor="let membro of membrosDoClube" style="display: flex; align-items: center; padding: 12px; border: 1px solid #e9ecef; border-radius: 8px; background-color: #ffffff;">
+              <img [src]="membro.usuario?.foto_perfil || 'assets/imgs/teste1.png'" alt="Foto do Aluno" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 15px;">
+              <div>
+                <strong style="display: block; font-size: 0.95rem; color: #212529;">{{ membro.usuario?.nome || 'Aluno Desconhecido' }}</strong>
+                <small style="color: #6c757d;">{{ membro.usuario?.email || 'Sem e-mail' }}</small>
               </div>
             </div>
-            <div class="mt-auto">
-              @if (clube.status === 'ativo') {
-                <span class="badge bg-success-subtle text-success">Ativo</span>
-              }
-              @if (clube.status === 'encerrado') {
-                <span class="badge bg-secondary-subtle text-secondary">Encerrado</span>
-              }
+          </div>
+        </ng-container>
+      </div>
+
+      <hr class="divisor" *ngIf="abaAtiva !== 'detalhes'">
+
+      <div class="questionario-card" *ngIf="abaAtiva === 'feedbacks'">
+        
+        <button class="btn-voltar" style="margin-bottom: 20px;" (click)="voltarParaDetalhes()">
+          ← Voltar ao clube
+        </button>
+
+        <header class="clube-header">
+          <h2>Resultados dos Feedbacks</h2>
+          <p>Selecione uma pergunta abaixo para ver a votação dos alunos.</p>
+        </header>
+
+        <div *ngIf="perguntas.length === 0" class="sem-perguntas">Não há perguntas configuradas.</div>
+
+        <div class="lista-perguntas-analise">
+          <div class="pergunta-analise-card" *ngFor="let pergunta of perguntas; let i = index">
+            <button class="btn-pergunta" [class.ativo]="perguntaSelecionadaId === pergunta.id" (click)="selecionarPerguntaParaAnalise(pergunta.id)">
+              <span>{{ i + 1 }}. {{ pergunta.texto }}</span>
+              <span class="seta">{{ perguntaSelecionadaId === pergunta.id ? '▲' : '▼' }}</span>
+            </button>
+
+            <div class="estatisticas-box" *ngIf="perguntaSelecionadaId === pergunta.id">
+              <div class="stat-item" *ngFor="let stat of estatisticas">
+                <span class="stat-texto">{{ stat.texto }}</span>
+                <span class="stat-badge" [class.destaque]="stat.quantidade > 0">{{ stat.quantidade }} voto(s)</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    }
-  </div>
+
+    </div>
+  </ng-container>
+
 </div>

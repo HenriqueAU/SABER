@@ -1,89 +1,63 @@
-<div #successModal class="modal fade" id="successModal" tabindex="-1"
-  aria-labelledby="successModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content bg-success-subtle">
-      <div class="modal-header bg-success text-white">
-        <h1 class="modal-title fs-5" id="successModalLabel">Sucesso!</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div #successModal class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-success-subtle border-0">
+      <div class="modal-header bg-success text-white border-0">
+        <h1 class="modal-title fs-5">Sucesso!</h1>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" (click)="onReturn()"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body text-success fw-medium">
         Dados de perfil atualizados com sucesso!
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" (click)="onReturn()">OK</button>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal" (click)="onReturn()">Concluir</button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="d-flex justify-content-center align-items-center">
-  <div class="mb-1 w-50">
-    <h2>Meu perfil</h2>
-    <p>Gerencie suas informações pessoas e configurações de conta.</p>
+<div class="container py-5">
+  <div class="d-flex justify-content-center align-items-center mb-4">
+    <div class="w-50 d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="fw-bold mb-0">Editar Perfil</h2>
+        <p class="text-secondary mb-0">Atualize suas informações pessoais e de segurança.</p>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm" (click)="cancelarEdicao()">
+        <i class="bi bi-arrow-left me-1"></i> Voltar
+      </button>
+    </div>
   </div>
-</div>
-<div class="d-flex flex-column justify-content-center align-items-center">
-  <form class="w-50" [formGroup]="userForm" (ngSubmit)="onSubmit()">
-    <div class="bg-white rounded-4 shadow p-4 mb-3">
-      <h4>Dados pessoais</h4>
-      <p class="fw-bold mb-1">
-        <i class="bi bi-person-circle"></i>
-        Foto de perfil</p>
-      <p class="text-body-secondary small">Aceitamos PNGs, JPGs e JPEGs abaixo de 2MB.</p>
 
-      <hr>
-
-      <div class="mb-3">
-        <label class="form-label">Nome Completo</label>
-        <input type="text" class="form-control" id="nome" formControlName="nome" maxlength="150">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Email Institucional</label>
-        <input type="text" class="form-control" id="email" formControlName="email">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Tipo de Perfil</label><br/>
-        <span class="badge bg-info mb-3 text-dark">{{ tipoPerfil | uppercase }}</span>
-      </div>
-    </div>
-
-    <div class="bg-white rounded-4 shadow p-4 mb-3">
-      <h4>Segurança</h4>
-      <a routerLink="/alterar-senha" class="link-primary text-decoration-none">
-        <i class="bi bi-key"></i>
-        Alterar senha de acesso
-      </a>
-    </div>
-
-    @if (tipoPerfil === 'aluno') {
-      <div class="bg-white rounded-4 shadow p-4 mb-3">
-        <h4>Preferências de gênero</h4>
-        <p class="text-body-secondary small">Selecione os gêneros de livros de seu interesse.</p>
+  <div class="d-flex flex-column justify-content-center align-items-center">
+    <form class="w-50" [formGroup]="userForm" (ngSubmit)="onSubmit()">
+      
+      <div class="bg-white rounded-4 shadow-sm border p-4 mb-4">
+        <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-person me-2"></i>Dados Pessoais</h5>
         
-        @for (genero of (generos$ | async); track genero.id) {
-          <button
-            type="button"
-            class="btn rounded-pill mb-1 me-1"
-            [class.btn-primary]="isGeneroSelecionado(genero.id)"
-            [class.btn-outline-secondary]="!isGeneroSelecionado(genero.id)"
-            (click)="toggleGenero(genero.id)"
-          >
-          {{ genero.nome }}
-          </button>
-        }
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Nome Completo</label>
+          <input type="text" class="form-control" formControlName="nome" placeholder="Digite seu nome">
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-semibold">E-mail Institucional</label>
+          <input type="email" class="form-control bg-light" formControlName="email">
+          <div class="form-text text-secondary"><i class="bi bi-info-circle me-1"></i> O e-mail não pode ser alterado por motivos de segurança.</div>
+        </div>
       </div>
-    }
 
-    <div class="d-flex justify-content-end gap-2 mt-4 mb-4">
-      <button type="button" class="btn btn-outline-secondary" (click)="onReturn()">
-        Cancelar
-      </button>
+      <div class="bg-white rounded-4 shadow-sm border p-4 mb-4">
+        <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-shield-lock me-2"></i>Segurança</h5>
+        <p class="text-secondary small mb-3">Mantenha sua conta segura atualizando sua senha regularmente.</p>
+        <a routerLink="/alterar-senha" class="btn btn-outline-dark w-100">
+          <i class="bi bi-key me-2"></i>Alterar senha de acesso
+        </a>
+      </div>
 
-      <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid">
-        Salvar alterações
-      </button>
-    </div>
-  </form>
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-light border" (click)="cancelarEdicao()">Cancelar</button>
+        <button type="submit" class="btn btn-primary px-4" [disabled]="userForm.invalid">Salvar Alterações</button>
+      </div>
+    </form>
+  </div>
 </div>
