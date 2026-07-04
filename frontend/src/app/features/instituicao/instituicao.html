@@ -9,22 +9,22 @@
 
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fs-4 fw-light text-dark mb-0">Instituição</h2>
-        @if (!carregando) {
+        @if (!carregando()) {
           <button class="btn btn-primary fw-medium shadow-sm" (click)="abrirModal()">
-            Editar
+             Editar
           </button>
         }
       </div>
 
-      @if (carregando) {
+      @if (carregando()) {
         <p class="text-muted small">Carregando dados da instituição...</p>
       }
 
-      @if (mensagemErro && !mostrarModal) {
-        <div class="alert alert-danger small">{{ mensagemErro }}</div>
+      @if (mensagemErro() && !mostrarModal()) {
+        <div class="alert alert-danger small">{{ mensagemErro() }}</div>
       }
 
-      @if (!carregando) {
+      @if (!carregando()) {
         <div class="card border shadow-sm rounded-3">
           <div class="card-body p-4">
 
@@ -65,8 +65,7 @@
 
 </div>
 
-
-@if (mostrarModal) {
+@if (mostrarModal()) {
   <div class="modal d-block" style="background: rgba(17,24,39,0.4); backdrop-filter: blur(2px);" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content rounded-4 shadow-lg">
@@ -79,11 +78,11 @@
         <div class="modal-body">
           <p class="text-muted small mb-4">Atualize as informações da sua instituição.</p>
 
-          @if (mensagemSucesso) {
-            <div class="alert alert-success small">{{ mensagemSucesso }}</div>
+          @if (mensagemSucesso()) {
+            <div class="alert alert-success small">{{ mensagemSucesso() }}</div>
           }
-          @if (mensagemErro) {
-            <div class="alert alert-danger small">{{ mensagemErro }}</div>
+          @if (mensagemErro()) {
+            <div class="alert alert-danger small">{{ mensagemErro() }}</div>
           }
 
           <form [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -126,7 +125,7 @@
               <label for="cidade" class="form-label small fw-semibold">Cidade</label>
               <select id="cidade" formControlName="cidade" class="form-select">
                 <option value="" disabled>
-                  {{ carregandoCidades ? 'Carregando cidades...' : 'Selecione a cidade' }}
+                  {{ carregandoCidades() ? 'Carregando cidades...' : 'Selecione a cidade' }}
                 </option>
                 @for (cid of cidades; track cid.nome) {
                   <option [value]="cid.nome">{{ cid.nome }}</option>
@@ -140,8 +139,8 @@
             <div class="modal-footer border-top px-0 pb-0">
               <button type="button" class="btn btn-light btn-sm" (click)="fecharModal()">Cancelar</button>
               <button type="submit" class="btn btn-primary btn-sm shadow-sm"
-                [disabled]="form.invalid || enviando || carregandoCidades">
-                {{ enviando ? 'Salvando...' : 'Salvar Alterações' }}
+                [disabled]="form.invalid || enviando() || carregandoCidades()">
+                {{ enviando() ? 'Salvando...' : 'Salvar Alterações' }}
               </button>
             </div>
 

@@ -1,6 +1,6 @@
 <div class="clube-container">
 
-  @if (modoListagem) {
+  @if (modoListagem()) {
     <header class="clube-header">
       <h1>Clubes de Leitura</h1>
       <p>Explore os clubes disponíveis na sua instituição.</p>
@@ -11,8 +11,8 @@
         <div style="position: relative; flex: 1;">
           <input
             type="text"
-            [(ngModel)]="termoBusca"
-            (ngModelChange)="onFiltroChange()"
+            [ngModel]="termoBusca()"
+            (ngModelChange)="termoBusca.set($event); onFiltroChange()"
             placeholder="Buscar por título ou autor"
             style="width: 100%; padding: 9px 12px 9px 34px; border: 1px solid #e8edf2; border-radius: 8px; font-size: 14px; color: #444; background: #fafbfc; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
             (focus)="$event.target.style.borderColor='#a0b4c8'"
@@ -20,34 +20,32 @@
           />
         </div>
         <select
-          [(ngModel)]="generoFiltro"
-          (ngModelChange)="onFiltroChange()"
+          [ngModel]="generoFiltro()"
+          (ngModelChange)="generoFiltro.set($event); onFiltroChange()"
           style="padding: 9px 12px; border: 1px solid #e8edf2; border-radius: 8px; font-size: 14px; min-width: 160px; background: #fafbfc; color: #555; outline: none; cursor: pointer;"
         >
           <option value="">Todos os gêneros</option>
-          @for (genero of generosDisponiveis; track genero) {
+          @for (genero of generosDisponiveis(); track genero) {
             <option [value]="genero">{{ genero }}</option>
           }
         </select>
       </div>
     </div>
 
-    @if (carregando) {
+    @if (carregando()) {
       <div class="loading">A carregar clubes...</div>
     }
 
-    @if (mensagemErro) {
-      <div class="alerta erro">{{ mensagemErro }}</div>
+    @if (mensagemErro()) {
+      <div class="alerta erro">{{ mensagemErro() }}</div>
     }
 
-    @if (perfilUsuario === TipoPerfilEnum.ALUNO && meusClubes.length > 0) {
+    @if ((perfilUsuario === TipoPerfilEnum.ALUNO || perfilUsuario === TipoPerfilEnum.PROFESSOR) && meusClubes().length > 0) {
       <div style="margin-bottom: 36px;">
-        <h2 style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 16px;">
-          Meus Clubes
-        </h2>
+        <h2 style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 16px;">Meus Clubes</h2>
         <div class="clubes-grid">
-          @for (c of meusClubes; track c.id) {
-            <div class="clube-card clicavel" (click)="abrirClube(c.id)">
+          @for (c of meusClubes(); track c.id) {
+            <div class="clube-card clicavel" (click)="abrirClube(c.id)" >
               <div class="clube-card-header">
                 <h3>{{ c.livro?.titulo || c.nome || 'Clube de Leitura' }}</h3>
                 @if (c.livro?.titulo && c.nome) {
@@ -65,14 +63,12 @@
           }
         </div>
       </div>
-      <h2 style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 16px;">
-        Todos os Clubes
-      </h2>
+      <h2 style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 16px;">Todos os Clubes</h2>
     }
 
-    @if (!carregando && clubesFiltrados.length > 0) {
+    @if (!carregando() && clubesFiltrados().length > 0) {
       <div class="clubes-grid">
-        @for (c of clubesPaginados; track c.id) {
+        @for (c of clubesPaginados(); track c.id) {
           <div class="clube-card clicavel" (click)="abrirClube(c.id)">
             <div class="clube-card-header">
               <h3>{{ c.livro?.titulo || c.nome || 'Clube de Leitura' }}</h3>
@@ -91,73 +87,72 @@
         }
       </div>
 
-      @if (totalPaginas > 1) {
+      @if (totalPaginas() > 1) {
         <div class="paginacao-container" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 30px; padding: 20px 0;">
           <button
-            [disabled]="paginaAtual === 1"
-            (click)="mudarPagina(paginaAtual - 1)"
+            [disabled]="paginaAtual() === 1"
+            (click)="mudarPagina(paginaAtual() - 1)"
             style="padding: 8px 16px; border: 1px solid #ccc; background: #fff; border-radius: 4px; cursor: pointer;"
-            [style.opacity]="paginaAtual === 1 ? '0.5' : '1'"
-            [style.cursor]="paginaAtual === 1 ? 'not-allowed' : 'pointer'">
+            [style.opacity]="paginaAtual() === 1 ? '0.5' : '1'"
+            [style.cursor]="paginaAtual() === 1 ? 'not-allowed' : 'pointer'">
             ← Anterior
           </button>
           
           <span style="font-weight: 500; color: #555;">
-            Página <strong>{{ paginaAtual }}</strong> de {{ totalPaginas }}
+            Página <strong>{{ paginaAtual() }}</strong> de {{ totalPaginas() }}
           </span>
           <button
-            [disabled]="paginaAtual === totalPaginas"
-            (click)="mudarPagina(paginaAtual + 1)"
+            [disabled]="paginaAtual() === totalPaginas()"
+            (click)="mudarPagina(paginaAtual() + 1)"
             style="padding: 8px 16px; border: 1px solid #ccc; background: #fff; border-radius: 4px; cursor: pointer;"
-            [style.opacity]="paginaAtual === totalPaginas ? '0.5' : '1'"
-            [style.cursor]="paginaAtual === totalPaginas ? 'not-allowed' : 'pointer'">
+            [style.opacity]="paginaAtual() === totalPaginas() ? '0.5' : '1'"
+            [style.cursor]="paginaAtual() === totalPaginas() ? 'not-allowed' : 'pointer'">
             Próxima →
           </button>
         </div>
       }
-    } @else if (!carregando) {
+    } @else if (!carregando()) {
       <div style="text-align: center; color: #777; padding: 30px; background: #f9f9f9; border-radius: 8px;">
         Nenhum clube encontrado para os filtros selecionados.
       </div>
     }
   }
 
-  @if (!modoListagem) {
+  @if (!modoListagem()) {
     <button class="btn-voltar" (click)="voltarParaListagem()">← Voltar à Lista</button>
 
-    @if (carregando) {
+    @if (carregando()) {
       <div class="loading">A carregar dados...</div>
     }
-    @if (mensagemErro) {
-      <div class="alerta erro">{{ mensagemErro }}</div>
+    @if (mensagemErro()) {
+      <div class="alerta erro">{{ mensagemErro() }}</div>
     }
-    @if (mensagemSucesso) {
-      <div class="alerta sucesso">{{ mensagemSucesso }}</div>
+    @if (mensagemSucesso()) {
+      <div class="alerta sucesso">{{ mensagemSucesso() }}</div>
     }
 
-    @if (!carregando && clubeDetalhes) {
+    @if (!carregando() && clubeDetalhes()) {
       <div class="detalhes-container">
 
-        @if (clubeDetalhes.livro) {
+        @if (clubeDetalhes().livro) {
           <div class="livro-detalhes-card" style="background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 20px; align-items: start;">
-            @if (clubeDetalhes.livro.capa_url) {
-              <img [src]="clubeDetalhes.livro.capa_url" alt="Capa do livro" style="width: 120px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
+            @if (clubeDetalhes().livro.capa_url) {
+              <img [src]="clubeDetalhes().livro.capa_url" alt="Capa do livro" style="width: 120px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
             }
             <div style="flex: 1;">
               <span style="background: #e3f2fd; color: #0d47a1; font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px;">LIVRO DO CLUBE</span>
-              <h2 style="margin: 0 0 8px 0; color: #333;">{{ clubeDetalhes.livro.titulo }}</h2>
-              <p style="margin: 0 0 12px 0; color: #666;"><strong>Autor:</strong> {{ clubeDetalhes.livro.autor || 'Não informado' }}</p>
-              
-              @if (clubeDetalhes.livro.sinopse) {
-                <p style="margin: 0 0 12px 0; color: #555; line-height: 1.5; font-size: 14px;">{{ clubeDetalhes.livro.sinopse }}</p>
+              <h2 style="margin: 0 0 8px 0; color: #333;">{{ clubeDetalhes().livro.titulo }}</h2>
+              <p style="margin: 0 0 12px 0; color: #666;"><strong>Autor:</strong> {{ clubeDetalhes().livro.autor || 'Não informado' }}</p>
+              @if (clubeDetalhes().livro.sinopse) {
+                <p style="margin: 0 0 12px 0; color: #555; line-height: 1.5; font-size: 14px;">{{ clubeDetalhes().livro.sinopse }}</p>
               }
               
               <div style="display: flex; gap: 20px; font-size: 13px; color: #777; border-top: 1px solid #eee; padding-top: 10px;">
-                @if (clubeDetalhes.livro.editora) {
-                  <span><strong>Editora:</strong> {{ clubeDetalhes.livro.editora }}</span>
+                @if (clubeDetalhes().livro.editora) {
+                  <span><strong>Editora:</strong> {{ clubeDetalhes().livro.editora }}</span>
                 }
-                @if (clubeDetalhes.livro.ano_publicacao) {
-                  <span><strong>Ano:</strong> {{ clubeDetalhes.livro.ano_publicacao }}</span>
+                @if (clubeDetalhes().livro.ano_publicacao) {
+                  <span><strong>Ano:</strong> {{ clubeDetalhes().livro.ano_publicacao }}</span>
                 }
               </div>
             </div>
@@ -166,54 +161,50 @@
 
         <div class="clube-info-card">
           <h2>Informações do Clube</h2>
-          @if (clubeDetalhes.nome) {
-            <p class="text-muted" style="margin-top: -10px; margin-bottom: 20px; font-style: italic;">Identificação: {{ clubeDetalhes.nome }}</p>
+          @if (clubeDetalhes().nome) {
+            <p class="text-muted" style="margin-top: -10px; margin-bottom: 20px; font-style: italic;">Identificação: {{ clubeDetalhes().nome }}</p>
           }
           
           <div class="info-grid">
             <div class="info-item">
               <span>Local do Encontro</span>
-              <strong>{{ clubeDetalhes.local_encontro || 'Não definido' }}</strong>
+              <strong>{{ clubeDetalhes().local_encontro || 'Não definido' }}</strong>
             </div>
             <div class="info-item">
               <span>Data de Início</span>
-              <strong>{{ clubeDetalhes.data_inicio | date:'dd/MM/yyyy' }}</strong>
+              <strong>{{ clubeDetalhes().data_inicio | date:'dd/MM/yyyy' }}</strong>
             </div>
             <div class="info-item">
               <span>Data de Fim</span>
-              <strong>{{ clubeDetalhes.data_fim | date:'dd/MM/yyyy' }}</strong>
+              <strong>{{ clubeDetalhes().data_fim | date:'dd/MM/yyyy' }}</strong>
             </div>
           </div>
 
-          @if (abaAtiva === 'detalhes') {
+          @if (abaAtiva() === 'detalhes') {
             <div class="acoes-clube">
               @if (perfilUsuario === TipoPerfilEnum.ALUNO) {
-                @if (clubeEncerrado) {
-                  <button class="btn-acao-primario" (click)="abrirAvaliacao()">
-                    Avaliar Clube
-                  </button>
+                @if (clubeEncerrado()) {
+                  <button class="btn-acao-primario" (click)="abrirAvaliacao()">Avaliar Clube</button>
                 }
-                @if (!clubeEncerrado) {
+                @if (!clubeEncerrado()) {
                   <div class="aviso-bloqueio">
-                    <i class="icone-relogio">🕒</i> A avaliação deste clube só estará disponível após o encerramento no dia {{ clubeDetalhes.data_fim | date:'dd/MM/yyyy' }}.
+                    <i class="icone-relogio">🕒</i> A avaliação deste clube só estará disponível após o encerramento no dia {{ clubeDetalhes().data_fim | date:'dd/MM/yyyy' }}.
                   </div>
                 }
               }
 
               @if (perfilUsuario === TipoPerfilEnum.PROFESSOR) {
-                <button class="btn-acao-primario" (click)="abrirFeedbacks()">
-                  Ver Feedbacks dos Alunos
-                </button>
+                <button class="btn-acao-primario" (click)="abrirFeedbacks()">Ver Feedbacks dos Alunos</button>
               }
             </div>
           }
         </div>
 
-        @if (abaAtiva !== 'detalhes') {
+        @if (abaAtiva() !== 'detalhes') {
           <hr class="divisor">
         }
 
-        @if (abaAtiva === 'avaliacao') {
+        @if (abaAtiva() === 'avaliacao') {
           <div class="questionario-card">
             <header class="clube-header">
               <h2>Avaliação do Clube</h2>
@@ -221,7 +212,7 @@
             </header>
 
             <form [formGroup]="form" (ngSubmit)="onSubmit()">
-              @for (pergunta of perguntas; track pergunta.id; let i = $index) {
+              @for (pergunta of perguntas(); track pergunta.id; let i = $index) {
                 <div class="pergunta-bloco">
                   <h3>{{ i + 1 }}. {{ pergunta.texto }}</h3>
                   <div class="opcoes-lista">
@@ -237,37 +228,35 @@
                   }
                 </div>
               }
-              <button class="btn-enviar" type="submit" [disabled]="form.invalid || enviando || form.disabled">
-                {{ enviando ? 'A enviar...' : 'Enviar Avaliação' }}
+              <button class="btn-enviar" type="submit" [disabled]="form.invalid || enviando() || form.disabled">
+                {{ enviando() ? 'A enviar...' : 'Enviar Avaliação' }}
               </button>
             </form>
           </div>
         }
 
-        @if (abaAtiva === 'feedbacks') {
+        @if (abaAtiva() === 'feedbacks') {
           <div class="questionario-card">
             <header class="clube-header">
               <h2>Resultados dos Feedbacks</h2>
               <p>Selecione uma pergunta abaixo para ver a votação dos alunos.</p>
             </header>
-
-            @if (perguntas.length === 0) {
+            @if (perguntas().length === 0) {
               <div class="sem-perguntas">Não há perguntas configuradas.</div>
             }
 
             <div class="lista-perguntas-analise">
-              @for (pergunta of perguntas; track pergunta.id; let i = $index) {
+              @for (pergunta of perguntas(); track pergunta.id; let i = $index) {
                 <div class="pergunta-analise-card">
                   <button class="btn-pergunta"
-                          [class.ativo]="perguntaSelecionadaId === pergunta.id"
+                          [class.ativo]="perguntaSelecionadaId() === pergunta.id"
                           (click)="selecionarPerguntaParaAnalise(pergunta.id)">
                     <span>{{ i + 1 }}. {{ pergunta.texto }}</span>
-                    <span class="seta">{{ perguntaSelecionadaId === pergunta.id ? '▲' : '▼' }}</span>
+                    <span class="seta">{{ perguntaSelecionadaId() === pergunta.id ? '▲' : '▼' }}</span>
                   </button>
-
-                  @if (perguntaSelecionadaId === pergunta.id) {
+                  @if (perguntaSelecionadaId() === pergunta.id) {
                     <div class="estatisticas-box">
-                      @for (stat of estatisticas; track stat.texto) {
+                      @for (stat of estatisticas(); track stat.texto) {
                         <div class="stat-item">
                           <span class="stat-texto">{{ stat.texto }}</span>
                           <span class="stat-badge" [class.destaque]="stat.quantidade > 0">
