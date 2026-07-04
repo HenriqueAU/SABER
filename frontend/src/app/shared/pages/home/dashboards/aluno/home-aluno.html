@@ -1,5 +1,12 @@
 <div class="container-fluid py-4 px-4">
 
+  @if (erro()) {
+    <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center mb-4">
+      <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+      <div>{{ erro() }}</div>
+    </div>
+  }
+
   <div class="row g-3 mb-4">
     <div class="col-12 col-md-6">
       <div class="card border-0 shadow-sm h-100">
@@ -19,110 +26,171 @@
     </div>
   </div>
 
-  <div class="row g-4 mb-4">
-
-    <div class="col-12 col-lg-6">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body">
-          <h6 class="fw-bold mb-3">Livros com você</h6>
-
-          @if (carregandoEmprestimos()) {
-            <p class="text-secondary small">Carregando...</p>
-          }
-
-          @if (!carregandoEmprestimos() && emprestimosAtivos().length === 0) {
-            <div class="text-center py-4 text-secondary">
-              <i class="bi bi-book fs-2"></i>
-              <p class="small mt-2 mb-0">Nenhum livro em seu poder no momento.</p>
-            </div>
-          }
-
-          <ul class="list-unstyled mb-0">
-            @for (emp of emprestimosAtivos(); track emp.id; let i = $index) {
-              <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
-                <img
-                  [src]="emp.capaUrl || 'assets/imgs/teste2.png'"
-                  [alt]="emp.titulo"
-                  class="rounded"
-                  style="width: 36px; height: 50px; object-fit: cover;">
-                <div class="flex-grow-1 overflow-hidden">
-                  <div class="fw-semibold text-truncate">{{ emp.titulo }}</div>
-                  <small [class.text-danger]="estaAtrasado(emp.dataDevolucaoEsperada)"
-                         [class.text-secondary]="!estaAtrasado(emp.dataDevolucaoEsperada)">
-                    Devolver até {{ emp.dataDevolucaoEsperada | date:'dd/MM/yyyy' }}
-                    @if (estaAtrasado(emp.dataDevolucaoEsperada)) {
-                      <span class="ms-1">⚠ Atrasado</span>
-                    }
-                  </small>
-                </div>
-              </li>
-            }
-          </ul>
-        </div>
-      </div>
+  @if (carregando()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-3 text-secondary">A carregar o seu painel...</p>
     </div>
-
-    <div class="col-12 col-lg-6">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body">
-          <h6 class="fw-bold mb-3">Meus clubes</h6>
-
-          @if (clubes().length === 0) {
-            <div class="text-center py-4 text-secondary">
-              <i class="bi bi-people fs-2"></i>
-              <p class="small mt-2 mb-0">Você não está participando de nenhum clube.</p>
-            </div>
-          }
-
-          <ul class="list-unstyled mb-0">
-            @for (clube of clubes(); track clube.id; let i = $index) {
-              <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
-                <img
-                  [src]="clube.capaUrl || 'assets/imgs/teste2.png'"
-                  [alt]="clube.nomeLivro"
-                  class="rounded"
-                  style="width: 36px; height: 50px; object-fit: cover;">
-                <div class="flex-grow-1 overflow-hidden">
-                  <div class="fw-semibold text-truncate">{{ clube.nomeLivro }}</div>
-                  <small class="text-secondary">Encerra em {{ clube.dataEncerramento | date:'dd/MM/yyyy' }}</small>
-                </div>
-                @if (clube.status === 'ativo') {
-                  <span class="badge bg-success-subtle text-success">Ativo</span>
-                }
-                @if (clube.status === 'encerrado') {
-                  <span class="badge bg-secondary-subtle text-secondary">Encerrado</span>
-                }
-              </li>
-            }
-          </ul>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="row g-3">
-    <div class="col-12">
-      <h6 class="fw-bold mb-3">Recomendados para você</h6>
-    </div>
-    @for (livro of recomendacoes(); track livro.id) {
-      <div class="col-12 col-md-4">
+  } @else {
+    
+    <div class="row g-4 mb-4">
+      
+      <div class="col-12 col-lg-6">
         <div class="card border-0 shadow-sm h-100">
-          <img
-            [src]="livro.capaUrl || 'assets/imgs/teste2.png'"
-            class="card-img-top object-fit-cover"
-            style="height: 160px;"
-            [alt]="livro.titulo">
           <div class="card-body">
-            <h6 class="fw-semibold mb-1 text-truncate">{{ livro.titulo }}</h6>
-            <small class="text-secondary">{{ livro.autor }}</small>
-            <div class="mt-2">
-              <span class="badge bg-primary-subtle text-primary">{{ livro.genero }}</span>
-            </div>
+            <h6 class="fw-bold mb-3"><i class="bi bi-book me-2"></i>Livros com você</h6>
+            <ul class="list-unstyled mb-0">
+              @for (emp of emprestimosAtivos(); track emp.id; let i = $index) {
+                <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
+                  <img [src]="emp.exemplar?.livro?.capa_url || 'assets/imgs/teste2.png'" class="rounded" style="width: 36px; height: 50px; object-fit: cover;">
+                  <div class="flex-grow-1 overflow-hidden">
+                    <div class="fw-semibold text-truncate">{{ emp.exemplar?.livro?.titulo }}</div>
+                    <small [class.text-danger]="estaAtrasado(emp.data_devolucao_esperada)" [class.text-secondary]="!estaAtrasado(emp.data_devolucao_esperada)">
+                      Devolver até {{ emp.data_devolucao_esperada | date:'dd/MM/yyyy' }}
+                      @if (estaAtrasado(emp.data_devolucao_esperada)) {
+                        <span class="ms-1">⚠ Atrasado</span>
+                      }
+                    </small>
+                  </div>
+                </li>
+              } @empty {
+                <div class="text-center py-4 text-secondary">
+                  <i class="bi bi-journal-x fs-1 opacity-50 mb-2 d-block"></i>
+                  <p class="small mb-0">Nenhum livro em seu poder no momento.</p>
+                </div>
+              }
+            </ul>
           </div>
         </div>
       </div>
-    }
-  </div>
 
+      <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3"><i class="bi bi-people me-2"></i>Meus clubes ativos</h6>
+            <ul class="list-unstyled mb-0">
+              @for (clube of clubesAtivos(); track clube.id; let i = $index) {
+                <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
+                  <img [src]="clube.livro?.capa_url || 'assets/imgs/teste2.png'" class="rounded" style="width: 36px; height: 50px; object-fit: cover;">
+                  <div class="flex-grow-1 overflow-hidden">
+                    <div class="fw-semibold text-truncate">{{ clube.nome || clube.livro?.titulo }}</div>
+                    <small class="text-secondary">Encerra em {{ (clube.data_fim | date:'dd/MM/yyyy') || 'Não definido' }}</small>
+                  </div>
+                  <span class="badge bg-success-subtle text-success border border-success-subtle">Em andamento</span>
+                </li>
+              } @empty {
+                <div class="text-center py-4 text-secondary">
+                  <i class="bi bi-door-closed fs-1 opacity-50 mb-2 d-block"></i>
+                  <p class="small mb-0">Você não participa de nenhum clube atualmente.</p>
+                </div>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      
+      <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3 text-secondary"><i class="bi bi-clock-history me-2"></i>Histórico de Leitura</h6>
+            <ul class="list-unstyled mb-0">
+              @for (emp of historicoLeitura().slice(0, 4); track emp.id; let i = $index) {
+                <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
+                  <img [src]="emp.exemplar?.livro?.capa_url || 'assets/imgs/teste2.png'" class="rounded shadow-sm" style="width: 36px; height: 50px; object-fit: cover;">
+                  <div class="flex-grow-1 overflow-hidden">
+                    <div class="fw-semibold text-truncate">{{ emp.exemplar?.livro?.titulo }}</div>
+                    <small class="text-success"><i class="bi bi-check-circle me-1"></i>Devolvido em {{ emp.data_devolucao_efetiva | date:'dd/MM/yyyy' }}</small>
+                  </div>
+                </li>
+              } @empty {
+                <div class="text-center py-4 text-secondary">
+                  <p class="small mb-0">Nenhuma leitura concluída ainda.</p>
+                </div>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3 text-secondary"><i class="bi bi-archive me-2"></i>Clubes Encerrados</h6>
+            <ul class="list-unstyled mb-0">
+              @for (clube of clubesEncerrados().slice(0, 4); track clube.id; let i = $index) {
+                <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
+                  <img [src]="clube.livro?.capa_url || 'assets/imgs/teste2.png'" class="rounded shadow-sm" style="width: 36px; height: 50px; object-fit: cover;">
+                  <div class="flex-grow-1 overflow-hidden">
+                    <div class="fw-semibold text-truncate">{{ clube.nome || clube.livro?.titulo }}</div>
+                    <small class="text-secondary"><i class="bi bi-calendar-check me-1"></i>Finalizado em {{ (clube.data_fim | date:'dd/MM/yyyy') || 'N/A' }}</small>
+                  </div>
+                </li>
+              } @empty {
+                <div class="text-center py-4 text-secondary">
+                  <p class="small mb-0">Nenhum clube finalizado no seu histórico.</p>
+                </div>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3 text-secondary"><i class="bi bi-bar-chart-fill me-2"></i>Perfil de Leitura</h6>
+            
+            @for (item of perfilLeitura(); track item.genero) {
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                  <span class="text-dark fw-medium">{{ item.genero }}</span>
+                  <span class="fw-bold text-primary">{{ item.quantidade }}</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                  <div class="progress-bar bg-primary rounded-pill" [style.width.%]="calcularPorcentagem(item.quantidade)"></div>
+                </div>
+              </div>
+            } @empty {
+              <div class="text-center py-4 text-secondary">
+                <i class="bi bi-pie-chart fs-1 opacity-50 mb-2 d-block"></i>
+                <p class="small mb-0">Leia mais livros para gerar o seu perfil.</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row g-3">
+      <div class="col-12">
+        <h6 class="fw-bold mb-3"><i class="bi bi-stars text-warning me-2"></i>Recomendados para você</h6>
+      </div>
+
+      @for (livro of recomendacoes(); track livro.id) {
+        <div class="col-12 col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <img [src]="livro.capa_url || 'assets/imgs/teste2.png'" class="card-img-top object-fit-cover" style="height: 160px;">
+            <div class="card-body">
+              <h6 class="fw-bold mb-1 text-truncate">{{ livro.titulo }}</h6>
+              <small class="text-secondary">{{ livro.autor }}</small>
+              <div class="mt-2">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">{{ livro.generoNome }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-12">
+          <div class="text-center py-4 text-secondary bg-white rounded-3 shadow-sm border border-light">
+            <i class="bi bi-stars fs-1 text-warning opacity-50 mb-2 d-block"></i>
+            <p class="small mb-0">Continue lendo na instituição para receber recomendações exclusivas com base no seu gosto!</p>
+          </div>
+        </div>
+      }
+    </div>
+  }
 </div>
