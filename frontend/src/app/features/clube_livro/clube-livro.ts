@@ -28,6 +28,8 @@ export default class ClubeLivroComponent implements OnInit {
   termoBusca: string = '';
   generoFiltro: string = '';
   clubes: any[] = [];
+  meusClubes: any[] = [];
+  carregandoMeusClubes: boolean = false;
   clubeDetalhes: any = null;
   perguntas: any[] = [];
   itensPergunta: any[] = [];
@@ -133,6 +135,7 @@ export default class ClubeLivroComponent implements OnInit {
       this.clubes = Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || [];
       this.paginaAtual = 1;
       this.carregarGeneros();
+      this.carregarMeusClubes();
     } catch (error) {
       this.mensagemErro = 'Não foi possível carregar a lista de clubes.';
     } finally {
@@ -157,7 +160,26 @@ export default class ClubeLivroComponent implements OnInit {
       }
     });
   }
+ async carregarMeusClubes(): Promise<void> {
+  if (this.perfilUsuario !== TipoPerfil.ALUNO && this.perfilUsuario !== TipoPerfil.PROFESSOR) return;
 
+  this.carregandoMeusClubes = true;
+  try {
+    const endpoint = this.perfilUsuario === TipoPerfil.PROFESSOR
+      ? 'meus-clubes-professor'
+      : 'meus-clubes';
+
+    const res = await firstValueFrom(
+      this.http.get<any[]>(`${this.clubesService['basePath']}/clubes/${endpoint}`)
+    );
+    this.meusClubes = Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || [];
+  } catch (error) {
+    this.meusClubes = [];
+  } finally {
+    this.carregandoMeusClubes = false;
+    this.cdr.detectChanges();
+  }
+}
   abrirClube(id: string) {
     this.router.navigate(['/clubes', id]);
   }

@@ -6,40 +6,68 @@
       <p>Explore os clubes disponíveis na sua instituição.</p>
     </header>
 
-  <div style="display: flex; justify-content: center; margin-bottom: 28px;">
-  <div style="display: flex; gap: 10px; align-items: center; width: 100%; max-width: 700px;">
-    
-    <div style="position: relative; flex: 1;">
-      <input
-        type="text"
-        [(ngModel)]="termoBusca"
-        (ngModelChange)="onFiltroChange()"
-        placeholder="Buscar por título ou autor"
-        style="width: 100%; padding: 9px 12px 9px 34px; border: 1px solid #e8edf2; border-radius: 8px; font-size: 14px; color: #444; background: #fafbfc; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
-        (focus)="$event.target.style.borderColor='#a0b4c8'"
-        (blur)="$event.target.style.borderColor='#e8edf2'"
-      />
+    <div style="display: flex; justify-content: center; margin-bottom: 28px;">
+      <div style="display: flex; gap: 10px; align-items: center; width: 100%; max-width: 700px;">
+        <div style="position: relative; flex: 1;">
+          <input
+            type="text"
+            [(ngModel)]="termoBusca"
+            (ngModelChange)="onFiltroChange()"
+            placeholder="Buscar por título ou autor"
+            style="width: 100%; padding: 9px 12px 9px 34px; border: 1px solid #e8edf2; border-radius: 8px; font-size: 14px; color: #444; background: #fafbfc; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
+            (focus)="$event.target.style.borderColor='#a0b4c8'"
+            (blur)="$event.target.style.borderColor='#e8edf2'"
+          />
+        </div>
+        <select
+          [(ngModel)]="generoFiltro"
+          (ngModelChange)="onFiltroChange()"
+          style="padding: 9px 12px; border: 1px solid #e8edf2; border-radius: 8px; font-size: 14px; min-width: 160px; background: #fafbfc; color: #555; outline: none; cursor: pointer;"
+        >
+          <option value="">Todos os gêneros</option>
+          @for (genero of generosDisponiveis; track genero) {
+            <option [value]="genero">{{ genero }}</option>
+          }
+        </select>
+      </div>
     </div>
-
-    <select
-      [(ngModel)]="generoFiltro"
-      (ngModelChange)="onFiltroChange()"
-      style="padding: 9px 12px; border: 1px solid #e8edf2; border-radius: 8px; font-size: 14px; min-width: 160px; background: #fafbfc; color: #555; outline: none; cursor: pointer;"
-    >
-      <option value="">Todos os gêneros</option>
-      @for (genero of generosDisponiveis; track genero) {
-        <option [value]="genero">{{ genero }}</option>
-      }
-    </select>
-  </div>
-</div>
 
     @if (carregando) {
       <div class="loading">A carregar clubes...</div>
     }
-    
+
     @if (mensagemErro) {
       <div class="alerta erro">{{ mensagemErro }}</div>
+    }
+
+    @if (perfilUsuario === TipoPerfilEnum.ALUNO && meusClubes.length > 0) {
+      <div style="margin-bottom: 36px;">
+        <h2 style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 16px;">
+          Meus Clubes
+        </h2>
+        <div class="clubes-grid">
+          @for (c of meusClubes; track c.id) {
+            <div class="clube-card clicavel" (click)="abrirClube(c.id)">
+              <div class="clube-card-header">
+                <h3>{{ c.livro?.titulo || c.nome || 'Clube de Leitura' }}</h3>
+                @if (c.livro?.titulo && c.nome) {
+                  <small style="opacity: 0.7; display: block; margin-top: 4px;">{{ c.nome }}</small>
+                }
+              </div>
+              <div class="clube-card-body">
+                <p><strong>Início:</strong> {{ c.data_inicio | date:'dd/MM/yyyy' }}</p>
+                <p><strong>Fim:</strong> {{ c.data_fim | date:'dd/MM/yyyy' }}</p>
+                @if (c.local_encontro) {
+                  <p><strong>Local:</strong> {{ c.local_encontro }}</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      <h2 style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 16px;">
+        Todos os Clubes
+      </h2>
     }
 
     @if (!carregando && clubesFiltrados.length > 0) {
@@ -65,8 +93,8 @@
 
       @if (totalPaginas > 1) {
         <div class="paginacao-container" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 30px; padding: 20px 0;">
-          <button 
-            [disabled]="paginaAtual === 1" 
+          <button
+            [disabled]="paginaAtual === 1"
             (click)="mudarPagina(paginaAtual - 1)"
             style="padding: 8px 16px; border: 1px solid #ccc; background: #fff; border-radius: 4px; cursor: pointer;"
             [style.opacity]="paginaAtual === 1 ? '0.5' : '1'"
@@ -77,9 +105,8 @@
           <span style="font-weight: 500; color: #555;">
             Página <strong>{{ paginaAtual }}</strong> de {{ totalPaginas }}
           </span>
-          
-          <button 
-            [disabled]="paginaAtual === totalPaginas" 
+          <button
+            [disabled]="paginaAtual === totalPaginas"
             (click)="mudarPagina(paginaAtual + 1)"
             style="padding: 8px 16px; border: 1px solid #ccc; background: #fff; border-radius: 4px; cursor: pointer;"
             [style.opacity]="paginaAtual === totalPaginas ? '0.5' : '1'"
@@ -110,7 +137,7 @@
 
     @if (!carregando && clubeDetalhes) {
       <div class="detalhes-container">
-        
+
         @if (clubeDetalhes.livro) {
           <div class="livro-detalhes-card" style="background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 20px; align-items: start;">
             @if (clubeDetalhes.livro.capa_url) {
@@ -206,9 +233,7 @@
                     }
                   </div>
                   @if (form.get(pergunta.id)?.invalid && form.get(pergunta.id)?.touched) {
-                    <small class="texto-erro">
-                      Por favor, selecione uma opção.
-                    </small>
+                    <small class="texto-erro">Por favor, selecione uma opção.</small>
                   }
                 </div>
               }
@@ -227,16 +252,13 @@
             </header>
 
             @if (perguntas.length === 0) {
-              <div class="sem-perguntas">
-                Não há perguntas configuradas.
-              </div>
+              <div class="sem-perguntas">Não há perguntas configuradas.</div>
             }
 
             <div class="lista-perguntas-analise">
               @for (pergunta of perguntas; track pergunta.id; let i = $index) {
                 <div class="pergunta-analise-card">
-                  
-                  <button class="btn-pergunta" 
+                  <button class="btn-pergunta"
                           [class.ativo]="perguntaSelecionadaId === pergunta.id"
                           (click)="selecionarPerguntaParaAnalise(pergunta.id)">
                     <span>{{ i + 1 }}. {{ pergunta.texto }}</span>
