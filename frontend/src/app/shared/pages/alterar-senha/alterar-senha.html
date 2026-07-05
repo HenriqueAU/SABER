@@ -1,43 +1,60 @@
 <div class="alterar-senha-container">
-  <h2>Alterar Senha</h2>
-  <p>Por favor, insira a sua senha atual e a nova senha desejada.</p>
+  <h2 class="fw-bold mb-2"><i class="bi bi-shield-lock text-primary me-2"></i>Alterar Senha</h2>
+  <p class="text-secondary mb-4">Por favor, insira a sua senha atual e a nova senha desejada.</p>
 
-  <div *ngIf="mensagemSucesso" class="alerta sucesso">{{ mensagemSucesso }}</div>
-  <div *ngIf="mensagemErro" class="alerta erro">{{ mensagemErro }}</div>
+  @if (mensagemSucesso()) {
+    <div class="alert alert-success d-flex align-items-center shadow-sm" role="alert">
+      <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+      <div>{{ mensagemSucesso() }}</div>
+    </div>
+  }
+
+  @if (mensagemErro()) {
+    <div class="alert alert-danger d-flex align-items-center shadow-sm" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+      <div>{{ mensagemErro() }}</div>
+    </div>
+  }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     
-    <div class="form-group">
-      <label for="senhaAtual">Senha Atual</label>
+    <div class="form-group mb-3">
+      <label for="senhaAtual" class="form-label fw-semibold">Senha Atual</label>
       <input 
         id="senhaAtual" 
         type="password" 
+        class="form-control p-2"
         formControlName="senhaAtual" 
         placeholder="Digite sua senha atual"
       >
-      <small *ngIf="form.get('senhaAtual')?.invalid && form.get('senhaAtual')?.touched" class="texto-erro">
-        A senha atual é obrigatória.
-      </small>
+      @if (form.get('senhaAtual')?.invalid && form.get('senhaAtual')?.touched) {
+        <small class="text-danger d-block mt-1"><i class="bi bi-info-circle me-1"></i>A senha atual é obrigatória.</small>
+      }
     </div>
 
-    <div class="form-group">
-      <label for="novaSenha">Nova Senha</label>
+    <div class="form-group mb-4">
+      <label for="novaSenha" class="form-label fw-semibold">Nova Senha</label>
       <input 
         id="novaSenha" 
         type="password" 
+        class="form-control p-2"
         formControlName="novaSenha" 
-        placeholder="Mínimo 6 caracteres"
+        placeholder="Mínimo 8 caracteres"
       >
-      <small *ngIf="form.get('novaSenha')?.errors?.['required'] && form.get('novaSenha')?.touched" class="texto-erro">
-        A nova senha é obrigatória.
-      </small>
-      <small *ngIf="form.get('novaSenha')?.errors?.['minlength'] && form.get('novaSenha')?.touched" class="texto-erro">
-        A nova senha deve ter no mínimo 6 caracteres.
-      </small>
+      @if (form.get('novaSenha')?.errors?.['required'] && form.get('novaSenha')?.touched) {
+        <small class="text-danger d-block mt-1"><i class="bi bi-info-circle me-1"></i>A nova senha é obrigatória.</small>
+      }
+      @if (form.get('novaSenha')?.errors?.['minlength'] && form.get('novaSenha')?.touched) {
+        <small class="text-danger d-block mt-1"><i class="bi bi-info-circle me-1"></i>A senha deve ter no mínimo 8 caracteres.</small>
+      }
     </div>
 
-    <button type="submit" [disabled]="form.invalid || carregando">
-      {{ carregando ? 'A atualizar...' : 'Alterar Senha' }}
+    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" [disabled]="form.invalid || carregando()">
+      @if (carregando()) {
+        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> A alterar...
+      } @else {
+        <i class="bi bi-check2-circle me-2"></i>Salvar Nova Senha
+      }
     </button>
 
   </form>

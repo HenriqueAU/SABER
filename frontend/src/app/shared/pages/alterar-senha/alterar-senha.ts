@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -14,14 +14,13 @@ import { BASE_PATH_DEFAULT } from '../../../../client/tokens';
 })
 export default class AlterarSenhaComponent {
   form: FormGroup;
-  mensagemSucesso: string = '';
-  mensagemErro: string = '';
-  carregando: boolean = false;
+  mensagemSucesso = signal<string>('');
+  mensagemErro = signal<string>('');
+  carregando = signal<boolean>(false);
 
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private authSession = inject(CoreAuthService);
-  private cdr = inject(ChangeDetectorRef);
   private basePath = inject(BASE_PATH_DEFAULT);
 
   constructor() {
@@ -34,16 +33,15 @@ export default class AlterarSenhaComponent {
   onSubmit() {
     if (this.form.invalid) return;
 
-    this.carregando = true;
-    this.mensagemSucesso = '';
-    this.mensagemErro = '';
+    this.carregando.set(true);
+    this.mensagemSucesso.set('');
+    this.mensagemErro.set('');
 
     const token = this.authSession.getToken();
 
     if (!token) {
-      this.mensagemErro = 'Utilizador não autenticado.';
-      this.carregando = false;
-      this.cdr.detectChanges();
+      this.mensagemErro.set('Utilizador não autenticado.');
+      this.carregando.set(false);
       return;
     }
 
@@ -53,16 +51,14 @@ export default class AlterarSenhaComponent {
       const payload = JSON.parse(atob(base64));
       usuarioId = payload.id;
     } catch (e) {
-      this.mensagemErro = 'Erro ao processar a sua sessão.';
-      this.carregando = false;
-      this.cdr.detectChanges();
+      this.mensagemErro.set('Erro ao processar a sua sessão.');
+      this.carregando.set(false);
       return;
     }
 
     if (!usuarioId) {
-      this.mensagemErro = 'Não foi possível identificar a sua conta.';
-      this.carregando = false;
-      this.cdr.detectChanges();
+      this.mensagemErro.set('Não foi possível identificar a sua conta.');
+      this.carregando.set(false);
       return;
     }
 
@@ -74,21 +70,14 @@ export default class AlterarSenhaComponent {
 
     this.http.patch(`${this.basePath}/usuario/${usuarioId}/alterar-senha`, payload).subscribe({
       next: () => {
-        this.mensagemSucesso = 'Senha alterada com sucesso!';
+        this.mensagemSucesso.set('Senha alterada com sucesso!');
         this.form.reset();
-        this.carregando = false;
-        this.cdr.detectChanges();
+        this.carregando.set(false);
       },
       error: (err) => {
         const msg = err.error?.message;
-        if (err.status === 400 && msg) {
-          this.mensagemErro = Array.isArray(msg) ? msg[0] : msg;
-        } else {
-          this.mensagemErro = 'Ocorreu um erro ao alterar a senha. Tente novamente.';
-        }
-        
-        this.carregando = false;
-        this.cdr.detectChanges();
+        this.mensagemErro.set(Array.isArray(msg) ? msg[0] : (msg || 'Erro ao alterar a senha. Verifique a sua senha atual.'));
+        this.carregando.set(false);
       }
     });
   }

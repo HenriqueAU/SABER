@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BASE_PATH_DEFAULT } from '../../../../client/tokens';
@@ -19,12 +19,11 @@ interface Notificacao {
   styleUrls: ['./notificacoes.scss']
 })
 export default class NotificacoesComponent implements OnInit {
-  notificacoes: Notificacao[] = [];
-  carregando: boolean = true;
-  mensagemErro: string = '';
+  notificacoes = signal<Notificacao[]>([]);
+  carregando = signal<boolean>(true);
+  mensagemErro = signal<string>('');
 
   private http = inject(HttpClient);
-  private cdr = inject(ChangeDetectorRef);
   private basePath = inject(BASE_PATH_DEFAULT);
 
   ngOnInit(): void {
@@ -32,19 +31,17 @@ export default class NotificacoesComponent implements OnInit {
   }
 
   carregarNotificacoes() {
-    this.carregando = true;
-    this.mensagemErro = '';
+    this.carregando.set(true);
+    this.mensagemErro.set('');
 
     this.http.get<Notificacao[]>(`${this.basePath}/notificacoes`).subscribe({
       next: (dados) => {
-        this.notificacoes = dados;
-        this.carregando = false;
-        this.cdr.detectChanges();
+        this.notificacoes.set(dados);
+        this.carregando.set(false);
       },
       error: () => {
-        this.mensagemErro = 'Não foi possível carregar as suas notificações.';
-        this.carregando = false;
-        this.cdr.detectChanges();
+        this.mensagemErro.set('Não foi possível carregar as suas notificações.');
+        this.carregando.set(false);
       }
     });
   }
@@ -52,10 +49,12 @@ export default class NotificacoesComponent implements OnInit {
   marcarComoLida(notificacao: Notificacao) {
     this.http.patch(`${this.basePath}/notificacoes/${notificacao.id}/lida`, {}).subscribe({
       next: () => {
-        notificacao.lida = true;
-        this.cdr.detectChanges();
+        this.notificacoes.update(notifs => 
+          notifs.map(n => n.id === notificacao.id ? { ...n, lida: true } : n)
+        );
       },
       error: () => {
+        this.mensagemErro.set(`Não foi possível marcar "${notificacao.titulo}" como lida.`);
       }
     });
   }
