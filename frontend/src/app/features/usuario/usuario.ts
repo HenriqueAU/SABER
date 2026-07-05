@@ -1,7 +1,8 @@
 import { Component,
   OnInit,
   inject,
-  ChangeDetectorRef
+  signal, 
+  computed 
  } from '@angular/core';
  import { CommonModule } from '@angular/common';
  import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms'
@@ -17,59 +18,70 @@ import { Component,
   styleUrl: './usuario.scss',
 })
 export default class UsuarioComponent implements OnInit {
-  usuarios: any[] = [];
-  carregando: boolean = true;
-  enviando: boolean = false;
-  mensagemSucesso: string = '';
-  mensagemErro: string = '';
+  usuarios = signal<any[]>([]);
+  carregando = signal(true);
+  enviando = signal(false);
+  mensagemSucesso = signal('');
+  mensagemErro = signal('');
   form!: FormGroup;
 
   TipoPerfilEnum = TipoPerfil;
   perfis = Object.values(TipoPerfil);
 
-  mostrarForm = false;
-  termoBusca = '';
-  PerfilSelecionado = '';
+  mostrarForm = signal(false);
+  termoBusca = signal('');
+  PerfilSelecionado = signal('');
+
+  readonly ITENS_POR_PAGINA = 30;
+  paginaAtual = signal(1);
 
   private fb = inject(FormBuilder);
-  private cdr = inject(ChangeDetectorRef);
   private usuariosService = inject(UsuariosService);
   private authService = inject(CoreAuthService);
 
-  get usuariosFiltrados(): any[] {
-    return this.usuarios.filter((usuario) => {
+  usuariosFiltrados = computed(() =>
+    this.usuarios().filter((usuario) => {
       const nomeOk =
-      !this.termoBusca ||
-        usuario.nome.toLowerCase().includes(this.termoBusca.toLowerCase());
-
+        !this.termoBusca() ||
+        usuario.nome.toLowerCase().includes(this.termoBusca().toLowerCase());
       const perfilOk =
-      !this.PerfilSelecionado ||
-        usuario.perfil === this.PerfilSelecionado;
-
+        !this.PerfilSelecionado() ||
+        usuario.perfil === this.PerfilSelecionado();
       return nomeOk && perfilOk;
-    });
+    })
+  );
+
+  fimDaPagina = computed(() =>
+    Math.min(this.paginaAtual() * this.ITENS_POR_PAGINA, this.usuariosFiltrados().length)
+  );
+
+  totalPaginas = computed(() =>
+    Math.ceil(this.usuariosFiltrados().length / this.ITENS_POR_PAGINA) || 1
+  );
+
+  usuariosPaginados = computed(() => {
+    const inicio = (this.paginaAtual() - 1) * this.ITENS_POR_PAGINA;
+    return this.usuariosFiltrados().slice(inicio, inicio + this.ITENS_POR_PAGINA);
+  });
+
+  paginas = computed(() =>
+    Array.from({ length: this.totalPaginas() }, (_, i) => i + 1)
+  );
+
+  irParaPagina(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginas()) return;
+    this.paginaAtual.set(pagina);
+  }
+
+  onFiltroChange(): void {
+    this.paginaAtual.set(1);
   }
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      nome: ['', [
-        Validators.required,
-        Validators.minLength(2),
-        Validators.maxLength(150),
-        Validators.pattern(/^[A-Za-zÀ-ÿ' -]+$/)
-      ]],
-      email: ['', [
-        Validators.required,
-        Validators.minLength(3),
-        Validators.maxLength(255),
-        Validators.email
-      ]],
-      senha: ['', [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.maxLength(72),
-        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).*$/)
-      ]],
+      nome: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(150), Validators.pattern(/^[A-Za-zÀ-ÿ' -]+$/)]],
+      email: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255), Validators.email]],
+      senha: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).*$/)]],
       perfil: ['', [Validators.required]],
       data_nasc: ['', [Validators.required]],
       foto_perfil: ['', [Validators.maxLength(500)]]
@@ -78,42 +90,28 @@ export default class UsuarioComponent implements OnInit {
     this.carregarUsuarios();
   }
 
-  abrirFormCadastro(){
+  abrirFormCadastro() {
     this.form.reset();
-    this.mostrarForm = true;
+    this.mostrarForm.set(true);
   }
 
-  fecharFormCadastro(){
-    this.mostrarForm = false;
-  }
-
-  private getInstituicaoId(): string | null {
-    const token = this.authService.getToken();
-    if (!token) return null;
-
-    try {
-      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-      const payload = JSON.parse(atob(base64));
-      return payload.instituicao || null;
-    } catch (e) {
-      return null;
-    }
+  fecharFormCadastro() {
+    this.mostrarForm.set(false);
   }
 
   carregarUsuarios() {
-    this.carregando = true;
-    this.mensagemErro = '';
+    this.carregando.set(true);
+    this.mensagemErro.set('');
 
     this.usuariosService.usuarioControllerFindAll().subscribe({
       next: (dados: any) => {
-        this.usuarios = Array.isArray(dados) ? dados : (dados?.data || dados?.items || []);
-        this.carregando = false;
-        this.cdr.detectChanges();
+        this.usuarios.set(Array.isArray(dados) ? dados : (dados?.data || dados?.items || []));
+        this.paginaAtual.set(1);
+        this.carregando.set(false);
       },
       error: () => {
-        this.mensagemErro = 'Não foi possível carregar a lista de usuários.';
-        this.carregando = false;
-        this.cdr.detectChanges();
+        this.mensagemErro.set('Não foi possível carregar a lista de usuários.');
+        this.carregando.set(false);
       }
     });
   }
@@ -124,15 +122,15 @@ export default class UsuarioComponent implements OnInit {
       return;
     }
 
-    const instituicaoId = this.getInstituicaoId();
+    const instituicaoId = this.authService.getInstituicao();
     if (!instituicaoId) {
-      this.mensagemErro = 'Não foi possível identificar a instituição do utilizador logado.';
+      this.mensagemErro.set('Não foi possível identificar a instituição do utilizador logado.');
       return;
     }
 
-    this.enviando = true;
-    this.mensagemSucesso = '';
-    this.mensagemErro = '';
+    this.enviando.set(true);
+    this.mensagemSucesso.set('');
+    this.mensagemErro.set('');
 
     const valores = this.form.value;
     const payload: any = {
@@ -150,21 +148,19 @@ export default class UsuarioComponent implements OnInit {
 
     this.usuariosService.usuarioControllerCreate(payload).subscribe({
       next: () => {
-        this.mensagemSucesso = 'Usuário cadastrado com sucesso!';
+        this.mensagemSucesso.set('Usuário cadastrado com sucesso!');
         this.form.reset();
-        this.enviando = false;
+        this.enviando.set(false);
         this.carregarUsuarios();
-        this.cdr.detectChanges();
       },
       error: (err) => {
         const msg = err.error?.message;
         if (err.status === 400 && msg) {
-          this.mensagemErro = Array.isArray(msg) ? msg[0] : msg;
+          this.mensagemErro.set(Array.isArray(msg) ? msg[0] : msg);
         } else {
-          this.mensagemErro = 'Ocorreu um erro ao cadastrar o usuário. Tente novamente.';
+          this.mensagemErro.set('Ocorreu um erro ao cadastrar o usuário. Tente novamente.');
         }
-        this.enviando = false;
-        this.cdr.detectChanges();
+        this.enviando.set(false);
       }
     });
   }

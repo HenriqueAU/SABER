@@ -114,4 +114,10 @@ export class ClubeService {
       .where('membro.usuario_id = :alunoId', { alunoId })
       .getMany();
   }
+  async findClubesDoProfessor(professorId: string): Promise<ClubeLivro[]> {
+  return await this.clubeLivroRepository.find({
+    where: { professor: { id: professorId } },
+    relations: ['professor', 'livro'],
+  });
+}
 }
