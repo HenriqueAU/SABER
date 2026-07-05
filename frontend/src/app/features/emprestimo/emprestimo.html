@@ -177,6 +177,11 @@
         }
       </a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link text-primary fw-semibold" [class.active]="abaAtiva === 'historico'" (click)="abaAtiva = 'historico'" style="cursor: pointer;">
+        <i class="bi bi-clock-history me-1"></i> Histórico de Empréstimos
+      </a>
+    </li>
   </ul>
 
   @if (abaAtiva === 'emprestimo') {
@@ -327,6 +332,72 @@
           <i class="bi bi-inbox fs-1"></i>
           <h5 class="mt-3">Não há empréstimos pendentes.</h5>
           <p>Todos os exemplares já foram devolvidos à biblioteca.</p>
+        </div>
+      }
+    </div>
+  }
+
+  @if (abaAtiva === 'historico') {
+    <div class="container py-4">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
+        
+        <div class="text-center text-md-start">
+          <h2 class="mb-1">Histórico de Empréstimos</h2>
+          <p class="text-secondary mb-0">
+            Acompanhe o histórico de todos os exemplares que já foram devolvidos.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-primary">
+            <tr>
+              <th class="ps-4">Aluno</th>
+              <th>Livro / Exemplar</th>
+              <th>Data Retirada</th>
+              <th>Data Limite</th>
+              <th>Data Devolução</th>
+              <th class="pe-4">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (emp of emprestimosHistorico; track emp.id) {
+              <tr class="table-light">
+                <td class="ps-4">
+                  <div class="fw-bold">{{ getNomeAluno(emp) }}</div>
+                  <small class="text-secondary">{{ getEmailAluno(emp) }}</small>
+                </td>
+                <td>
+                  <div class="fw-bold">{{ getTituloLivro(emp) }}</div>
+                  <small class="text-secondary">Cód: {{ getCodigoExemplar(emp) }}</small>
+                </td>
+                <td>{{ emp.data_retirada | date:'shortDate' }}</td>
+                <td>{{ emp.data_devolucao_esperada | date:'shortDate' }}</td>
+                <td class="fw-medium text-success">
+                  {{ emp.data_devolucao_efetiva | date:'shortDate' }}
+                </td>
+                <td class="pe-4">
+                  @if (estaAtrasadoHistorico(emp)) {
+                    <span class="badge bg-danger-subtle text-danger">Atrasado</span>
+                  } @else {
+                    <span class="badge bg-success-subtle text-success">No prazo</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (emprestimosHistorico.length === 0) {
+        <div class="text-center py-5 text-secondary">
+          <i class="bi bi-clock-history fs-1"></i>
+          <h5 class="mt-3">Nenhum histórico disponível.</h5>
+          <p>Ainda não há registros de empréstimos concluídos.</p>
         </div>
       }
     </div>

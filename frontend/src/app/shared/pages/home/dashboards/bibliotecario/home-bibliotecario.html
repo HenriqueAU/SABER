@@ -72,7 +72,7 @@
     <div class="row mt-4">
       <div class="col-12">
         <div class="card border-0 shadow-sm">
-          <div class="card-body" routerLink="/emprestimos" style="cursor:pointer">
+          <div class="card-body" [routerLink]="['/emprestimos']" [queryParams]="{tab: 'historico'}" style="cursor:pointer">
             <div class="justify-content-center">
               <h6 class="fw-bold mb-3">Log de empréstimos</h6>
             </div>
