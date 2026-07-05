@@ -24,6 +24,7 @@ export default class HomeBibliotecarioComponent implements OnInit {
   rankingLivros = signal<LivroMaisEmprestado[]>([]);
   generos = signal<GeneroProcurado[]>([]);
   mediaLeitura = signal<MediaLeitura | null>(null);
+  mensagemErro = signal<string>('');
 
   faixaSelecionada = signal<FaixaEtaria>('todas');
   
@@ -79,7 +80,7 @@ export default class HomeBibliotecarioComponent implements OnInit {
         const ativos = emprestimos.filter((e: any) => !e.data_devolucao_efetiva);
         this.emprestimosAtivos.set(ativos.length);
       },
-      error: (err) => console.error('Erro ao carregar dashboard:', err),
+      error: (err) => this.mensagemErro.set('Erro ao carregar dados do dashboard'),
     });
 
     this.carregarGeneros();
@@ -94,7 +95,7 @@ export default class HomeBibliotecarioComponent implements OnInit {
         this.generos.set(dados);
         setTimeout(() => this.renderGenresChart(), 0);
       },
-      error: (err) => console.error('Erro ao carregar gêneros:', err),
+      error: (err) => this.mensagemErro.set('Erro ao carregar gêneros mais procurados'),
     });
   }
 
