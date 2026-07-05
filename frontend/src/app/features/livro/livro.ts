@@ -64,6 +64,9 @@ export default class LivroComponent implements OnInit, AfterViewInit {
   generoSelecionado = '';
   generosDisponiveis: string[] = [];
   
+  paginaAtual = 1;
+  itensPorPagina = 12;
+  
   trackById(index: number, livro: Livro): string {
     return livro.id;
   }
@@ -84,6 +87,44 @@ export default class LivroComponent implements OnInit, AfterViewInit {
       return textoOk && generoOk;
       
     })
+  }
+
+  get totalPaginas(): number {
+    return Math.ceil(this.livrosFiltrados.length / this.itensPorPagina);
+  }
+
+  get livrosPaginados(): Livro[] {
+    const inicio = (this.paginaAtual - 1) * this.itensPorPagina;
+    const fim = inicio + this.itensPorPagina;
+    return this.livrosFiltrados.slice(inicio, fim);
+  }
+
+  get paginasExibidas(): (number | string)[] {
+    const total = this.totalPaginas;
+    const atual = this.paginaAtual;
+    const paginas: (number | string)[] = [];
+
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) {
+        paginas.push(i);
+      }
+    } else {
+      if (atual <= 4) {
+        paginas.push(1, 2, 3, 4, 5, '...', total);
+      } else if (atual >= total - 3) {
+        paginas.push(1, '...', total - 4, total - 3, total - 2, total - 1, total);
+      } else {
+        paginas.push(1, '...', atual - 1, atual, atual + 1, '...', total);
+      }
+    }
+    return paginas;
+  }
+
+  mudarPagina(pagina: number | string, event?: Event) {
+    if (event) event.preventDefault();
+    if (typeof pagina === 'number' && pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaAtual = pagina;
+    }
   }
 
   ngOnInit() {

@@ -225,6 +225,7 @@
             class="form-control border-0 ps-5 py-3"
             placeholder="Pesquise por título ou autor"
             [(ngModel)]="termoPesquisa"
+            (ngModelChange)="paginaAtual = 1"
             maxlength="255">
         </div>
       </div>
@@ -233,6 +234,7 @@
     <select
       class="form-select shadow-sm border-0 ps-4 py-3 w-50"
       [(ngModel)]="generoSelecionado"
+      (ngModelChange)="paginaAtual = 1"
     >
       <option value="">Todos os gêneros</option>
 
@@ -245,7 +247,7 @@
   </div>
 
   <div class="row g-4">
-    @for (livro of livrosFiltrados; track livro.id) {
+    @for (livro of livrosPaginados; track livro.id) {
       <div class="col-12 col-sm-6 col-md-4 col-lg-3">
         <div class="card h-100 shadow-sm border-0 overflow-hidden" style="cursor: pointer;" (click)="abrirLivroDetalhesModal(livro)">
 
@@ -291,6 +293,24 @@
       </div>
     }
   </div>
+
+  @if (totalPaginas > 1) {
+    <nav aria-label="Navegação de páginas de livros" class="mt-5">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="paginaAtual === 1">
+          <a class="page-link" href="#" (click)="mudarPagina(paginaAtual - 1, $event)">Anterior</a>
+        </li>
+        @for (pagina of paginasExibidas; track $index) {
+          <li class="page-item" [class.active]="pagina === paginaAtual" [class.disabled]="pagina === '...'">
+            <a class="page-link" href="#" (click)="mudarPagina(pagina, $event)">{{ pagina }}</a>
+          </li>
+        }
+        <li class="page-item" [class.disabled]="paginaAtual === totalPaginas">
+          <a class="page-link" href="#" (click)="mudarPagina(paginaAtual + 1, $event)">Próxima</a>
+        </li>
+      </ul>
+    </nav>
+  }
 
   @if (livros.length === 0) {
     <div class="card shadow-sm border-0 text-center p-5 mt-4">
