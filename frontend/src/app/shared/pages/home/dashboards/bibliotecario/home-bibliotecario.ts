@@ -1,18 +1,13 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, registerables } from 'chart.js';
+import { DashboardService, LivroMaisEmprestado, GeneroProcurado, MediaLeitura } from '../../../../../../client/services/dashboard.service';
+import { EmprestimosService } from '../../../../../../client/services/emprestimos.service';
+import { forkJoin } from 'rxjs';
 
 Chart.register(...registerables);
 
-interface DashboardBibliotecario {
-  emprestimosAtivos: number;
-  exemplaresDisponiveis: number;
-  mediaLeituraDelta: number;
-  rankingLivros: { titulo: string; autor: string; total: number }[];
-  logEmprestimos: { id: string; nomeUsuario: string; nomeLivro: string; dataHora: Date; status: 'ativo' | 'devolvido' | 'atrasado' }[];
-}
-
-type FaixaEtaria = 'todas' | '0-12' | '13-17' | '18-25' | '26-40' | '40+';
+type FaixaEtaria = 'todas' | 'livre' | '10+' | '12+' | '14+' | '16+' | '18+';
 
 @Component({
   selector: 'app-home-bibliotecario',
@@ -21,38 +16,100 @@ type FaixaEtaria = 'todas' | '0-12' | '13-17' | '18-25' | '26-40' | '40+';
   templateUrl: './home-bibliotecario.html',
 })
 export default class HomeBibliotecarioComponent implements OnInit {
-  dashboard = signal<DashboardBibliotecario | null>(null);
+  private dashboardService = inject(DashboardService);
+  private emprestimosService = inject(EmprestimosService);
+
+  emprestimos = signal<any[]>([]);
+  emprestimosAtivos = signal<number>(0);
+  rankingLivros = signal<LivroMaisEmprestado[]>([]);
+  generos = signal<GeneroProcurado[]>([]);
+  mediaLeitura = signal<MediaLeitura | null>(null);
+  mensagemErro = signal<string>('');
+
   faixaSelecionada = signal<FaixaEtaria>('todas');
+  
+  paginaAtual = signal<number>(1);
+  itensPorPagina = 10;
+
+  emprestimosPaginados = computed(() => {
+    const inicio = (this.paginaAtual() - 1) * this.itensPorPagina;
+    const fim = inicio + this.itensPorPagina;
+    return this.emprestimos().slice(inicio, fim);
+  });
+
+  totalPaginas = computed(() =>
+    Math.ceil(this.emprestimos().length / this.itensPorPagina)
+  );
+
+  paginas = computed(() =>
+    Array.from({ length: this.totalPaginas() }, (_, i) => i + 1)
+  );
+
+  irParaPagina(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginas()) return;
+    this.paginaAtual.set(pagina);
+  }
 
   faixas: { label: string; value: FaixaEtaria }[] = [
     { label: 'Todas as idades', value: 'todas' },
-    { label: '0–12 anos', value: '0-12' },
-    { label: '13–17 anos', value: '13-17' },
-    { label: '18–25 anos', value: '18-25' },
-    { label: '26–40 anos', value: '26-40' },
-    { label: '40+ anos', value: '40+' },
+    { label: 'Livre', value: 'livre' },
+    { label: '10+', value: '10+' },
+    { label: '12+', value: '12+' },
+    { label: '14+', value: '14+' },
+    { label: '16+', value: '16+' },
+    { label: '18+', value: '18+' },
   ];
 
   private genresChartInstance: Chart | null = null;
 
   ngOnInit(): void {
-    this.dashboard.set(this.getMockData());
-    setTimeout(() => {
-      this.renderGenresChart();
-    }, 0);
+    this.carregarDados();
+  }
+
+  carregarDados(): void {
+    forkJoin({
+      ranking: this.dashboardService.livrosMaisEmprestados(),
+      media: this.dashboardService.mediaLeitura(),
+      emprestimos: this.emprestimosService.emprestimoControllerFindAll(),
+    }).subscribe({
+      next: ({ ranking, media, emprestimos }) => {
+        this.rankingLivros.set(ranking);
+        this.mediaLeitura.set(media);
+        this.emprestimos.set(emprestimos);
+
+        const ativos = emprestimos.filter((e: any) => !e.data_devolucao_efetiva);
+        this.emprestimosAtivos.set(ativos.length);
+      },
+      error: (err) => this.mensagemErro.set('Erro ao carregar dados do dashboard'),
+    });
+
+    this.carregarGeneros();
+  }
+
+  carregarGeneros(): void {
+    const faixa = this.faixaSelecionada();
+    const faixaParam = faixa === 'todas' ? undefined : faixa;
+
+    this.dashboardService.generosMaisProcurados(faixaParam).subscribe({
+      next: (dados) => {
+        this.generos.set(dados);
+        setTimeout(() => this.renderGenresChart(), 0);
+      },
+      error: (err) => this.mensagemErro.set('Erro ao carregar gêneros mais procurados'),
+    });
   }
 
   onFaixaChange(faixa: FaixaEtaria): void {
     this.faixaSelecionada.set(faixa);
-    this.renderGenresChart();
+    this.carregarGeneros();
   }
 
   get deltaPositivo(): boolean {
-    return (this.dashboard()?.mediaLeituraDelta ?? 0) >= 0;
+    return (this.mediaLeitura()?.variacaoPercent ?? 0) >= 0;
   }
 
   get deltaLabel(): string {
-    const d = this.dashboard()?.mediaLeituraDelta ?? 0;
+    const d = this.mediaLeitura()?.variacaoPercent ?? 0;
     const abs = Math.abs(d);
     return d >= 0
       ? `↑ ${abs}% a mais que o mês anterior`
@@ -63,16 +120,7 @@ export default class HomeBibliotecarioComponent implements OnInit {
     const canvas = document.getElementById('genresChartBibliotecario') as HTMLCanvasElement;
     if (!canvas) return;
 
-    const dadosPorFaixa: Record<FaixaEtaria, { nome: string; total: number }[]> = {
-      'todas':  [{ nome: 'Ficção', total: 42 }, { nome: 'Aventura', total: 35 }, { nome: 'História', total: 28 }, { nome: 'Ciências', total: 20 }, { nome: 'Romance', total: 15 }],
-      '0-12':   [{ nome: 'Aventura', total: 50 }, { nome: 'Fantasia', total: 40 }, { nome: 'Fábulas', total: 30 }],
-      '13-17':  [{ nome: 'Ficção', total: 38 }, { nome: 'Aventura', total: 30 }, { nome: 'Romance', total: 22 }],
-      '18-25':  [{ nome: 'Ficção', total: 45 }, { nome: 'Tecnologia', total: 30 }, { nome: 'História', total: 25 }],
-      '26-40':  [{ nome: 'Negócios', total: 35 }, { nome: 'Ficção', total: 28 }, { nome: 'Autoajuda', total: 20 }],
-      '40+':    [{ nome: 'História', total: 40 }, { nome: 'Biografias', total: 32 }, { nome: 'Ficção', total: 18 }],
-    };
-
-    const generos = dadosPorFaixa[this.faixaSelecionada()];
+    const dados = this.generos();
 
     if (this.genresChartInstance) {
       this.genresChartInstance.destroy();
@@ -81,9 +129,9 @@ export default class HomeBibliotecarioComponent implements OnInit {
     this.genresChartInstance = new Chart(canvas, {
       type: 'doughnut',
       data: {
-        labels: generos.map(g => g.nome),
+        labels: dados.map(g => g.nome),
         datasets: [{
-          data: generos.map(g => g.total),
+          data: dados.map(g => g.totalEmprestimos),
           backgroundColor: ['#4f46e5', '#7c3aed', '#a855f7', '#c084fc', '#e9d5ff'],
           borderWidth: 0,
         }],
@@ -96,27 +144,5 @@ export default class HomeBibliotecarioComponent implements OnInit {
         },
       },
     });
-  }
-
-  private getMockData(): DashboardBibliotecario {
-    return {
-      emprestimosAtivos: 37,
-      exemplaresDisponiveis: 124,
-      mediaLeituraDelta: -2,
-      rankingLivros: [
-        { titulo: 'O Senhor dos Anéis', autor: 'J.R.R. Tolkien', total: 18 },
-        { titulo: 'Dom Casmurro', autor: 'Machado de Assis', total: 14 },
-        { titulo: '1984', autor: 'George Orwell', total: 12 },
-        { titulo: 'Harry Potter', autor: 'J.K. Rowling', total: 10 },
-        { titulo: 'O Alquimista', autor: 'Paulo Coelho', total: 9 },
-      ],
-      logEmprestimos: [
-        { id: '1', nomeUsuario: 'Ana Souza',    nomeLivro: 'O Senhor dos Anéis', dataHora: new Date('2025-06-28T09:15:00'), status: 'ativo' },
-        { id: '2', nomeUsuario: 'Carlos Lima',  nomeLivro: '1984',               dataHora: new Date('2025-06-27T14:30:00'), status: 'devolvido' },
-        { id: '3', nomeUsuario: 'Beatriz Melo', nomeLivro: 'Dom Casmurro',       dataHora: new Date('2025-06-25T10:00:00'), status: 'atrasado' },
-        { id: '4', nomeUsuario: 'Pedro Alves',  nomeLivro: 'O Alquimista',       dataHora: new Date('2025-06-24T16:45:00'), status: 'ativo' },
-        { id: '5', nomeUsuario: 'Mariana Cruz', nomeLivro: 'Harry Potter',       dataHora: new Date('2025-06-23T11:20:00'), status: 'devolvido' },
-      ],
-    };
   }
 }
