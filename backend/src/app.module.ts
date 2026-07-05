@@ -34,6 +34,7 @@ import { RolesGuard } from './common/guards/roles.guard';
 import { ClubeModule } from './modules/clube_livro/clube-livro.module';
 import { NotificacaoModule } from './modules/notificacao/notificacao.module';
 import { Notificacao } from './modules/notificacao/notificacao.entity';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { Notificacao } from './modules/notificacao/notificacao.entity';
     EmprestimoModule,
     AuthModule,
     NotificacaoModule,
+    DashboardModule,
   ],
   controllers: [],
   providers: [
