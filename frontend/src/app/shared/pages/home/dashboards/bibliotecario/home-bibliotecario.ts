@@ -1,6 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, registerables } from 'chart.js';
+import { RouterLink } from '@angular/router';
 
 Chart.register(...registerables);
 
@@ -17,7 +18,7 @@ type FaixaEtaria = 'todas' | '0-12' | '13-17' | '18-25' | '26-40' | '40+';
 @Component({
   selector: 'app-home-bibliotecario',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './home-bibliotecario.html',
 })
 export default class HomeBibliotecarioComponent implements OnInit {
