@@ -2,6 +2,7 @@ import { Component, inject, OnInit, ChangeDetectorRef, ViewChild, ElementRef, Af
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { LivrosService } from '../../../client/services/livros.service';
+import { ExemplaresService } from '../../../client/services/exemplares.service';
 import { CoreAuthService } from '../../core/auth/auth-session';
 import { TipoPerfil } from '../../core/auth/tipo-perfil.enum';
 import { CreateLivroDto } from '../../../client/models/index';
@@ -24,6 +25,7 @@ interface Livro extends CreateLivroDto {
 })
 export default class LivroComponent implements OnInit, AfterViewInit {
   private livrosService = inject(LivrosService);
+  private exemplaresService = inject(ExemplaresService);
   private authService = inject(CoreAuthService);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
@@ -55,6 +57,7 @@ export default class LivroComponent implements OnInit, AfterViewInit {
   livros: Livro[] = [];
   livroSelecionado: Livro | null = null;
   livroDetalhes: Livro | null = null;
+  exemplares: any[] = [];
   generosPorLivro: Record<string, string[]> = {};
   buscandoIsbn = false;
   mensagemSucessoModal: string = 'Operação realizada com sucesso!';
@@ -120,6 +123,53 @@ export default class LivroComponent implements OnInit, AfterViewInit {
     return paginas;
   }
 
+  getExemplaresLivro(livroId: string) {
+    return this.exemplares.filter(
+      exemplar => exemplar.livro.id === livroId,
+    );
+  }
+
+  getStatusExemplar(livroId: string) {
+    const exemplares = this.getExemplaresLivro(livroId);
+
+    const qtdeExemplares = exemplares.length;
+
+    if (qtdeExemplares === 0) {
+      return 'SEM EXEMPLARES';
+    }
+
+    const qtdeDisponiveis = exemplares.filter(
+      exemplar => exemplar.status === 'disponivel'
+    ).length;
+
+    if (qtdeDisponiveis === 0) {
+      return 'INDISPONÍVEL';
+    }
+
+    return `${qtdeDisponiveis}/${qtdeExemplares} DISPONÍVEIS`;
+  }
+
+  getColorStatusExemplar(livroId: string) {
+
+    const exemplares = this.getExemplaresLivro(livroId);
+
+    const qtdeExemplares = exemplares.length;
+
+    if (qtdeExemplares === 0) {
+      return 'bg-secondary-subtle text-secondary';
+    }
+
+    const qtdeDisponiveis = exemplares.filter(
+      exemplar => exemplar.status === 'disponivel'
+    ).length;
+
+    if (qtdeDisponiveis === 0) {
+      return 'bg-danger-subtle text-danger';
+    }
+
+    return 'bg-success-subtle text-success';
+  }
+
   mudarPagina(pagina: number | string, event?: Event) {
     if (event) event.preventDefault();
     if (typeof pagina === 'number' && pagina >= 1 && pagina <= this.totalPaginas) {
@@ -170,6 +220,16 @@ export default class LivroComponent implements OnInit, AfterViewInit {
       next: (dados) => {
         this.livros = dados;
         this.carregarGeneros();
+        this.carregarExemplares();
+      }
+    });
+  }
+
+  carregarExemplares() {
+    this.exemplaresService.exemplarControllerFindAll().subscribe({
+      next: (dados) => {
+        this.exemplares = dados;
+        this.cdr.detectChanges();
       }
     });
   }
