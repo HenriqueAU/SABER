@@ -3,7 +3,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { Modal } from 'bootstrap';
 import { EmprestimosService } from '../../../client/services/emprestimos.service';
 import { ExemplaresService } from '../../../client/services/exemplares.service';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { LivrosService } from '../../../client/services/livros.service';
 import { RouterLink } from '@angular/router';
 import { UsuariosService } from '../../../client/services/usuarios.service';
@@ -11,7 +11,7 @@ import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-emprestimo',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [AsyncPipe, DatePipe, FormsModule, ReactiveFormsModule, RouterLink],
   templateUrl: './emprestimo.html',
   styleUrl: './emprestimo.scss',
 })
@@ -236,9 +236,8 @@ export default class EmprestimoComponent implements OnInit {
   }
 
   filtrarLivros(livros: any[]) {
-
     if (!this.termoPesquisa.trim()) {
-      return livros;
+      return [];
     }
 
     const termo = this.termoPesquisa.toLowerCase();
