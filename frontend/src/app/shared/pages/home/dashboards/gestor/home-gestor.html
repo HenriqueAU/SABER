@@ -1,114 +1,125 @@
 <div class="container-fluid py-4 px-4">
-  @if (dashboard(); as d) {
-    <div class="row g-3 mb-4">
-      <div class="col-12 col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body">
-            <p class="text-secondary small mb-1 text-uppercase fw-semibold">Usuários cadastrados</p>
-            <h2 class="fw-bold mb-0">{{ d.totalUsuarios }}</h2>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body">
-            <p class="text-secondary small mb-1 text-uppercase fw-semibold">Livros no acervo</p>
-            <h2 class="fw-bold mb-0">{{ d.totalLivros }}</h2>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body">
-            <p class="text-secondary small mb-1 text-uppercase fw-semibold">Empréstimos ativos</p>
-            <h2 class="fw-bold mb-0">{{ d.emprestimosAtivos }}</h2>
-          </div>
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <p class="text-secondary small mb-1 text-uppercase fw-semibold">Empréstimos ativos</p>
+          <h2 class="fw-bold mb-0">{{ emprestimosAtivos() }}</h2>
         </div>
       </div>
     </div>
-    <div class="row g-4">
-      <div class="col-12 col-lg-6">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body">
-            <h6 class="fw-bold mb-3">Livros mais emprestados</h6>
-            <ol class="list-unstyled mb-0">
-              @for (livro of d.rankingLivros; track livro.titulo; let i = $index) {
-                <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
-                  <span class="fw-bold text-secondary" style="width: 1.5rem;">{{ i + 1 }}</span>
-                  <div class="flex-grow-1 overflow-hidden">
-                    <div class="fw-semibold text-truncate">{{ livro.titulo }}</div>
-                    <small class="text-secondary">{{ livro.autor }}</small>
-                  </div>
-                  <span class="badge bg-primary-subtle text-primary rounded-pill">{{ livro.total }}</span>
-                </li>
-              }
-            </ol>
-          </div>
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <p class="text-secondary small mb-1 text-uppercase fw-semibold">Total de exemplares</p>
+          <h2 class="fw-bold mb-0">{{ totalExemplares() }}</h2>
         </div>
       </div>
-      <div class="col-12 col-lg-6 d-flex flex-column gap-4">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="fw-bold mb-0">Gêneros mais procurados</h6>
-              <select class="form-select form-select-sm w-auto"
-                (change)="onFaixaChange($any($event.target).value)">
-                @for (f of faixas; track f.value) {
-                  <option [value]="f.value" [selected]="f.value === faixaSelecionada()">{{ f.label }}</option>
-                }
-              </select>
-            </div>
-            <div style="position: relative; height: 180px;">
-              <canvas id="genresChart"></canvas>
-            </div>
-          </div>
-        </div>
-        <div class="card border-0 shadow-sm"
+    </div>
+    <div class="col-12 col-md-4">
+      @if (mediaLeitura(); as media) {
+        <div class="card border-0 shadow-sm h-100"
           [class.border-success]="deltaPositivo"
           [class.border-danger]="!deltaPositivo"
           style="border-left-width: 4px !important; border-left-style: solid !important;">
           <div class="card-body">
-            <p class="text-secondary small mb-1 text-uppercase fw-semibold">Média de leitura por aluno</p>
-            <h2 class="fw-bold mb-1">{{ d.mediaLeituraDelta >= 0 ? '+' : '' }}{{ d.mediaLeituraDelta }}%</h2>
+            <p class="text-secondary small mb-1 text-uppercase fw-semibold">Média de leitura</p>
+            <h2 class="fw-bold mb-1">
+              @if (media.variacaoPercent !== null) {
+                {{ media.variacaoPercent >= 0 ? '+' : '' }}{{ media.variacaoPercent }}%
+              } @else {
+                Sem dados anteriores
+              }
+            </h2>
             <p class="mb-0 small" [class.text-success]="deltaPositivo" [class.text-danger]="!deltaPositivo">
               {{ deltaLabel }}
             </p>
+            <p class="mb-0 small text-secondary mt-1">
+              {{ media.mesAtual }} devoluções este mês · {{ media.mesAnterior }} no mês anterior
+            </p>
           </div>
         </div>
+      }
+    </div>
+  </div>
 
+  <div class="row g-4">
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">Livros mais emprestados</h6>
+          <ol class="list-unstyled mb-0">
+            @for (livro of rankingLivros(); track livro.livroId; let i = $index) {
+              <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
+                <span class="fw-bold text-secondary" style="width: 1.5rem;">{{ i + 1 }}</span>
+                <div class="flex-grow-1 overflow-hidden">
+                  <div class="fw-semibold text-truncate">{{ livro.titulo }}</div>
+                  <small class="text-secondary">{{ livro.autor }}</small>
+                </div>
+                <span class="badge bg-primary-subtle text-primary rounded-pill">{{ livro.totalEmprestimos }}</span>
+              </li>
+            }
+            @if (rankingLivros().length === 0) {
+              <li class="text-secondary text-center py-4">Nenhum dado disponível.</li>
+            }
+          </ol>
+        </div>
       </div>
     </div>
-  }
+
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0">Gêneros mais procurados</h6>
+            <select class="form-select form-select-sm w-auto"
+              (change)="onFaixaChange($any($event.target).value)">
+              @for (f of faixas; track f.value) {
+                <option [value]="f.value" [selected]="f.value === faixaSelecionada()">{{ f.label }}</option>
+              }
+            </select>
+          </div>
+          <div style="position: relative; height: 180px;">
+            @if (generos().length === 0) {
+              <p class="text-secondary text-center py-4 mb-0">Nenhum dado para esta faixa etária.</p>
+            } @else {
+              <canvas id="genresChartGestor"></canvas>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="row mt-4">
     <div class="col-12">
       <div class="card border-0 shadow-sm">
-        <div class="card-body">
+        <div class="card-body" [routerLink]="['/emprestimos']" [queryParams]="{tab: 'historico'}" style="cursor:pointer">
           <h6 class="fw-bold mb-3">Log de empréstimos</h6>
+
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
               <thead class="table-light">
                 <tr>
                   <th>Usuário</th>
                   <th>Livro</th>
-                  <th>Data e hora</th>
+                  <th>Retirada</th>
+                  <th>Devolução prevista</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                @for (log of dashboard()!.logEmprestimos; track log.id) {
+                @for (log of emprestimosPaginados(); track log.id) {
                   <tr>
-                    <td class="fw-semibold">{{ log.nomeUsuario }}</td>
-                    <td>{{ log.nomeLivro }}</td>
-                    <td class="text-secondary small">{{ log.dataHora | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td class="fw-semibold">{{ log.usuario?.nome ?? '—' }}</td>
+                    <td>{{ log.exemplar?.livro?.titulo ?? '—' }}</td>
+                    <td class="text-secondary small">{{ log.data_retirada | date:'dd/MM/yyyy' }}</td>
+                    <td class="text-secondary small">{{ log.data_devolucao_esperada | date:'dd/MM/yyyy' }}</td>
                     <td>
-                      @if (log.status === 'ativo') {
+                      @if (!log.data_devolucao_efetiva) {
                         <span class="badge bg-success-subtle text-success">Ativo</span>
-                      }
-                      @if (log.status === 'devolvido') {
+                      } @else {
                         <span class="badge bg-secondary-subtle text-secondary">Devolvido</span>
-                      }
-                      @if (log.status === 'atrasado') {
-                        <span class="badge bg-danger-subtle text-danger">Atrasado</span>
                       }
                     </td>
                   </tr>
@@ -116,9 +127,34 @@
               </tbody>
             </table>
           </div>
-          @if (dashboard()!.logEmprestimos.length === 0) {
+
+          @if (emprestimos().length === 0) {
             <p class="text-secondary text-center py-4 mb-0">Nenhum empréstimo registrado.</p>
           }
+
+          @if (totalPaginas() > 1 && emprestimos().length > 0) {
+            <div class="d-flex justify-content-between align-items-center mt-3" (click)="$event.stopPropagation()">
+              <small class="text-secondary">
+                Página {{ paginaAtual() }} de {{ totalPaginas() }} · {{ emprestimos().length }} registros
+              </small>
+              <nav>
+                <ul class="pagination pagination-sm mb-0">
+                  <li class="page-item" [class.disabled]="paginaAtual() === 1">
+                    <button class="page-link" (click)="irParaPagina(paginaAtual() - 1)">‹</button>
+                  </li>
+                  @for (p of paginas(); track p) {
+                    <li class="page-item" [class.active]="p === paginaAtual()">
+                      <button class="page-link" (click)="irParaPagina(p)">{{ p }}</button>
+                    </li>
+                  }
+                  <li class="page-item" [class.disabled]="paginaAtual() === totalPaginas()">
+                    <button class="page-link" (click)="irParaPagina(paginaAtual() + 1)">›</button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          }
+
         </div>
       </div>
     </div>
