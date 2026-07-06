@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { ClubesService } from '../../../../../../client/services/clubes.service';
@@ -16,27 +16,26 @@ import { CoreAuthService } from '../../../../../core/auth/auth-session';
   styleUrls: ['../../../../../features/clube_livro/clube-livro.scss']
 })
 export default class HomeProfessorComponent implements OnInit {
-  modoListagem: boolean = true;
-  abaAtiva: 'detalhes' | 'feedbacks' = 'detalhes';
+  modoListagem = signal<boolean>(true);
+  abaAtiva = signal<'detalhes' | 'feedbacks'>('detalhes');
 
-  professorId: string = '';
-  clubes: any[] = [];
-  clubeDetalhes: any = null;
-  membrosDoClube: any[] = [];
+  professorId = signal<string>('');
+  clubes = signal<any[]>([]);
+  clubeDetalhes = signal<any>(null);
+  membrosDoClube = signal<any[]>([]);
   
-  perguntas: any[] = [];
-  itensPergunta: any[] = [];
-  respostasMembros: any[] = [];
-  perguntaSelecionadaId: string | null = null;
-  estatisticas: any[] = [];
-  clubeEncerrado: boolean = false;
+  perguntas = signal<any[]>([]);
+  itensPergunta = signal<any[]>([]);
+  respostasMembros = signal<any[]>([]);
+  perguntaSelecionadaId = signal<string | null>(null);
+  estatisticas = signal<any[]>([]);
+  clubeEncerrado = signal<boolean>(false);
 
-  carregando: boolean = true;
-  carregandoMembros: boolean = false;
-  mensagemErro: string = '';
-  erroMembros: string = '';
+  carregando = signal<boolean>(true);
+  carregandoMembros = signal<boolean>(false);
+  mensagemErro = signal<string>('');
+  erroMembros = signal<string>('');
 
-  private cdr = inject(ChangeDetectorRef);
   private clubesService = inject(ClubesService);
   private membroClubeService = inject(MembroClubeService);
   private perguntasService = inject(PerguntasService);
@@ -48,7 +47,7 @@ export default class HomeProfessorComponent implements OnInit {
     const token = this.authService.getToken();
     if (token) {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      this.professorId = payload.id;
+      this.professorId.set(payload.id);
     }
     this.carregarMeusClubes();
   }
@@ -67,108 +66,108 @@ export default class HomeProfessorComponent implements OnInit {
   }
 
   async carregarMeusClubes() {
-    this.carregando = true;
-    this.mensagemErro = '';
+    this.carregando.set(true);
+    this.mensagemErro.set('');
     try {
       const res = await firstValueFrom(this.clubesService.clubeControllerFindAll());
       const todosClubes = Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || [];
-
-      this.clubes = todosClubes.filter((c: any) => 
-        c.professor?.id === this.professorId || c.professor_id === this.professorId || c.professor === this.professorId
+      const profId = this.professorId();
+      const filtrados = todosClubes.filter((c: any) => 
+        c.professor?.id === profId || c.professor_id === profId || c.professor === profId
       );
+      this.clubes.set(filtrados);
     } catch (error) {
-      this.mensagemErro = 'Não foi possível carregar os seus clubes de leitura.';
+      this.mensagemErro.set('Não foi possível carregar os seus clubes de leitura.');
     } finally {
-      this.carregando = false;
-      this.cdr.detectChanges();
+      this.carregando.set(false);
     }
   }
 
   abrirClube(clube: any) {
-    this.clubeDetalhes = clube;
-    this.modoListagem = false;
-    this.abaAtiva = 'detalhes';
+    this.clubeDetalhes.set(clube);
+    this.modoListagem.set(false);
+    this.abaAtiva.set('detalhes');
     
-    if (this.clubeDetalhes?.data_fim) {
-      const dataFim = new Date(this.clubeDetalhes.data_fim);
-      this.clubeEncerrado = new Date() > dataFim;
+    if (clube?.data_fim) {
+      const dataFim = new Date(clube.data_fim);
+      this.clubeEncerrado.set(new Date() > dataFim);
     } else {
-      this.clubeEncerrado = false;
+      this.clubeEncerrado.set(false);
     }
 
     this.carregarDadosExtras(clube.id);
   }
 
   voltarParaListagem() {
-    this.modoListagem = true;
-    this.clubeDetalhes = null;
-    this.membrosDoClube = [];
+    this.modoListagem.set(true);
+    this.clubeDetalhes.set(null);
+    this.membrosDoClube.set([]);
   }
 
   async carregarDadosExtras(clubeId: string) {
-    this.carregandoMembros = true;
-    this.erroMembros = '';
+    this.carregandoMembros.set(true);
+    this.erroMembros.set('');
     
     try {
       const resMembros = await firstValueFrom(this.membroClubeService.membroClubeControllerFindAll(clubeId));
-      this.membrosDoClube = Array.isArray(resMembros) ? resMembros : (resMembros as any)?.data || (resMembros as any)?.items || [];
+      this.membrosDoClube.set(Array.isArray(resMembros) ? resMembros : (resMembros as any)?.data || (resMembros as any)?.items || []);
       
       const resPerguntas = await firstValueFrom(this.perguntasService.perguntaControllerFindAll());
-      this.perguntas = resPerguntas || [];
+      this.perguntas.set(resPerguntas || []);
 
       const resItens = await firstValueFrom(this.itemPerguntaService.itemPerguntaControllerFindAll());
-      this.itensPergunta = resItens || [];
+      this.itensPergunta.set(resItens || []);
     } catch (err) {
-      this.erroMembros = 'Não foi possível carregar as informações complementares do clube.';
+      this.erroMembros.set('Não foi possível carregar as informações complementares do clube.');
     } finally {
-      this.carregandoMembros = false;
-      this.cdr.detectChanges();
+      this.carregandoMembros.set(false);
     }
   }
 
   getItensDaPergunta(perguntaId: string): any[] {
-    return this.itensPergunta.filter(item => {
+    return this.itensPergunta().filter(item => {
       const relacaoId = item.pergunta?.id || item.pergunta_id || item.pergunta;
       return relacaoId === perguntaId;
     });
   }
 
   async abrirFeedbacks() {
-    this.abaAtiva = 'feedbacks';
-    this.perguntaSelecionadaId = null;
-    this.carregando = true;
+    this.abaAtiva.set('feedbacks');
+    this.perguntaSelecionadaId.set(null);
+    this.carregando.set(true);
 
     try {
       const res = await firstValueFrom(this.respostasService.respostaMembroControllerFindAll());
-      this.respostasMembros = Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || [];
+      this.respostasMembros.set(Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || []);
     } catch (error) {
-      this.mensagemErro = 'Erro ao buscar respostas dos alunos.';
+      this.mensagemErro.set('Erro ao buscar respostas dos alunos.');
     } finally {
-      this.carregando = false;
-      this.cdr.detectChanges();
+      this.carregando.set(false);
     }
   }
 
   selecionarPerguntaParaAnalise(perguntaId: string) {
-    if (this.perguntaSelecionadaId === perguntaId) {
-      this.perguntaSelecionadaId = null;
+    if (this.perguntaSelecionadaId() === perguntaId) {
+      this.perguntaSelecionadaId.set(null);
       return;
     }
 
-    this.perguntaSelecionadaId = perguntaId;
+    this.perguntaSelecionadaId.set(perguntaId);
     const itensDestaPergunta = this.getItensDaPergunta(perguntaId);
+    const respostas = this.respostasMembros();
 
-    this.estatisticas = itensDestaPergunta.map(item => {
-      const votos = this.respostasMembros.filter(resposta => {
+    const stats = itensDestaPergunta.map(item => {
+      const votos = respostas.filter(resposta => {
         const respostaItemId = resposta.itemPergunta?.id || resposta.item_pergunta?.id || resposta.item_pergunta_id || resposta.item_pergunta;
         return respostaItemId === item.id;
       }).length;
       return { texto: item.texto, quantidade: votos };
     });
+    this.estatisticas.set(stats);
   }
 
   voltarParaDetalhes() {
-    this.abaAtiva = 'detalhes';
-    this.perguntaSelecionadaId = null;
+    this.abaAtiva.set('detalhes');
+    this.perguntaSelecionadaId.set(null);
   }
 }

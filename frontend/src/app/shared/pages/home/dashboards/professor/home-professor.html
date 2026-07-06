@@ -1,141 +1,230 @@
-<div class="clube-container">
+<div class="container-fluid py-4 px-4">
 
-  <ng-container *ngIf="modoListagem">
-    <header class="clube-header">
-      <h1>Meus Clubes de Leitura</h1>
-      <p>Gerencie os clubes de leitura em que você é o coordenador.</p>
+  @if (modoListagem()) {
+    <header class="mb-4">
+      <h2 class="fw-bold"><i class="bi bi-journal-bookmark-fill text-primary me-2"></i>Meus Clubes de Leitura</h2>
+      <p class="text-secondary">Gerencie os clubes de leitura em que você é o coordenador.</p>
     </header>
 
-    <div *ngIf="carregando" class="loading">A carregar os seus clubes...</div>
-    <div *ngIf="mensagemErro" class="alerta erro">{{ mensagemErro }}</div>
-
-    <div *ngIf="!carregando && !mensagemErro && clubes.length === 0" style="text-align: center; padding: 40px; color: #666;">
-      <h3>Você ainda não possui clubes de leitura.</h3>
-    </div>
-
-    <div class="clubes-grid" *ngIf="!carregando && clubes.length > 0">
-      <div class="clube-card clicavel" *ngFor="let c of clubes" (click)="abrirClube(c)">
-        <div class="clube-card-header">
-          <h3>{{ c.nome || c.livro?.titulo || 'Clube de Leitura' }}</h3>
-        </div>
-        <div class="clube-card-body">
-          <p *ngIf="getDiasParaInicio(c.data_inicio) as dias">
-            <strong>Início:</strong> <span style="color: #007bff; font-weight: 500;">Começará em {{ dias }} dia(s)</span>
-          </p>
-          <p><strong>Fim:</strong> {{ c.data_fim | date:'dd/MM/yyyy' }}</p>
-          <p *ngIf="c.local_encontro"><strong>Local:</strong> {{ c.local_encontro }}</p>
-        </div>
+    @if (carregando()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-3 text-secondary">A carregar os seus clubes...</p>
       </div>
-    </div>
-  </ng-container>
+    }
 
-  <ng-container *ngIf="!modoListagem">
-    <button class="btn-voltar" (click)="voltarParaListagem()">← Voltar à Lista</button>
+    @if (mensagemErro()) {
+      <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+        <div>{{ mensagemErro() }}</div>
+      </div>
+    }
 
-    <div *ngIf="clubeDetalhes" class="detalhes-container">
-      
-      <div class="livro-detalhes-card">
-        <img [src]="clubeDetalhes.livro?.capa_url || clubeDetalhes.livro?.capaUrl || 'assets/imgs/teste2.png'" alt="Capa do Livro" class="livro-capa-grande">
+    @if (!carregando() && !mensagemErro()) {
+      <div class="row g-4">
+        @for (c of clubes(); track c.id) {
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100" style="cursor: pointer; transition: transform 0.2s;" (click)="abrirClube(c)" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                <h5 class="fw-bold text-dark text-truncate mb-0">
+                  <i class="bi bi-people text-primary me-2"></i>{{ c.nome || c.livro?.titulo || 'Clube de Leitura' }}
+                </h5>
+              </div>
+              <div class="card-body">
+                @if (getDiasParaInicio(c.data_inicio); as dias) {
+                  <p class="mb-2"><i class="bi bi-rocket-takeoff text-primary me-2"></i><strong>Início:</strong> <span class="text-primary fw-medium">Começará em {{ dias }} dia(s)</span></p>
+                }
+                <p class="mb-2"><i class="bi bi-calendar-event text-secondary me-2"></i><strong>Fim:</strong> {{ (c.data_fim | date:'dd/MM/yyyy') || 'Não definido' }}</p>
+                @if (c.local_encontro) {
+                  <p class="mb-0 text-truncate"><i class="bi bi-geo-alt text-danger me-2"></i><strong>Local:</strong> {{ c.local_encontro }}</p>
+                }
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <div class="col-12">
+            <div class="text-center py-5 bg-white rounded-3 shadow-sm border border-light">
+              <i class="bi bi-journal-x fs-1 text-secondary opacity-50 mb-3 d-block"></i>
+              <h4 class="text-secondary fw-medium">Você ainda não possui clubes de leitura.</h4>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  } @else {
+    
+    <button class="btn btn-outline-secondary mb-4" (click)="voltarParaListagem()">
+      <i class="bi bi-arrow-left me-2"></i>Voltar à Lista
+    </button>
+
+    @if (clubeDetalhes(); as detalhes) {
+      <div class="row g-4">
         
-        <div class="livro-info-completa">
-          <span class="badge-clube">Clube de Leitura</span>
-          <h2>{{ clubeDetalhes.nome || 'Clube de Leitura' }}</h2>
-          <h4 style="margin-top: 10px; margin-bottom: 4px; font-size: 1.25rem; color: #222;">
-            <i class="bi bi-book me-2 text-secondary"></i>{{ clubeDetalhes.livro?.titulo || 'Título não informado' }}
-          </h4>
-          <h5 class="livro-autor" style="font-size: 1rem; color: #555;">{{ clubeDetalhes.livro?.autor || 'Autor Desconhecido' }}</h5>
-          <p class="livro-sinopse">{{ clubeDetalhes.livro?.sinopse || 'Nenhuma sinopse disponível para este livro no momento.' }}</p>
+        <div class="col-12 col-lg-4">
+          <div class="card border-0 shadow-sm h-100">
+            <img [src]="detalhes.livro?.capa_url || detalhes.livro?.capaUrl || 'assets/imgs/teste2.png'" alt="Capa do Livro" class="card-img-top object-fit-cover" style="height: 300px;">
+            <div class="card-body">
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle mb-3">Clube de Leitura</span>
+              <h4 class="fw-bold mb-1">{{ detalhes.nome || 'Clube de Leitura' }}</h4>
+              <h6 class="mb-3 text-secondary"><i class="bi bi-book me-2"></i>{{ detalhes.livro?.titulo || 'Título não informado' }}</h6>
+              <p class="small text-muted mb-3 fw-medium">Por: {{ detalhes.livro?.autor || 'Autor Desconhecido' }}</p>
+              
+              <p class="small text-secondary mb-4" style="display: -webkit-box; -webkit-line-clamp: 5; line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">
+                {{ detalhes.livro?.sinopse || 'Nenhuma sinopse disponível para este livro no momento.' }}
+              </p>
+              
+              <div class="bg-light p-3 rounded-3 small text-secondary">
+                @if (detalhes.livro?.isbn) { <div class="mb-1"><strong class="text-dark">ISBN:</strong> {{ detalhes.livro.isbn }}</div> }
+                @if (detalhes.livro?.editora) { <div class="mb-1"><strong class="text-dark">Editora:</strong> {{ detalhes.livro.editora }}</div> }
+                @if (detalhes.livro?.ano_publicacao || detalhes.livro?.ano) { 
+                  <div><strong class="text-dark">Ano:</strong> {{ detalhes.livro.ano_publicacao || detalhes.livro.ano }}</div> 
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-8">
           
-          <div class="livro-meta">
-            <span *ngIf="clubeDetalhes.livro?.isbn"><strong>ISBN:</strong> {{ clubeDetalhes.livro?.isbn }}</span>
-            <span *ngIf="clubeDetalhes.livro?.editora"><strong>Editora:</strong> {{ clubeDetalhes.livro?.editora }}</span>
-            <span *ngIf="clubeDetalhes.livro?.ano_publicacao || clubeDetalhes.livro?.ano">
-              <strong>Ano:</strong> {{ clubeDetalhes.livro?.ano_publicacao || clubeDetalhes.livro?.ano }}
-            </span>
-          </div>
-        </div>
-      </div>
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+              <h5 class="fw-bold mb-4"><i class="bi bi-info-circle text-primary me-2"></i>Informações do Encontro</h5>
+              
+              <div class="row g-3 mb-4">
+                @if (detalhes.local_encontro) {
+                  <div class="col-12 col-md-4">
+                    <div class="p-3 bg-light rounded-3 h-100">
+                      <span class="d-block small text-secondary mb-1">Local do Encontro</span>
+                      <strong class="text-dark"><i class="bi bi-geo-alt me-2 text-danger"></i>{{ detalhes.local_encontro }}</strong>
+                    </div>
+                  </div>
+                }
+                
+                <div class="col-12 col-md-4">
+                  <div class="p-3 bg-light rounded-3 h-100">
+                    <span class="d-block small text-secondary mb-1">Início</span>
+                    @if (getDiasParaInicio(detalhes.data_inicio); as dias) {
+                      <strong class="text-primary"><i class="bi bi-clock-history me-2"></i>Começará em {{ dias }} dia(s)</strong>
+                    } @else {
+                      <strong class="text-success"><i class="bi bi-check-circle me-2"></i>Já iniciado</strong>
+                    }
+                  </div>
+                </div>
 
-      <div class="clube-info-card">
-        <h3 style="margin-bottom: 20px; color: #333; font-size: 1.3rem;">Informações do Encontro</h3>
-        <div class="info-grid">
-          <div class="info-item" *ngIf="clubeDetalhes.local_encontro">
-            <span>Local do Encontro</span>
-            <strong>{{ clubeDetalhes.local_encontro }}</strong>
-          </div>
-          <div class="info-item" *ngIf="getDiasParaInicio(clubeDetalhes.data_inicio) as dias">
-            <span>Início</span>
-            <strong style="color: #007bff;">Começará em {{ dias }} dia(s)</strong>
-          </div>
-          <div class="info-item">
-            <span>Data de encerramento</span>
-            <strong>{{ (clubeDetalhes.data_fim | date:'dd/MM/yyyy') || 'Não definido' }}</strong>
-          </div>
-        </div>
-
-        <div class="acoes-clube" *ngIf="abaAtiva === 'detalhes'">
-          <button *ngIf="clubeEncerrado" class="btn-acao-primario" (click)="abrirFeedbacks()">Ver Feedbacks dos Alunos</button>
-          <div *ngIf="!clubeEncerrado" class="aviso-bloqueio">
-            <i class="icone-relogio">🕒</i> Os feedbacks dos alunos só estarão disponíveis após o encerramento do clube.
-          </div>
-        </div>
-
-        <ng-container *ngIf="abaAtiva === 'detalhes'">
-          <hr class="divisor" style="margin-top: 30px; margin-bottom: 20px;">
-          <h3 style="margin-bottom: 15px; font-size: 1.2rem; color: #333;">Alunos Inscritos ({{ membrosDoClube.length }})</h3>
-
-          <div *ngIf="carregandoMembros" class="loading" style="padding: 15px 0;">A carregar a lista de alunos...</div>
-          <div *ngIf="erroMembros" class="alerta erro">{{ erroMembros }}</div>
-
-          <div *ngIf="!carregandoMembros && !erroMembros && membrosDoClube.length === 0" style="text-align: center; padding: 25px; background-color: #f8f9fa; border-radius: 8px; color: #6c757d;">
-            Nenhum aluno inscrito neste clube ainda.
-          </div>
-
-          <div *ngIf="!carregandoMembros && membrosDoClube.length > 0" style="display: flex; flex-direction: column; gap: 10px;">
-            <div *ngFor="let membro of membrosDoClube" style="display: flex; align-items: center; padding: 12px; border: 1px solid #e9ecef; border-radius: 8px; background-color: #ffffff;">
-              <img [src]="membro.usuario?.foto_perfil || 'assets/imgs/teste1.png'" alt="Foto do Aluno" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 15px;">
-              <div>
-                <strong style="display: block; font-size: 0.95rem; color: #212529;">{{ membro.usuario?.nome || 'Aluno Desconhecido' }}</strong>
-                <small style="color: #6c757d;">{{ membro.usuario?.email || 'Sem e-mail' }}</small>
+                <div class="col-12 col-md-4">
+                  <div class="p-3 bg-light rounded-3 h-100">
+                    <span class="d-block small text-secondary mb-1">Data de encerramento</span>
+                    <strong class="text-dark"><i class="bi bi-calendar-check me-2 text-secondary"></i>{{ (detalhes.data_fim | date:'dd/MM/yyyy') || 'Não definido' }}</strong>
+                  </div>
+                </div>
               </div>
+
+              @if (abaAtiva() === 'detalhes') {
+                @if (clubeEncerrado()) {
+                  <button class="btn btn-primary w-100 py-2 fw-semibold" (click)="abrirFeedbacks()">
+                    <i class="bi bi-bar-chart-line me-2"></i>Ver Feedbacks dos Alunos
+                  </button>
+                } @else {
+                  <div class="alert alert-warning border-0 d-flex align-items-center mb-0 shadow-sm">
+                    <i class="bi bi-clock-history fs-4 text-warning me-3"></i>
+                    <div class="text-dark">Os feedbacks dos alunos só estarão disponíveis após o encerramento do clube.</div>
+                  </div>
+                }
+              }
             </div>
           </div>
-        </ng-container>
-      </div>
 
-      <hr class="divisor" *ngIf="abaAtiva !== 'detalhes'">
+          @if (abaAtiva() === 'detalhes') {
+            <div class="card border-0 shadow-sm">
+              <div class="card-body p-4">
+                <h5 class="fw-bold mb-4 d-flex align-items-center">
+                  <i class="bi bi-people-fill text-primary me-2"></i> Alunos Inscritos 
+                  <span class="badge bg-primary rounded-pill ms-2">{{ membrosDoClube().length }}</span>
+                </h5>
 
-      <div class="questionario-card" *ngIf="abaAtiva === 'feedbacks'">
-        
-        <button class="btn-voltar" style="margin-bottom: 20px;" (click)="voltarParaDetalhes()">
-          ← Voltar ao clube
-        </button>
+                @if (carregandoMembros()) {
+                  <div class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    <span class="text-secondary small">A carregar a lista de alunos...</span>
+                  </div>
+                }
 
-        <header class="clube-header">
-          <h2>Resultados dos Feedbacks</h2>
-          <p>Selecione uma pergunta abaixo para ver a votação dos alunos.</p>
-        </header>
+                @if (erroMembros()) {
+                  <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center">
+                    <i class="bi bi-exclamation-octagon-fill fs-4 me-3"></i>
+                    <div>{{ erroMembros() }}</div>
+                  </div>
+                }
 
-        <div *ngIf="perguntas.length === 0" class="sem-perguntas">Não há perguntas configuradas.</div>
-
-        <div class="lista-perguntas-analise">
-          <div class="pergunta-analise-card" *ngFor="let pergunta of perguntas; let i = index">
-            <button class="btn-pergunta" [class.ativo]="perguntaSelecionadaId === pergunta.id" (click)="selecionarPerguntaParaAnalise(pergunta.id)">
-              <span>{{ i + 1 }}. {{ pergunta.texto }}</span>
-              <span class="seta">{{ perguntaSelecionadaId === pergunta.id ? '▲' : '▼' }}</span>
-            </button>
-
-            <div class="estatisticas-box" *ngIf="perguntaSelecionadaId === pergunta.id">
-              <div class="stat-item" *ngFor="let stat of estatisticas">
-                <span class="stat-texto">{{ stat.texto }}</span>
-                <span class="stat-badge" [class.destaque]="stat.quantidade > 0">{{ stat.quantidade }} voto(s)</span>
+                @if (!carregandoMembros() && !erroMembros()) {
+                  <ul class="list-group list-group-flush">
+                    @for (membro of membrosDoClube(); track membro.id) {
+                      <li class="list-group-item d-flex align-items-center px-0 py-3 border-light">
+                        <img [src]="membro.usuario?.foto_perfil || 'assets/imgs/teste1.png'" alt="Foto do Aluno" class="rounded-circle shadow-sm object-fit-cover me-3" style="width: 48px; height: 48px;">
+                        <div>
+                          <strong class="d-block text-dark">{{ membro.usuario?.nome || 'Aluno Desconhecido' }}</strong>
+                          <small class="text-secondary"><i class="bi bi-envelope me-1"></i>{{ membro.usuario?.email || 'Sem e-mail' }}</small>
+                        </div>
+                      </li>
+                    } @empty {
+                      <div class="text-center py-4 bg-light rounded-3 border border-light">
+                        <i class="bi bi-person-x fs-2 text-secondary opacity-50 mb-2 d-block"></i>
+                        <span class="text-secondary small">Nenhum aluno inscrito neste clube ainda.</span>
+                      </div>
+                    }
+                  </ul>
+                }
               </div>
             </div>
-          </div>
+          }
+
+          @if (abaAtiva() === 'feedbacks') {
+            <div class="card border-0 shadow-sm">
+              <div class="card-body p-4">
+                <button class="btn btn-sm btn-outline-secondary mb-4" (click)="voltarParaDetalhes()">
+                  <i class="bi bi-arrow-left me-1"></i> Voltar aos Alunos
+                </button>
+
+                <h5 class="fw-bold mb-2"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Resultados dos Feedbacks</h5>
+                <p class="text-secondary small mb-4">Selecione uma pergunta abaixo para ver a votação dos alunos.</p>
+
+                @if (perguntas().length === 0) {
+                  <div class="alert alert-secondary border-0 text-center py-4 shadow-sm">Não há perguntas configuradas.</div>
+                }
+
+                <div class="accordion" id="accordionFeedbacks">
+                  @for (pergunta of perguntas(); track pergunta.id; let i = $index) {
+                    <div class="accordion-item border-light mb-2 shadow-sm rounded">
+                      <h2 class="accordion-header">
+                        <button class="accordion-button bg-light rounded" [class.collapsed]="perguntaSelecionadaId() !== pergunta.id" type="button" (click)="selecionarPerguntaParaAnalise(pergunta.id)">
+                          <strong class="me-2">{{ i + 1 }}.</strong> {{ pergunta.texto }}
+                        </button>
+                      </h2>
+                      
+                      @if (perguntaSelecionadaId() === pergunta.id) {
+                        <div class="accordion-collapse collapse show">
+                          <div class="accordion-body bg-white border-top">
+                            @for (stat of estatisticas(); track stat.texto) {
+                              <div class="d-flex justify-content-between align-items-center p-3 mb-2 bg-light rounded border-start border-4 border-primary">
+                                <span class="text-dark small fw-medium">{{ stat.texto }}</span>
+                                <span class="badge rounded-pill" [class.bg-primary]="stat.quantidade > 0" [class.bg-secondary]="stat.quantidade === 0">
+                                  {{ stat.quantidade }} voto(s)
+                                </span>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
         </div>
       </div>
-
-    </div>
-  </ng-container>
+    }
+  }
 
 </div>

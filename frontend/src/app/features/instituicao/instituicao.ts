@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -14,10 +14,12 @@ import { CoreAuthService } from '../../core/auth/auth-session';
 })
 export default class InstituicaoComponent implements OnInit {
   form!: FormGroup;
-  carregando: boolean = true;
-  enviando: boolean = false;
-  mensagemSucesso: string = '';
-  mensagemErro: string = '';
+  carregando = signal(true);
+  enviando = signal(false);
+  mostrarModal = signal(false);
+  mensagemSucesso = signal('');
+  mensagemErro = signal('');
+  carregandoCidades = signal(false);
   instituicaoId: string | null = null;
 
   tiposInstituicao = [
@@ -26,13 +28,11 @@ export default class InstituicaoComponent implements OnInit {
   ];
   estados: any[] = [];
   cidades: any[] = [];
-  carregandoCidades: boolean = false;
 
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private instituicaoService = inject(InstituicaoService);
   private authSession = inject(CoreAuthService);
-  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -49,12 +49,8 @@ export default class InstituicaoComponent implements OnInit {
 
   carregarEstadosIBGE(): void {
     this.http.get<any[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome').subscribe({
-      next: (dados) => {
-        this.estados = dados;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-      }
+      next: (dados) => { this.estados = dados; },
+      error: () => {}
     });
   }
 
@@ -71,51 +67,27 @@ export default class InstituicaoComponent implements OnInit {
   }
 
   carregarCidadesIBGE(uf: string, cidadePreSelecionada?: string): void {
-    this.carregandoCidades = true;
+    this.carregandoCidades.set(true);
     this.form.get('cidade')?.disable();
-    this.cdr.detectChanges();
 
     this.http.get<any[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`).subscribe({
       next: (dados) => {
         this.cidades = dados;
         this.form.get('cidade')?.enable();
-        
-        if (cidadePreSelecionada) {
-          this.form.get('cidade')?.setValue(cidadePreSelecionada);
-        } else {
-          this.form.get('cidade')?.setValue('');
-        }
-        
-        this.carregandoCidades = false;
-        this.cdr.detectChanges();
+        this.form.get('cidade')?.setValue(cidadePreSelecionada || '');
+        this.carregandoCidades.set(false);
       },
       error: () => {
-        this.carregandoCidades = false;
-        this.cdr.detectChanges();
+        this.carregandoCidades.set(false);
       }
     });
   }
   carregarDados(): void {
-    const token = this.authSession.getToken();
-    if (!token) {
-      this.mensagemErro = 'Sessão inválida. Faça login novamente.';
-      this.carregando = false;
-      return;
-    }
-
-    try {
-      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-      const payload = JSON.parse(atob(base64));
-      this.instituicaoId = payload.instituicao; 
-    } catch (e) {
-      this.mensagemErro = 'Erro ao processar as credenciais.';
-      this.carregando = false;
-      return;
-    }
+    this.instituicaoId = this.authSession.getInstituicao();
 
     if (!this.instituicaoId) {
-      this.mensagemErro = 'Instituição não vinculada ao seu perfil de Gestor.';
-      this.carregando = false;
+      this.mensagemErro.set('Instituição não vinculada ao seu perfil de Gestor.');
+      this.carregando.set(false);
       return;
     }
 
@@ -131,17 +103,13 @@ export default class InstituicaoComponent implements OnInit {
           }, { emitEvent: false });
           if (inst.estado) {
             this.carregarCidadesIBGE(inst.estado, inst.cidade);
-          } else {
-            this.form.patchValue({ cidade: inst.cidade || '' }, { emitEvent: false });
           }
         }
-        this.carregando = false;
-        this.cdr.detectChanges();
+        this.carregando.set(false);
       },
       error: () => {
-        this.mensagemErro = 'Não foi possível carregar os dados da instituição.';
-        this.carregando = false;
-        this.cdr.detectChanges();
+        this.mensagemErro.set('Não foi possível carregar os dados da instituição.');
+        this.carregando.set(false);
       }
     });
   }
@@ -152,28 +120,36 @@ export default class InstituicaoComponent implements OnInit {
       return;
     }
 
-    this.enviando = true;
-    this.mensagemSucesso = '';
-    this.mensagemErro = '';
+    this.enviando.set(true);
+    this.mensagemSucesso.set('');
+    this.mensagemErro.set('');
 
     const updateDto = this.form.getRawValue();
 
     this.instituicaoService.instituicaoControllerUpdate(this.instituicaoId, updateDto).subscribe({
       next: () => {
-        this.mensagemSucesso = 'Dados da instituição atualizados com sucesso!';
-        this.enviando = false;
-        this.cdr.detectChanges();
+        this.mensagemSucesso.set('Dados da instituição atualizados com sucesso!');
+        this.enviando.set(false);
       },
       error: (err: any) => {
         const msg = err.error?.message;
         if (err.status === 400 && msg) {
-          this.mensagemErro = Array.isArray(msg) ? msg[0] : msg;
+          this.mensagemErro.set(Array.isArray(msg) ? msg[0] : msg);
         } else {
-          this.mensagemErro = 'Ocorreu um erro ao atualizar os dados. Tente novamente.';
+          this.mensagemErro.set('Ocorreu um erro ao atualizar os dados. Tente novamente.');
         }
-        this.enviando = false;
-        this.cdr.detectChanges();
+        this.enviando.set(false);
       }
     });
+  }
+
+  abrirModal(): void {
+    this.mostrarModal.set(true);
+  }
+
+  fecharModal(): void {
+    this.mostrarModal.set(false);
+    this.mensagemSucesso.set('');
+    this.mensagemErro.set('');
   }
 }
