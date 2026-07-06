@@ -89,7 +89,6 @@
               <thead class="table-light">
                 <tr>
                   <th>Usuário</th>
-                  <th>Ação</th>
                   <th>Livro</th>
                   <th>Data e hora</th>
                   <th>Status</th>
@@ -99,7 +98,6 @@
                 @for (log of dashboard()!.logEmprestimos; track log.id) {
                   <tr>
                     <td class="fw-semibold">{{ log.nomeUsuario }}</td>
-                    <td><span class="badge bg-primary-subtle text-primary">Empréstimo</span></td>
                     <td>{{ log.nomeLivro }}</td>
                     <td class="text-secondary small">{{ log.dataHora | date:'dd/MM/yyyy HH:mm' }}</td>
                     <td>
