@@ -7,7 +7,7 @@
       </div>
 
       <div class="modal-body">
-        <ng-container *ngIf="livroSelecionado">
+        @if (livroSelecionado) {
           <div class="card bg-light border mb-3">
             <div class="card-body d-flex align-items-center">
               <img
@@ -25,19 +25,26 @@
             </div>
           </div>
 
-          <div class="card mb-2" *ngFor="let exemplar of getExemplaresLivro(livroSelecionado.id)">
-            <div class="card-body d-flex justify-content-between align-items-center">
-              <div>
+          @for (exemplar of getExemplaresLivro(livroSelecionado.id); track exemplar.id) {
+            <div class="card mb-2">
+              <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
-                  {{ exemplar.codigo }}
-                  <span class="badge bg-success-subtle text-success ms-2" *ngIf="exemplar.status === 'disponivel'">Disponível</span>
-                  <span class="badge bg-danger-subtle text-danger ms-2" *ngIf="exemplar.status !== 'disponivel'">Emprestado</span>
+                  <div>
+                    {{ exemplar.codigo }}
+                    @if (exemplar.status === 'disponivel') {
+                      <span class="badge bg-success-subtle text-success ms-2">Disponível</span>
+                    } @else {
+                      <span class="badge bg-danger-subtle text-danger ms-2">Emprestado</span>
+                    }
+                  </div>
                 </div>
+                @if (exemplar.status === 'disponivel') {
+                  <button class="btn btn-primary" (click)="selecionarExemplar(exemplar)">Selecionar</button>
+                }
               </div>
-              <button class="btn btn-primary" *ngIf="exemplar.status === 'disponivel'" (click)="selecionarExemplar(exemplar)">Selecionar</button>
             </div>
-          </div>
-        </ng-container>
+          }
+        }
       </div>
     </div>
   </div>
@@ -83,16 +90,19 @@
                 maxlength="255">
             </div>
 
-            <div class="list-group position-absolute w-100 shadow z-3" *ngIf="alunosFiltrados.length > 0">
-              <button
-                type="button"
-                class="list-group-item list-group-item-action"
-                *ngFor="let aluno of alunosFiltrados"
-                (click)="selecionarAluno(aluno)">
-                <div class="fw-semibold">{{ aluno.nome }}</div>
-                <small class="text-secondary">{{ aluno.email }}</small>
-              </button>
-            </div>
+            @if (alunosFiltrados.length > 0) {
+              <div class="list-group position-absolute w-100 shadow z-3">
+                @for (aluno of alunosFiltrados; track aluno.id) {
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    (click)="selecionarAluno(aluno)">
+                    <div class="fw-semibold">{{ aluno.nome }}</div>
+                    <small class="text-secondary">{{ aluno.email }}</small>
+                  </button>
+                }
+              </div>
+            }
             <div class="form-text">Pesquise por nome completo ou número de registro acadêmico.</div>
           </div>
 
@@ -153,7 +163,7 @@
 </div>
 
 <div class="container py-4">
-  <ul class="nav nav-tabs mb-4">
+  <ul class="nav nav-tabs">
     <li class="nav-item">
       <a class="nav-link text-primary fw-semibold" [class.active]="abaAtiva === 'emprestimo'" (click)="abaAtiva = 'emprestimo'" style="cursor: pointer;">
         <i class="bi bi-journal-plus me-1"></i> Registrar Empréstimo
@@ -162,77 +172,122 @@
     <li class="nav-item">
       <a class="nav-link text-primary fw-semibold" [class.active]="abaAtiva === 'devolucao'" (click)="abaAtiva = 'devolucao'" style="cursor: pointer;">
         <i class="bi bi-arrow-return-left me-1"></i> Devoluções Ativas
-        <span class="badge bg-primary ms-1 rounded-pill" *ngIf="emprestimosAtivos.length > 0">{{ emprestimosAtivos.length }}</span>
+        @if (emprestimosAtivos.length > 0) {
+          <span class="badge bg-primary ms-1 rounded-pill">{{ emprestimosAtivos.length }}</span>
+        }
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-primary fw-semibold" [class.active]="abaAtiva === 'historico'" (click)="abaAtiva = 'historico'" style="cursor: pointer;">
+        <i class="bi bi-clock-history me-1"></i> Histórico de Empréstimos
       </a>
     </li>
   </ul>
 
-  <div *ngIf="abaAtiva === 'emprestimo'">
-    <div class="d-flex justify-content-center align-items-center mb-4">
-      <div class="w-75 text-center">
-        <h2>Registro de Empréstimo</h2>
-        <p class="text-secondary">Selecione o livro que deseja registrar para o empréstimo individual.</p>
-        <div class="card shadow-sm border-0 mt-3">
-          <div class="card-body p-0">
-            <div class="position-relative">
-              <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"></i>
-              <input
-                type="text"
-                class="form-control border-0 ps-5 py-3"
-                placeholder="Pesquise por título ou autor"
-                [(ngModel)]="termoPesquisa"
-                maxlength="255">
-            </div>
-          </div>
+  @if (abaAtiva === 'emprestimo') {
+    <div class="container py-4">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
+        
+        <div class="text-center text-md-start">
+          <h2 class="mb-1">Registro de Empréstimo</h2>
+          <p class="text-secondary mb-0">
+            Selecione o livro que deseja registrar para o empréstimo individual.
+          </p>
         </div>
       </div>
     </div>
 
-    <ng-container *ngIf="livros$ | async as livros; else semLivros">
-      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        <div class="col" *ngFor="let livro of filtrarLivros(livros)">
-          <div class="card h-100 shadow-sm border-0">
-            <div class="row g-0 h-100">
-              <div class="col-4 p-2 d-flex align-items-center justify-content-center">
-                <img [src]="livro.capa_url || 'assets/imgs/teste2.png'" class="img-fluid rounded" [alt]="'Capa' + livro.titulo">
-              </div>
-              <div class="col-8">
-                <div class="card-body d-flex flex-column h-100">
-                  <h6 class="card-title fw-bold mb-1">{{ livro.titulo }}</h6>
-                  <p class="card-text text-secondary mb-2 small">{{ livro.autor }}</p>
-                  <p class="card-text mt-auto mb-3">
-                    <span class="badge {{ getColorStatusExemplar(livro.id) }}">
-                      {{ getStatusExemplar(livro.id) }}
-                    </span>
-                  </p>
-                  <button type="button" class="btn btn-outline-primary btn-sm w-100" (click)="abrirModalExemplares(livro)">
-                    <i class="bi bi-plus-circle me-1"></i> Selecionar
-                  </button>
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-0">
+        <div class="position-relative">
+          <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"></i>
+          <input
+            type="text"
+            class="form-control border-0 ps-5 py-3"
+            placeholder="Pesquise por título ou autor"
+            [(ngModel)]="termoPesquisa"
+            maxlength="255">
+        </div>
+      </div>
+    </div>
+
+    @if (livros$ | async; as livros) {
+      @if (livros.length === 0) {
+        <div class="bg-white rounded-3 shadow-sm p-5 w-100 text-center mt-3">
+          <i class="bi bi-book fs-1 text-secondary"></i>
+          <h5 class="mt-3">Não há livros registrados no momento.</h5>
+          <a routerLink="/livros" class="btn btn-link">Adicione um novo livro aqui.</a>
+        </div>
+      } @else if (!termoPesquisa.trim()) {
+        <div class="text-center py-5 text-secondary">
+          <i class="bi bi-book fs-1"></i>
+          <h5 class="mt-3">Encontre um livro</h5>
+          <p>Digite o título ou o autor na barra de pesquisa acima para encontrar um livro para empréstimo.</p>
+        </div>
+      } @else if (filtrarLivros(livros).length === 0) {
+        <div class="text-center py-5 text-secondary">
+          <i class="bi bi-question-circle fs-1"></i>
+          <h5 class="mt-3">Nenhum livro encontrado</h5>
+          <p>Não encontramos nenhum livro correspondente à pesquisa.</p>
+        </div>
+      } @else {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+          @for (livro of filtrarLivros(livros); track livro.id) {
+            <div class="col">
+              <div class="card h-100 shadow-sm border-0">
+                <div class="row g-0 h-100">
+                  <div class="col-4 p-2 d-flex align-items-center justify-content-center">
+                    <img [src]="livro.capa_url || 'assets/imgs/teste2.png'" class="img-fluid rounded" [alt]="'Capa ' + livro.titulo">
+                  </div>
+                  <div class="col-8">
+                    <div class="card-body d-flex flex-column h-100">
+                      <h6 class="card-title fw-bold mb-1">{{ livro.titulo }}</h6>
+                      <p class="card-text text-secondary mb-2 small">{{ livro.autor }}</p>
+                      <p class="card-text mt-auto mb-3">
+                        <span class="badge {{ getColorStatusExemplar(livro.id) }}">
+                          {{ getStatusExemplar(livro.id) }}
+                        </span>
+                      </p>
+                      <button type="button" class="btn btn-outline-primary btn-sm w-100" (click)="abrirModalExemplares(livro)">
+                        <i class="bi bi-plus-circle me-1"></i> Selecionar
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          }
+        </div>
+      }
+    } @else {
+      <div class="text-center py-5 text-secondary">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+        <p class="mt-3">Carregando acervo...</p>
+      </div>
+    }
+  }
+
+  @if (abaAtiva === 'devolucao') {
+    <div class="container py-4">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
+        
+        <div class="text-center text-md-start">
+          <h2 class="mb-1">Devolução de Exemplares</h2>
+          <p class="text-secondary mb-0">
+            Gerencie os empréstimos ativos e marque os livros que foram devolvidos à biblioteca.
+          </p>
         </div>
       </div>
-    </ng-container>
-
-    <ng-template #semLivros>
-      <div class="bg-white rounded-3 shadow-sm p-5 w-100 text-center">
-        <i class="bi bi-book fs-1 text-secondary"></i>
-        <h5 class="mt-3">Não há livros registrados no momento.</h5>
-        <a routerLink="/livros" class="btn btn-link">Adicione um novo livro aqui.</a>
-      </div>
-    </ng-template>
-  </div>
-
-  <div *ngIf="abaAtiva === 'devolucao'">
-    <h2 class="mb-1">Devolução de Exemplares</h2>
-    <p class="text-secondary mb-4">Gerencie os empréstimos ativos e marque os livros que foram devolvidos à biblioteca.</p>
+    </div>
 
     <div class="card shadow-sm border-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
+          <thead class="table-primary">
             <tr>
               <th class="ps-4">Aluno</th>
               <th>Livro / Exemplar</th>
@@ -242,37 +297,109 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let emp of emprestimosAtivos">
-              <td class="ps-4">
-                <div class="fw-bold">{{ getNomeAluno(emp) }}</div>
-                <small class="text-secondary">{{ getEmailAluno(emp) }}</small>
-              </td>
-              <td>
-                <div class="fw-bold">{{ getTituloLivro(emp) }}</div>
-                <small class="text-secondary">Cód: {{ getCodigoExemplar(emp) }}</small>
-              </td>
-              <td>{{ emp.data_retirada | date:'shortDate' }}</td>
-              <td>
-                <span [class.text-danger]="estaAtrasado(emp.data_devolucao_esperada)" [class.fw-bold]="estaAtrasado(emp.data_devolucao_esperada)">
-                  {{ emp.data_devolucao_esperada | date:'shortDate' }}
-                  <i *ngIf="estaAtrasado(emp.data_devolucao_esperada)" class="bi bi-exclamation-circle text-danger ms-1" title="Em atraso"></i>
-                </span>
-              </td>
-              <td class="text-end pe-4">
-                <button class="btn btn-sm btn-success fw-semibold" (click)="devolverLivro(emp)" [disabled]="enviandoDevolucao">
-                  <i class="bi bi-check2-square me-1"></i> Devolver
-                </button>
-              </td>
-            </tr>
+            @for (emp of emprestimosAtivos; track emp.id) {
+              <tr class="table-light">
+                <td class="ps-4">
+                  <div class="fw-bold">{{ getNomeAluno(emp) }}</div>
+                  <small class="text-secondary">{{ getEmailAluno(emp) }}</small>
+                </td>
+                <td>
+                  <div class="fw-bold">{{ getTituloLivro(emp) }}</div>
+                  <small class="text-secondary">Cód: {{ getCodigoExemplar(emp) }}</small>
+                </td>
+                <td>{{ emp.data_retirada | date:'shortDate' }}</td>
+                <td>
+                  <span [class.text-danger]="estaAtrasado(emp.data_devolucao_esperada)" [class.fw-bold]="estaAtrasado(emp.data_devolucao_esperada)">
+                    {{ emp.data_devolucao_esperada | date:'shortDate' }}
+                    @if (estaAtrasado(emp.data_devolucao_esperada)) {
+                      <i class="bi bi-exclamation-circle text-danger ms-1" title="Em atraso"></i>
+                    }
+                  </span>
+                </td>
+                <td class="text-end pe-4">
+                  <button class="btn btn-sm btn-success fw-semibold text-light fs-6" (click)="devolverLivro(emp)" [disabled]="enviandoDevolucao">
+                    <i class="bi bi-check2-square me-1"></i> Devolver
+                  </button>
+                </td>
+              </tr>
+            }
           </tbody>
         </table>
       </div>
 
-      <div *ngIf="emprestimosAtivos.length === 0" class="text-center py-5 text-secondary">
-        <i class="bi bi-inbox fs-1"></i>
-        <h5 class="mt-3">Não há empréstimos pendentes.</h5>
-        <p>Todos os exemplares já foram devolvidos à biblioteca.</p>
+      @if (emprestimosAtivos.length === 0) {
+        <div class="text-center py-5 text-secondary">
+          <i class="bi bi-inbox fs-1"></i>
+          <h5 class="mt-3">Não há empréstimos pendentes.</h5>
+          <p>Todos os exemplares já foram devolvidos à biblioteca.</p>
+        </div>
+      }
+    </div>
+  }
+
+  @if (abaAtiva === 'historico') {
+    <div class="container py-4">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
+        
+        <div class="text-center text-md-start">
+          <h2 class="mb-1">Histórico de Empréstimos</h2>
+          <p class="text-secondary mb-0">
+            Acompanhe o histórico de todos os exemplares que já foram devolvidos.
+          </p>
+        </div>
       </div>
     </div>
-  </div>
+
+    <div class="card shadow-sm border-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-primary">
+            <tr>
+              <th class="ps-4">Aluno</th>
+              <th>Livro / Exemplar</th>
+              <th>Data Retirada</th>
+              <th>Data Limite</th>
+              <th>Data Devolução</th>
+              <th class="pe-4">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (emp of emprestimosHistorico; track emp.id) {
+              <tr class="table-light">
+                <td class="ps-4">
+                  <div class="fw-bold">{{ getNomeAluno(emp) }}</div>
+                  <small class="text-secondary">{{ getEmailAluno(emp) }}</small>
+                </td>
+                <td>
+                  <div class="fw-bold">{{ getTituloLivro(emp) }}</div>
+                  <small class="text-secondary">Cód: {{ getCodigoExemplar(emp) }}</small>
+                </td>
+                <td>{{ emp.data_retirada | date:'shortDate' }}</td>
+                <td>{{ emp.data_devolucao_esperada | date:'shortDate' }}</td>
+                <td class="fw-medium text-success">
+                  {{ emp.data_devolucao_efetiva | date:'shortDate' }}
+                </td>
+                <td class="pe-4">
+                  @if (estaAtrasadoHistorico(emp)) {
+                    <span class="badge bg-danger-subtle text-danger">Atrasado</span>
+                  } @else {
+                    <span class="badge bg-success-subtle text-success">No prazo</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (emprestimosHistorico.length === 0) {
+        <div class="text-center py-5 text-secondary">
+          <i class="bi bi-clock-history fs-1"></i>
+          <h5 class="mt-3">Nenhum histórico disponível.</h5>
+          <p>Ainda não há registros de empréstimos concluídos.</p>
+        </div>
+      }
+    </div>
+  }
 </div>

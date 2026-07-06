@@ -4,6 +4,7 @@ import { Chart, registerables } from 'chart.js';
 import { DashboardService, LivroMaisEmprestado, GeneroProcurado, MediaLeitura } from '../../../../../../client/services/dashboard.service';
 import { EmprestimosService } from '../../../../../../client/services/emprestimos.service';
 import { forkJoin } from 'rxjs';
+import { RouterLink } from '@angular/router';
 
 Chart.register(...registerables);
 
@@ -12,7 +13,7 @@ type FaixaEtaria = 'todas' | 'livre' | '10+' | '12+' | '14+' | '16+' | '18+';
 @Component({
   selector: 'app-home-bibliotecario',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './home-bibliotecario.html',
 })
 export default class HomeBibliotecarioComponent implements OnInit {

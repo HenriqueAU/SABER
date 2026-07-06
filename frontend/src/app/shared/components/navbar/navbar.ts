@@ -57,9 +57,13 @@ export class Navbar {
   }
 
   logOut() {
-    
-  }
+    this.sessionService.removeToken();
+    this.sessionService.estaLogado.set(false);
+    this.sessionService.perfil.set(null);
 
+    this.router.navigate(['/onboarding']);
+  }
+  
   getLoginOrHomeRoute(): string {
     return this.estaLogado() ? '/home' : '/login';
   }

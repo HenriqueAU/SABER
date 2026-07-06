@@ -3,15 +3,15 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { Modal } from 'bootstrap';
 import { EmprestimosService } from '../../../client/services/emprestimos.service';
 import { ExemplaresService } from '../../../client/services/exemplares.service';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { LivrosService } from '../../../client/services/livros.service';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { UsuariosService } from '../../../client/services/usuarios.service';
 import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-emprestimo',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [AsyncPipe, DatePipe, FormsModule, ReactiveFormsModule, RouterLink],
   templateUrl: './emprestimo.html',
   styleUrl: './emprestimo.scss',
 })
@@ -21,6 +21,7 @@ export default class EmprestimoComponent implements OnInit {
   private exemplaresService = inject(ExemplaresService);
   private usuariosService = inject(UsuariosService);
   private cdr = inject(ChangeDetectorRef);
+  private route = inject(ActivatedRoute);
 
   emprestimoForm = new FormGroup({
 
@@ -62,13 +63,19 @@ export default class EmprestimoComponent implements OnInit {
 
   termoPesquisa = '';
 
-  abaAtiva: 'emprestimo' | 'devolucao' = 'emprestimo';
+  abaAtiva: 'emprestimo' | 'devolucao' | 'historico' = 'emprestimo';
   emprestimosAtivos: any[] = [];
+  emprestimosHistorico: any[] = [];
   enviandoDevolucao: boolean = false;
   mensagemSucessoModal: string = 'Operação realizada com sucesso!';
   mensagemErroModal: string = 'Ocorreu um erro na operação.';
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.abaAtiva = params['tab'];
+      }
+    });
     this.carregarDadosIniciais();
   }
 
@@ -95,6 +102,8 @@ export default class EmprestimoComponent implements OnInit {
     this.emprestimosService.emprestimoControllerFindAll().subscribe({
       next: (data) => {
         this.emprestimosAtivos = data.filter((e: any) => !e.data_devolucao_efetiva);
+        this.emprestimosHistorico = data.filter((e: any) => e.data_devolucao_efetiva)
+          .sort((a: any, b: any) => new Date(b.data_devolucao_efetiva).getTime() - new Date(a.data_devolucao_efetiva).getTime());
         this.cdr.detectChanges();
       },
       error: () => {
@@ -104,6 +113,13 @@ export default class EmprestimoComponent implements OnInit {
 
   estaAtrasado(dataEsperada: string | Date): boolean {
     return new Date(dataEsperada) < new Date();
+  }
+
+  estaAtrasadoHistorico(emp: any): boolean {
+    if (!emp.data_devolucao_esperada || !emp.data_devolucao_efetiva) return false;
+    const esperada = new Date(emp.data_devolucao_esperada).setHours(0, 0, 0, 0);
+    const efetiva = new Date(emp.data_devolucao_efetiva).setHours(0, 0, 0, 0);
+    return efetiva > esperada;
   }
 
   getNomeAluno(emp: any): string {
@@ -236,9 +252,8 @@ export default class EmprestimoComponent implements OnInit {
   }
 
   filtrarLivros(livros: any[]) {
-
     if (!this.termoPesquisa.trim()) {
-      return livros;
+      return [];
     }
 
     const termo = this.termoPesquisa.toLowerCase();

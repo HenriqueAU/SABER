@@ -85,8 +85,9 @@
   <div class="row mt-4">
     <div class="col-12">
       <div class="card border-0 shadow-sm">
-        <div class="card-body">
+        <div class="card-body" [routerLink]="['/emprestimos']" [queryParams]="{tab: 'historico'}" style="cursor:pointer">
           <h6 class="fw-bold mb-3">Log de empréstimos</h6>
+          
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
               <thead class="table-light">
@@ -116,32 +117,35 @@
                 }
               </tbody>
             </table>
-            @if (totalPaginas() > 1) {
-              <div class="d-flex justify-content-between align-items-center mt-3">
-                <small class="text-secondary">
-                  Página {{ paginaAtual() }} de {{ totalPaginas() }} · {{ emprestimos().length }} registros
-                </small>
-                <nav>
-                  <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item" [class.disabled]="paginaAtual() === 1">
-                      <button class="page-link" (click)="irParaPagina(paginaAtual() - 1)">‹</button>
-                    </li>
-                    @for (p of paginas(); track p) {
-                      <li class="page-item" [class.active]="p === paginaAtual()">
-                        <button class="page-link" (click)="irParaPagina(p)">{{ p }}</button>
-                      </li>
-                    }
-                    <li class="page-item" [class.disabled]="paginaAtual() === totalPaginas()">
-                      <button class="page-link" (click)="irParaPagina(paginaAtual() + 1)">›</button>
-                    </li>
-                  </ul>
-                </nav>
-              </div>
-            }
           </div>
+
           @if (emprestimos().length === 0) {
             <p class="text-secondary text-center py-4 mb-0">Nenhum empréstimo registrado.</p>
           }
+
+          @if (totalPaginas() > 1 && emprestimos().length > 0) {
+            <div class="d-flex justify-content-between align-items-center mt-3" (click)="$event.stopPropagation()">
+              <small class="text-secondary">
+                Página {{ paginaAtual() }} de {{ totalPaginas() }} · {{ emprestimos().length }} registros
+              </small>
+              <nav>
+                <ul class="pagination pagination-sm mb-0">
+                  <li class="page-item" [class.disabled]="paginaAtual() === 1">
+                    <button class="page-link" (click)="irParaPagina(paginaAtual() - 1)">‹</button>
+                  </li>
+                  @for (p of paginas(); track p) {
+                    <li class="page-item" [class.active]="p === paginaAtual()">
+                      <button class="page-link" (click)="irParaPagina(p)">{{ p }}</button>
+                    </li>
+                  }
+                  <li class="page-item" [class.disabled]="paginaAtual() === totalPaginas()">
+                    <button class="page-link" (click)="irParaPagina(paginaAtual() + 1)">›</button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          }
+
         </div>
       </div>
     </div>
