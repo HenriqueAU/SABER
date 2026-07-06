@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -28,6 +28,26 @@ export default class HomeAlunoComponent implements OnInit {
   clubesEncerrados = signal<any[]>([]);
   perfilLeitura = signal<any[]>([]);
   recomendacoes = signal<any[]>([]);
+  coresGrafico = ['#003A79', '#0EA5E9', '#EAB308', '#16A34A', '#DC2626', '#8696AC'];
+
+  graficoDoughnut = computed(() => {
+    const perfil = this.perfilLeitura();
+    if (!perfil || perfil.length === 0) return '';
+
+    const total = perfil.reduce((acc, curr) => acc + curr.quantidade, 0);
+    let gradientParts: string[] = [];
+    let startAngle = 0;
+
+    perfil.forEach((item, index) => {
+      const percentage = (item.quantidade / total) * 100;
+      const endAngle = startAngle + percentage;
+      const color = this.coresGrafico[index % this.coresGrafico.length];
+      gradientParts.push(`${color} ${startAngle}% ${endAngle}%`);
+      startAngle = endAngle;
+    });
+
+    return `conic-gradient(${gradientParts.join(', ')})`;
+  });
 
   ngOnInit(): void {
     this.carregarPainel();
