@@ -1,29 +1,10 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { BASE_PATH_DEFAULT } from '../../../../../../client/tokens';
 import { EmprestimosService } from '../../../../../../client/services';
-
-interface EmprestimoAtivo {
-  id: string;
-  titulo: string;
-  capaUrl: string | null;
-  dataDevolucaoEsperada: Date;
-}
-
-interface ClubeParticipando {
-  id: string;
-  nomeLivro: string;
-  capaUrl: string | null;
-  dataEncerramento: Date;
-  status: 'ativo' | 'encerrado';
-}
-
-interface LivroRecomendado {
-  id: string;
-  titulo: string;
-  autor: string;
-  capaUrl: string | null;
-  genero: string;
-}
+import { LivroGeneroService } from '../../../../../../client/services/livroGenero.service';
 
 @Component({
   selector: 'app-home-aluno',
@@ -33,77 +14,110 @@ interface LivroRecomendado {
 })
 export default class HomeAlunoComponent implements OnInit {
   private emprestimosService = inject(EmprestimosService);
+  private livroGeneroService = inject(LivroGeneroService);
+  private http = inject(HttpClient);
+  private basePath = inject(BASE_PATH_DEFAULT);
 
+  carregando = signal<boolean>(true);
+  erro = signal<string>('');
   totalLivrosLidos = signal<number>(0);
   totalClubes = signal<number>(0);
-  emprestimosAtivos = signal<EmprestimoAtivo[]>([]);
-  clubes = signal<ClubeParticipando[]>([]);
-  recomendacoes = signal<LivroRecomendado[]>([]);
-  carregandoEmprestimos = signal(true);
+  emprestimosAtivos = signal<any[]>([]);
+  historicoLeitura = signal<any[]>([]);
+  clubesAtivos = signal<any[]>([]);
+  clubesEncerrados = signal<any[]>([]);
+  perfilLeitura = signal<any[]>([]);
+  recomendacoes = signal<any[]>([]);
+  coresGrafico = ['#003A79', '#0EA5E9', '#EAB308', '#16A34A', '#DC2626', '#8696AC'];
+
+  graficoDoughnut = computed(() => {
+    const perfil = this.perfilLeitura();
+    if (!perfil || perfil.length === 0) return '';
+
+    const total = perfil.reduce((acc, curr) => acc + curr.quantidade, 0);
+    let gradientParts: string[] = [];
+    let startAngle = 0;
+
+    perfil.forEach((item, index) => {
+      const percentage = (item.quantidade / total) * 100;
+      const endAngle = startAngle + percentage;
+      const color = this.coresGrafico[index % this.coresGrafico.length];
+      gradientParts.push(`${color} ${startAngle}% ${endAngle}%`);
+      startAngle = endAngle;
+    });
+
+    return `conic-gradient(${gradientParts.join(', ')})`;
+  });
 
   ngOnInit(): void {
-    this.carregarEmprestimos();
-    this.clubes.set(this.getMockClubes());
-    this.recomendacoes.set(this.getMockRecomendacoes());
-    this.totalClubes.set(this.getMockClubes().length);
+    this.carregarPainel();
   }
 
-  estaAtrasado(data: Date): boolean {
+  estaAtrasado(data: string | Date): boolean {
+    if (!data) return false;
     return new Date(data) < new Date();
   }
 
-  private carregarEmprestimos(): void {
-    this.emprestimosService.emprestimoControllerFindAll().subscribe({
-      next: (dados: any[]) => {
-        const todos = Array.isArray(dados) ? dados : [];
-
-        this.totalLivrosLidos.set(
-          todos.filter(e => e.data_devolucao_efetiva).length
-        );
-
-        this.emprestimosAtivos.set(
-          todos
-            .filter(e => !e.data_devolucao_efetiva)
-            .map(e => ({
-              id: e.id,
-              titulo: e.exemplar?.livro?.titulo ?? 'Título desconhecido',
-              capaUrl: e.exemplar?.livro?.capa_url ?? null,
-              dataDevolucaoEsperada: new Date(e.data_devolucao_esperada),
-            }))
-        );
-
-        this.carregandoEmprestimos.set(false);
-      },
-      error: () => {
-        this.carregandoEmprestimos.set(false);
-      },
-    });
+  calcularPorcentagem(quantidade: number): number {
+    const quantidades = this.perfilLeitura().map(p => p.quantidade);
+    const max = quantidades.length > 0 ? Math.max(...quantidades) : 1;
+    return (quantidade / max) * 100;
   }
 
-  private getMockClubes(): ClubeParticipando[] {
-    return [
-      {
-        id: '1',
-        nomeLivro: 'Duna',
-        capaUrl: null,
-        dataEncerramento: new Date('2025-08-15'),
-        status: 'ativo',
-      },
-      {
-        id: '2',
-        nomeLivro: 'O Senhor dos Anéis',
-        capaUrl: null,
-        dataEncerramento: new Date('2025-09-01'),
-        status: 'ativo',
-      },
-    ];
-  }
+  private async carregarPainel() {
+    this.carregando.set(true);
+    this.erro.set('');
 
-  private getMockRecomendacoes(): LivroRecomendado[] {
-    return [
-      { id: '1', titulo: 'Admirável Mundo Novo', autor: 'Aldous Huxley',   capaUrl: null, genero: 'Ficção' },
-      { id: '2', titulo: 'Fundação',             autor: 'Isaac Asimov',    capaUrl: null, genero: 'Ficção' },
-      { id: '3', titulo: 'Fahrenheit 451',       autor: 'Ray Bradbury',    capaUrl: null, genero: 'Ficção' },
-    ];
+    try {
+      const resEmprestimos = await firstValueFrom(this.emprestimosService.emprestimoControllerFindAll());
+      const emprestimos = Array.isArray(resEmprestimos) ? resEmprestimos : [];
+      
+      const ativos = emprestimos.filter(e => !e.data_devolucao_efetiva);
+      const historico = emprestimos.filter(e => e.data_devolucao_efetiva);
+      
+      this.emprestimosAtivos.set(ativos);
+      this.historicoLeitura.set(historico);
+      this.totalLivrosLidos.set(historico.length);
+
+      const resClubes = await firstValueFrom(this.http.get<any[]>(`${this.basePath}/clubes/meus-clubes`));
+      const todosClubes = Array.isArray(resClubes) ? resClubes : [];
+      
+      const hoje = new Date();
+      const cAtivos = todosClubes.filter(c => c.ativo && (!c.data_fim || new Date(c.data_fim) > hoje));
+      const cEncerrados = todosClubes.filter(c => !c.ativo || (c.data_fim && new Date(c.data_fim) <= hoje));
+
+      this.clubesAtivos.set(cAtivos);
+      this.clubesEncerrados.set(cEncerrados);
+      this.totalClubes.set(todosClubes.length);
+
+      const resPerfil = await firstValueFrom(this.http.get<any[]>(`${this.basePath}/emprestimos/estatisticas/generos`));
+      const perfil = Array.isArray(resPerfil) ? resPerfil : [];
+      this.perfilLeitura.set(perfil);
+
+      if (perfil.length > 0) {
+        const sortedPerfil = [...perfil].sort((a, b) => b.quantidade - a.quantidade);
+        const topGenero = sortedPerfil[0].genero;
+
+        const resLivroGeneros = await firstValueFrom(this.livroGeneroService.livroGeneroControllerFindAll());
+        const livroGeneros = Array.isArray(resLivroGeneros) ? resLivroGeneros : [];
+
+        const recomendadosMap = new Map();
+        for (const lg of livroGeneros) {
+          if (lg.genero?.nome === topGenero && lg.livro) {
+            const jaLeu = historico.some(h => h.exemplar?.livro?.id === lg.livro.id);
+            const estaLendo = ativos.some(a => a.exemplar?.livro?.id === lg.livro.id);
+            
+            if (!jaLeu && !estaLendo) {
+              recomendadosMap.set(lg.livro.id, { ...lg.livro, generoNome: topGenero });
+            }
+          }
+        }
+        this.recomendacoes.set(Array.from(recomendadosMap.values()).slice(0, 3));
+      }
+    } catch (e) {
+      this.erro.set('Não foi possível carregar os dados do painel. Verifique a sua conexão.');
+    } finally {
+      this.carregando.set(false);
+    }
   }
 }
