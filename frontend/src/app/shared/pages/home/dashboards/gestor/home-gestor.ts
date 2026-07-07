@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, registerables } from 'chart.js';
-import { DashboardService, LivroMaisEmprestado, GeneroProcurado, MediaLeitura } from '../../../../../../client/services/dashboard.service';
+import { DashboardService } from '../../../../../../client/services/dashboard.service';
 import { EmprestimosService } from '../../../../../../client/services/emprestimos.service';
 import { ExemplaresService } from '../../../../../../client/services/exemplares.service';
 import { forkJoin } from 'rxjs';
@@ -25,9 +25,9 @@ export default class HomeGestorComponent implements OnInit {
   emprestimos = signal<any[]>([]);
   emprestimosAtivos = signal<number>(0);
   totalExemplares = signal<number>(0);
-  rankingLivros = signal<LivroMaisEmprestado[]>([]);
-  generos = signal<GeneroProcurado[]>([]);
-  mediaLeitura = signal<MediaLeitura | null>(null);
+  rankingLivros = signal<any[]>([]);
+  generos = signal<any[]>([]);
+  mediaLeitura = signal<any | null>(null);
   mensagemErro = signal<string>('');
 
   faixaSelecionada = signal<FaixaEtaria>('todas');
@@ -72,8 +72,8 @@ export default class HomeGestorComponent implements OnInit {
 
   carregarDados(): void {
     forkJoin({
-      ranking: this.dashboardService.livrosMaisEmprestados(),
-      media: this.dashboardService.mediaLeitura(),
+      ranking: this.dashboardService.dashboardControllerLivrosMaisEmprestados(),
+      media: this.dashboardService.dashboardControllerMediaLeitura(),
       emprestimos: this.emprestimosService.emprestimoControllerFindAll(),
       exemplares: this.exemplaresService.exemplarControllerFindAll(),
     }).subscribe({
@@ -96,7 +96,7 @@ export default class HomeGestorComponent implements OnInit {
     const faixa = this.faixaSelecionada();
     const faixaParam = faixa === 'todas' ? undefined : faixa;
 
-    this.dashboardService.generosMaisProcurados(faixaParam).subscribe({
+    this.dashboardService.dashboardControllerGenerosMaisProcurados(faixaParam).subscribe({
       next: (dados) => {
         this.generos.set(dados);
         setTimeout(() => this.renderGenresChart(), 0);

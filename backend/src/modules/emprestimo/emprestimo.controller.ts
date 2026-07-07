@@ -49,7 +49,7 @@ export class EmprestimoController {
   getLeiturasPorGenero(@Req() request: RequestComUser) {
     return this.emprestimoService.getLeiturasPorGenero(request.user.id);
   }
-  
+
   @Get(':id')
   @Roles(TipoPerfil.BIBLIOTECARIO, TipoPerfil.ALUNO)
   @ApiOperation({ summary: 'Obter um empréstimo específico pelo ID' })

@@ -77,6 +77,54 @@ export class ClubesService {
         return this.httpClient.post(url, createClubeLivroDto, requestOptions);
     }
 
+    clubeControllerFindMeusClubes(observe?: 'body', options?: RequestOptions<'json'>): Observable<any>;
+    clubeControllerFindMeusClubes(observe?: 'response', options?: RequestOptions<'json'>): Observable<HttpResponse<any>>;
+    clubeControllerFindMeusClubes(observe?: 'events', options?: RequestOptions<'json'>): Observable<HttpEvent<any>>;
+    clubeControllerFindMeusClubes(observe?: 'body' | 'events' | 'response', options?: RequestOptions<'arraybuffer' | 'blob' | 'json' | 'text'>): Observable<any> {
+        const url = `${this.basePath}/clubes/meus-clubes`;
+
+        let headers: HttpHeaders;
+        if (options?.headers instanceof HttpHeaders) {
+            headers = options.headers;
+        } else {
+            headers = new HttpHeaders(options?.headers);
+        }
+
+        const requestOptions: any = {
+            observe: observe as any,
+            headers,
+            reportProgress: options?.reportProgress,
+            withCredentials: options?.withCredentials,
+            context: this.createContextWithClientId(options?.context)
+        };
+
+        return this.httpClient.get(url, requestOptions);
+    }
+
+    clubeControllerFindClubesDoProfessor(observe?: 'body', options?: RequestOptions<'json'>): Observable<any>;
+    clubeControllerFindClubesDoProfessor(observe?: 'response', options?: RequestOptions<'json'>): Observable<HttpResponse<any>>;
+    clubeControllerFindClubesDoProfessor(observe?: 'events', options?: RequestOptions<'json'>): Observable<HttpEvent<any>>;
+    clubeControllerFindClubesDoProfessor(observe?: 'body' | 'events' | 'response', options?: RequestOptions<'arraybuffer' | 'blob' | 'json' | 'text'>): Observable<any> {
+        const url = `${this.basePath}/clubes/meus-clubes-professor`;
+
+        let headers: HttpHeaders;
+        if (options?.headers instanceof HttpHeaders) {
+            headers = options.headers;
+        } else {
+            headers = new HttpHeaders(options?.headers);
+        }
+
+        const requestOptions: any = {
+            observe: observe as any,
+            headers,
+            reportProgress: options?.reportProgress,
+            withCredentials: options?.withCredentials,
+            context: this.createContextWithClientId(options?.context)
+        };
+
+        return this.httpClient.get(url, requestOptions);
+    }
+
     clubeControllerFindOne(id: string, observe?: 'body', options?: RequestOptions<'json'>): Observable<any>;
     clubeControllerFindOne(id: string, observe?: 'response', options?: RequestOptions<'json'>): Observable<HttpResponse<any>>;
     clubeControllerFindOne(id: string, observe?: 'events', options?: RequestOptions<'json'>): Observable<HttpEvent<any>>;

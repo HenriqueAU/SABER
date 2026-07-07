@@ -64,7 +64,9 @@ export class UsuarioController {
   }
 
   @Patch(':id/alterar-senha')
-  @ApiOperation({ summary: 'Alterar a senha do usuário validando a senha atual' })
+  @ApiOperation({
+    summary: 'Alterar a senha do usuário validando a senha atual',
+  })
   alterarSenha(
     @Param('id') id: string,
     @Body() alterarSenhaDto: AlterarSenhaDto,

@@ -31,7 +31,9 @@ export class LivroController {
 
   @Get('buscar-isbn/:isbn')
   @Roles(TipoPerfil.BIBLIOTECARIO)
-  @ApiOperation({ summary: 'Buscar dados de um livro pelo ISBN na Open Library' })
+  @ApiOperation({
+    summary: 'Buscar dados de um livro pelo ISBN na Open Library',
+  })
   buscarPorIsbn(@Param('isbn') isbn: string) {
     return this.livroService.buscarPorIsbn(isbn);
   }

@@ -9,7 +9,7 @@
 */
 import { HttpContext, HttpHeaders } from "@angular/common/http";
 export interface CreateUsuarioDto {
-    /** ÍD da instituição */
+    /** ID da instituição */
     instituicao_id: string;
     /** Foto de perfil do usuário */
     foto_perfil: string;
@@ -28,12 +28,19 @@ export interface CreateUsuarioDto {
 export interface UpdateUsuarioDto {
     /** Foto de perfil do usuário */
     foto_perfil: string;
-    /** Nome do usuário */
-    nome: string;
     /** Data de nascimento do usuário */
     data_nasc: Date;
+    /** Nome do usuário */
+    nome: string;
     /** Senha do usuário */
     senha: string;
+}
+
+export interface AlterarSenhaDto {
+    /** Senha atual do usuário */
+    senha_atual: string;
+    /** Nova senha desejada */
+    nova_senha: string;
 }
 
 export interface CreateRespostaMembroDto {
@@ -213,6 +220,12 @@ export interface LoginDto {
 export interface RefreshTokenDto {
     /** Token antigo para refresh */
     token: string;
+}
+
+export interface CreateNotificacaoDto {
+    titulo: string;
+    mensagem: string;
+    usuario_id: string;
 }
 
 /** Request Options for Angular HttpClient requests */
