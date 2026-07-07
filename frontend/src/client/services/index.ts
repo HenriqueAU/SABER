@@ -9,6 +9,7 @@
 */
 export { AuthService } from "./auth.service";
 export { ClubesService } from "./clubes.service";
+export { DashboardService } from "./dashboard.service";
 export { EmprestimosService } from "./emprestimos.service";
 export { ExemplaresService } from "./exemplares.service";
 export { GenerosService } from "./generos.service";
@@ -17,6 +18,7 @@ export { ItemPerguntaService } from "./itemPergunta.service";
 export { LivroGeneroService } from "./livroGenero.service";
 export { LivrosService } from "./livros.service";
 export { MembroClubeService } from "./membroClube.service";
+export { NotificacoesService } from "./notificacoes.service";
 export { PerguntasService } from "./perguntas.service";
 export { PreferenciasGeneroService } from "./preferenciasGenero.service";
 export { RespostaMembroService } from "./respostaMembro.service";

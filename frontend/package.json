@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "generate:client": "npx ng-openapi --input ./swagger-json.json --output ./src/client"
   },
   "prettier": {
     "printWidth": 100,

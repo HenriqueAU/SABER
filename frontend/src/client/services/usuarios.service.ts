@@ -12,7 +12,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { BASE_PATH_DEFAULT, CLIENT_CONTEXT_TOKEN_DEFAULT } from "../tokens";
 import { HttpParamsBuilder } from "../utils/http-params-builder";
-import { RequestOptions, CreateUsuarioDto, UpdateUsuarioDto } from "../models";
+import { RequestOptions, CreateUsuarioDto, UpdateUsuarioDto, AlterarSenhaDto } from "../models";
 
 @Injectable({ providedIn: "root" })
 export class UsuariosService {
@@ -151,5 +151,33 @@ export class UsuariosService {
         };
 
         return this.httpClient.delete(url, requestOptions);
+    }
+
+    usuarioControllerAlterarSenha(id: string, alterarSenhaDto: AlterarSenhaDto, observe?: 'body', options?: RequestOptions<'json'>): Observable<any>;
+    usuarioControllerAlterarSenha(id: string, alterarSenhaDto: AlterarSenhaDto, observe?: 'response', options?: RequestOptions<'json'>): Observable<HttpResponse<any>>;
+    usuarioControllerAlterarSenha(id: string, alterarSenhaDto: AlterarSenhaDto, observe?: 'events', options?: RequestOptions<'json'>): Observable<HttpEvent<any>>;
+    usuarioControllerAlterarSenha(id: string, alterarSenhaDto: AlterarSenhaDto, observe?: 'body' | 'events' | 'response', options?: RequestOptions<'arraybuffer' | 'blob' | 'json' | 'text'>): Observable<any> {
+        const url = `${this.basePath}/usuario/${id}/alterar-senha`;
+
+        let headers: HttpHeaders;
+        if (options?.headers instanceof HttpHeaders) {
+            headers = options.headers;
+        } else {
+            headers = new HttpHeaders(options?.headers);
+        }
+        // Set Content-Type for JSON requests if not already set
+        if (!headers.has('Content-Type')) {
+            headers = headers.set('Content-Type', 'application/json');
+        }
+
+        const requestOptions: any = {
+            observe: observe as any,
+            headers,
+            reportProgress: options?.reportProgress,
+            withCredentials: options?.withCredentials,
+            context: this.createContextWithClientId(options?.context)
+        };
+
+        return this.httpClient.patch(url, alterarSenhaDto, requestOptions);
     }
 }
