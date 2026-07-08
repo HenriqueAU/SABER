@@ -1,0 +1,62 @@
+<div class="notificacoes-container container py-4">
+  <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-4">
+    <h2 class="d-flex align-items-center fw-bold m-0 titulo-pagina">
+      <i class="bi bi-bell-fill me-2"></i>Minhas Notificações
+    </h2>
+  </div>
+
+  @if (mensagemErro()) {
+    <div class="alert alert-danger d-flex align-items-center border-0 shadow-sm mb-4 small">
+      <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
+      <div>{{ mensagemErro() }}</div>
+    </div>
+  }
+
+  @if (carregando()) {
+    <div class="card border-0 shadow-sm p-5 text-center text-secondary custom-card">
+      <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+      <p class="mt-2 mb-0 small">A carregar notificações...</p>
+    </div>
+  } @else {
+    <div class="notificacoes-lista d-flex flex-column gap-2">
+      @for (notif of notificacoes(); track notif.id) {
+        <div class="notificacao-card card border-0 border-start border-4 shadow-sm p-3 transition-all"
+             [class.border-primary]="!notif.lida"
+             [class.border-light-subtle]="notif.lida"
+             [class.bg-card-lida]="notif.lida">
+          
+          <div class="d-flex justify-content-between align-items-center gap-3">
+            <div class="d-flex gap-2 align-items-start">
+              <div class="mt-0.5 icon-wrapper">
+                @if (!notif.lida) {
+                  <i class="bi bi-envelope-fill text-primary fs-6"></i>
+                } @else {
+                  <i class="bi bi-envelope-open text-secondary fs-6"></i>
+                }
+              </div>
+              <div>
+                <h4 class="fw-bold m-0 small-title">{{ notif.titulo }}</h4>
+                <p class="text-secondary my-1 small-text text-break">{{ notif.mensagem }}</p>
+                <span class="text-muted extra-small-text">
+                  <i class="bi bi-clock me-1"></i>{{ notif.data | date:'dd/MM/yyyy HH:mm' }}
+                </span>
+              </div>
+            </div>
+
+            @if (!notif.lida) {
+              <button class="btn btn-sm btn-outline-primary py-1 px-2 extra-small-text flex-shrink-0 rounded-pill" (click)="marcarComoLida(notif)">
+                <i class="bi bi-check2-all me-1"></i>Lida
+              </button>
+            }
+          </div>
+        </div>
+      } @empty {
+        <!-- Estado Vazio baseado na imagem_2cda17.png -->
+        <div class="card border-0 shadow-sm p-5 text-center text-secondary custom-card">
+          <i class="bi bi-bell-slash fs-1 opacity-25 mb-2"></i>
+          <p class="mb-0 text-muted small-text">Não há nenhuma notificação no momento.</p>
+        </div>
+      }
+    </div>
+  }
+</div>

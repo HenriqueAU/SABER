@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Chart, registerables } from 'chart.js';
 import { DashboardService } from '../../../../../../client/services/dashboard.service';
 import { EmprestimosService } from '../../../../../../client/services/emprestimos.service';
+import { ExemplaresService } from '../../../../../../client/services/exemplares.service';
 import { forkJoin } from 'rxjs';
 import { RouterLink } from '@angular/router';
 
@@ -19,9 +20,11 @@ type FaixaEtaria = 'todas' | 'livre' | '10+' | '12+' | '14+' | '16+' | '18+';
 export default class HomeBibliotecarioComponent implements OnInit {
   private dashboardService = inject(DashboardService);
   private emprestimosService = inject(EmprestimosService);
+  private exemplaresService = inject(ExemplaresService);
 
   emprestimos = signal<any[]>([]);
   emprestimosAtivos = signal<number>(0);
+  totalExemplares = signal<number>(0); 
   rankingLivros = signal<any[]>([]);
   generos = signal<any[]>([]);
   mediaLeitura = signal<any | null>(null);
@@ -72,16 +75,25 @@ export default class HomeBibliotecarioComponent implements OnInit {
       ranking: this.dashboardService.dashboardControllerLivrosMaisEmprestados(),
       media: this.dashboardService.dashboardControllerMediaLeitura(),
       emprestimos: this.emprestimosService.emprestimoControllerFindAll(),
+      exemplares: this.exemplaresService.exemplarControllerFindAll(),
     }).subscribe({
-      next: ({ ranking, media, emprestimos }) => {
+      next: ({ ranking, media, emprestimos, exemplares }) => {
         this.rankingLivros.set(ranking);
         this.mediaLeitura.set(media);
-        this.emprestimos.set(emprestimos);
+
+        const ordenados = [...emprestimos].sort((a, b) => {
+          const dataA = new Date(a.data_retirada).getTime();
+          const dataB = new Date(b.data_retirada).getTime();
+          return dataB - dataA;
+        });
+        this.emprestimos.set(ordenados);
 
         const ativos = emprestimos.filter((e: any) => !e.data_devolucao_efetiva);
         this.emprestimosAtivos.set(ativos.length);
+
+        this.totalExemplares.set(exemplares.length);
       },
-      error: (err) => this.mensagemErro.set('Erro ao carregar dados do dashboard'),
+      error: () => this.mensagemErro.set('Erro ao carregar dados do dashboard'),
     });
 
     this.carregarGeneros();
@@ -96,7 +108,7 @@ export default class HomeBibliotecarioComponent implements OnInit {
         this.generos.set(dados);
         setTimeout(() => this.renderGenresChart(), 0);
       },
-      error: (err) => this.mensagemErro.set('Erro ao carregar gêneros mais procurados'),
+      error: () => this.mensagemErro.set('Erro ao carregar gêneros mais procurados'),
     });
   }
 

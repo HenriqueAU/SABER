@@ -101,7 +101,8 @@ export default class EmprestimoComponent implements OnInit {
   carregarEmprestimosAtivos() {
     this.emprestimosService.emprestimoControllerFindAll().subscribe({
       next: (data) => {
-        this.emprestimosAtivos = data.filter((e: any) => !e.data_devolucao_efetiva);
+        this.emprestimosAtivos = data.filter((e: any) => !e.data_devolucao_efetiva)
+          .sort((a: any, b: any) => new Date(a.data_devolucao_esperada).getTime() - new Date(b.data_devolucao_esperada).getTime());
         this.emprestimosHistorico = data.filter((e: any) => e.data_devolucao_efetiva)
           .sort((a: any, b: any) => new Date(b.data_devolucao_efetiva).getTime() - new Date(a.data_devolucao_efetiva).getTime());
         this.cdr.detectChanges();
