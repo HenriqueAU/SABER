@@ -307,15 +307,15 @@
                   <div class="fw-bold">{{ getTituloLivro(emp) }}</div>
                   <small class="text-secondary">Cód: {{ getCodigoExemplar(emp) }}</small>
                 </td>
-                <td>{{ emp.data_retirada | date:'shortDate' }}</td>
-                <td>
-                  <span [class.text-danger]="estaAtrasado(emp.data_devolucao_esperada)" [class.fw-bold]="estaAtrasado(emp.data_devolucao_esperada)">
-                    {{ emp.data_devolucao_esperada | date:'shortDate' }}
-                    @if (estaAtrasado(emp.data_devolucao_esperada)) {
-                      <i class="bi bi-exclamation-circle text-danger ms-1" title="Em atraso"></i>
-                    }
-                  </span>
-                </td>
+                <td>{{ emp.data_retirada | date:'dd/MM/yyyy' }}</td>
+                  <td>
+                    <span [class.text-danger]="estaAtrasado(emp.data_devolucao_esperada)" [class.fw-bold]="estaAtrasado(emp.data_devolucao_esperada)">
+                      {{ emp.data_devolucao_esperada | date:'dd/MM/yyyy' }}
+                      @if (estaAtrasado(emp.data_devolucao_esperada)) {
+                        <i class="bi bi-exclamation-circle text-danger ms-1" title="Em atraso"></i>
+                      }
+                    </span>
+                  </td>
                 <td class="text-end pe-4">
                   <button class="btn btn-sm btn-success fw-semibold text-light fs-6" (click)="devolverLivro(emp)" [disabled]="enviandoDevolucao">
                     <i class="bi bi-check2-square me-1"></i> Devolver
@@ -375,10 +375,10 @@
                   <div class="fw-bold">{{ getTituloLivro(emp) }}</div>
                   <small class="text-secondary">Cód: {{ getCodigoExemplar(emp) }}</small>
                 </td>
-                <td>{{ emp.data_retirada | date:'shortDate' }}</td>
-                <td>{{ emp.data_devolucao_esperada | date:'shortDate' }}</td>
-                <td class="fw-medium text-success">
-                  {{ emp.data_devolucao_efetiva | date:'shortDate' }}
+                <td>{{ emp.data_retirada | date:'dd/MM/yyyy' }}</td>
+                <td>{{ emp.data_devolucao_esperada | date:'dd/MM/yyyy' }}</td>
+                <td class="fw-medium" [class.text-danger]="estaAtrasadoHistorico(emp)" [class.text-success]="!estaAtrasadoHistorico(emp)">
+                  {{ emp.data_devolucao_efetiva | date:'dd/MM/yyyy' }}
                 </td>
                 <td class="pe-4">
                   @if (estaAtrasadoHistorico(emp)) {
