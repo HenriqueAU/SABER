@@ -112,7 +112,7 @@
 </div>
 
 <div #usuarioModal class="modal fade" id="usuarioModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-dialog modal-dialog-centered modal-lg" style="width: 80%; max-width: 800px;">
     <div class="modal-content rounded-4 shadow-lg border-0">
       
       <div class="modal-header bg-light border-bottom">
@@ -137,32 +137,11 @@
         <form [formGroup]="form" (ngSubmit)="onSubmit()" id="formUsuario">
 
           <div class="row g-3 mb-3">
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-8">
               <label for="nome" class="form-label small fw-bold text-secondary">Nome Completo</label>
               <input id="nome" type="text" formControlName="nome" class="form-control bg-light" placeholder="Ex: João da Silva">
               @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
                 <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Verifique o nome introduzido.</small>
-              }
-            </div>
-
-            <div class="col-12 col-md-6">
-              <label for="email" class="form-label small fw-bold text-secondary">E-mail</label>
-              <div class="input-group">
-                <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-secondary"></i></span>
-                <input id="email" type="email" formControlName="email" class="form-control bg-light border-start-0 ps-0" placeholder="Ex: joao@email.com">
-              </div>
-              @if (form.get('email')?.invalid && form.get('email')?.touched) {
-                <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Introduza um e-mail válido.</small>
-              }
-            </div>
-          </div>
-
-          <div class="row g-3 mb-4">
-            <div class="col-12 col-md-4">
-              <label for="senha" class="form-label small fw-bold text-secondary">Senha</label>
-              <input id="senha" type="password" formControlName="senha" class="form-control bg-light" placeholder="Mínimo 8 caracteres">
-              @if (form.get('senha')?.invalid && form.get('senha')?.touched) {
-                <small class="text-danger mt-1 d-block"><i class="bi bi-shield-exclamation me-1"></i>Requisitos de senha não atingidos.</small>
               }
             </div>
 
@@ -178,9 +157,30 @@
                 <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Obrigatório.</small>
               }
             </div>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-md-5">
+              <label for="email" class="form-label small fw-bold text-secondary">E-mail</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-secondary"></i></span>
+                <input id="email" type="email" formControlName="email" class="form-control bg-light border-start-0 ps-0" placeholder="Ex: joao@email.com">
+              </div>
+              @if (form.get('email')?.invalid && form.get('email')?.touched) {
+                <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Introduza um e-mail válido.</small>
+              }
+            </div>
 
             <div class="col-12 col-md-4">
-              <label for="data_nasc" class="form-label small fw-bold text-secondary">Data de Nascimento</label>
+              <label for="senha" class="form-label small fw-bold text-secondary">Senha</label>
+              <input id="senha" type="password" formControlName="senha" class="form-control bg-light" placeholder="Mínimo 8 caracteres">
+              @if (form.get('senha')?.invalid && form.get('senha')?.touched) {
+                <small class="text-danger mt-1 d-block"><i class="bi bi-shield-exclamation me-1"></i>Senha inválida.</small>
+              }
+            </div>
+
+            <div class="col-12 col-md-3">
+              <label for="data_nasc" class="form-label small fw-bold text-secondary">Data de Nasc.</label>
               <input id="data_nasc" type="date" formControlName="data_nasc" class="form-control bg-light">
               @if (form.get('data_nasc')?.invalid && form.get('data_nasc')?.touched) {
                 <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Obrigatório.</small>
