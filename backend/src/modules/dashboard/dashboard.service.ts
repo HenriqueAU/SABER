@@ -32,6 +32,7 @@ export class DashboardService {
         totalEmprestimos: Number(r.totalEmprestimos),
     }));
   }
+
   async generosMaisProcurados(instituicaoId: string, faixaEtaria?: string) {
   const query = this.emprestimoRepository
     .createQueryBuilder('emprestimo')
@@ -70,8 +71,8 @@ async mediaLeitura(instituicaoId: string) {
       .innerJoin('emprestimo.exemplar', 'exemplar')
       .innerJoin('exemplar.livro', 'livro')
       .where('livro.instituicao_id = :instituicaoId', { instituicaoId })
-      .andWhere('emprestimo.data_devolucao_efetiva IS NOT NULL')
-      .andWhere('emprestimo.data_devolucao_efetiva >= :inicio', { inicio: inicioMesAtual })
+
+      .andWhere('emprestimo.data_retirada >= :inicio', { inicio: inicioMesAtual })
       .getCount(),
 
     this.emprestimoRepository
@@ -79,9 +80,9 @@ async mediaLeitura(instituicaoId: string) {
       .innerJoin('emprestimo.exemplar', 'exemplar')
       .innerJoin('exemplar.livro', 'livro')
       .where('livro.instituicao_id = :instituicaoId', { instituicaoId })
-      .andWhere('emprestimo.data_devolucao_efetiva IS NOT NULL')
-      .andWhere('emprestimo.data_devolucao_efetiva >= :inicio', { inicio: inicioMesAnterior })
-      .andWhere('emprestimo.data_devolucao_efetiva <= :fim', { fim: fimMesAnterior })
+      
+      .andWhere('emprestimo.data_retirada >= :inicio', { inicio: inicioMesAnterior })
+      .andWhere('emprestimo.data_retirada <= :fim', { fim: fimMesAnterior })
       .getCount(),
   ]);
 
