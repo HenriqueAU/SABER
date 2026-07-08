@@ -1,225 +1,207 @@
-<div class="min-vh-100 bg-light d-flex flex-column">
+<div class="container-fluid py-4 px-4">
 
-  <div class="text-center py-4">
-    <h1 class="fw-bold text-dark mb-1">SABER</h1>
+  <div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
+      <div class="text-center text-md-start">
+        <p class="fs-5 fw-medium text-dark mb-0">Gerencie os utilizadores e perfis vinculados à sua instituição.</p>
+      </div>
+      <button class="btn btn-primary fw-medium shadow-sm" (click)="abrirFormCadastro()">
+        <i class="bi bi-person-plus me-2"></i>Cadastrar Usuário
+      </button>
+    </div>
   </div>
 
-  <div class="d-flex justify-content-center px-3 pb-5">
-    <div style="width: 100%; max-width: 900px;">
-
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fs-4 fw-light text-dark mb-0">Usuários</h2>
-        <button (click)="abrirFormCadastro()" class="btn btn-primary fw-medium shadow-sm">
-          + Cadastrar usuário
-        </button>
+  <div class="container">
+    
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="input-group shadow-sm">
+          <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
+          <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por nome"
+                 [ngModel]="termoBusca()" (ngModelChange)="termoBusca.set($event); onFiltroChange()"
+                 [ngModelOptions]="{standalone: true}">
+        </div>
       </div>
-
-      <div style="display:flex; gap:12px; margin-bottom: 16px; flex-wrap: wrap;">
-        <input
-          type="text"
-          placeholder="Buscar por nome"
-          [ngModel]="termoBusca()"
-          (ngModelChange)="termoBusca.set($event); onFiltroChange()"
-          [ngModelOptions]="{standalone: true}"
-          style="flex:1; min-width:200px; padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px;"
-        />
-
-        <select
-          [ngModel]="PerfilSelecionado()"
-          (ngModelChange)="PerfilSelecionado.set($event); onFiltroChange()"
-          [ngModelOptions]="{standalone: true}"
-          style="padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; background:#fff; min-width:160px;"
-        >
+      <div class="col-12 col-md-4 col-lg-3">
+        <select class="form-select shadow-sm" [ngModel]="PerfilSelecionado()" (ngModelChange)="PerfilSelecionado.set($event); onFiltroChange()"
+                [ngModelOptions]="{standalone: true}">
           <option value="">Todos os perfis</option>
           @for (p of perfis; track p) {
             <option [value]="p">{{ p }}</option>
           }
         </select>
       </div>
+    </div>
 
-      @if (carregando()) {
-        <p class="text-muted small">Carregando usuários...</p>
-      }
-      @if (!carregando() && usuariosFiltrados().length === 0) {
-        <p class="text-muted small">Nenhum usuário encontrado.</p>
-      }
-      @if (!carregando() && usuariosFiltrados().length > 0) {
-        <div class="rounded overflow-hidden border shadow-sm">
-          <table class="table table-bordered table-striped table-hover mb-0">
-            <thead class="table-primary">
+    @if (carregando()) {
+      <div class="text-center py-5 text-secondary">
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <p class="small">A carregar utilizadores...</p>
+      </div>
+    }
+
+    @if (!carregando() && usuariosFiltrados().length === 0) {
+      <div class="text-center py-5 text-secondary bg-white rounded-3 shadow-sm border border-light">
+        <i class="bi bi-people fs-1 opacity-50 mb-3 d-block"></i>
+        <h5 class="fw-medium">Nenhum utilizador encontrado.</h5>
+        <p class="small">Tente ajustar os seus filtros de pesquisa.</p>
+      </div>
+    }
+
+    @if (!carregando() && usuariosFiltrados().length > 0) {
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
               <tr>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Perfil</th>
-                <th>Data de Nascimento</th>
+                <th class="ps-4 py-3 text-secondary small fw-bold text-uppercase">Nome / Email</th>
+                <th class="py-3 text-secondary small fw-bold text-uppercase">Perfil</th>
+                <th class="pe-4 py-3 text-secondary small fw-bold text-uppercase">Data de Nascimento</th>
               </tr>
             </thead>
             <tbody>
               @for (usuario of usuariosPaginados(); track usuario.id) {
                 <tr>
-                  <td>{{ usuario.nome }}</td>
-                  <td>{{ usuario.email }}</td>
-                  <td>{{ usuario.perfil }}</td>
-                  <td>{{ usuario.data_nasc }}</td>
+                  <td class="ps-4 py-3">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="bg-primary-subtle text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; font-size: 1.1rem;">
+                        {{ usuario.nome.charAt(0).toUpperCase() }}
+                      </div>
+                      <div>
+                        <div class="fw-bold text-dark">{{ usuario.nome }}</div>
+                        <small class="text-secondary"><i class="bi bi-envelope me-1"></i>{{ usuario.email }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3">
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">{{ usuario.perfil }}</span>
+                  </td>
+                  <td class="pe-4 py-3 text-secondary">
+                    <i class="bi bi-calendar me-2"></i>{{ usuario.data_nasc | date:'dd/MM/yyyy':'UTC' }}
+                  </td>
                 </tr>
               }
             </tbody>
           </table>
         </div>
+      </div>
 
-        <div class="d-flex justify-content-between align-items-center mt-3">
-          <span class="text-muted small">
-            Exibindo {{ (paginaAtual() - 1) * ITENS_POR_PAGINA + 1 }}–{{ fimDaPagina() }} de {{ usuariosFiltrados().length }} usuários
-          </span>
-          <nav>
-            <ul class="pagination pagination-sm mb-0">
-              <li class="page-item" [class.disabled]="paginaAtual() === 1">
-                <button class="page-link" (click)="irParaPagina(paginaAtual() - 1)">‹</button>
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-3">
+        <span class="text-secondary small mb-3 mb-md-0 fw-medium">
+          A exibir {{ (paginaAtual() - 1) * ITENS_POR_PAGINA + 1 }}–{{ fimDaPagina() }} de {{ usuariosFiltrados().length }} utilizadores
+        </span>
+        <nav>
+          <ul class="pagination mb-0 shadow-sm">
+            <li class="page-item" [class.disabled]="paginaAtual() === 1">
+              <button class="page-link text-dark" (click)="irParaPagina(paginaAtual() - 1)"><i class="bi bi-chevron-left"></i></button>
+            </li>
+            @for (p of paginas(); track p) {
+              <li class="page-item" [class.active]="p === paginaAtual()">
+                <button class="page-link fw-medium" (click)="irParaPagina(p)">{{ p }}</button>
               </li>
-              @for (p of paginas(); track p) {
-                <li class="page-item" [class.active]="p === paginaAtual()">
-                  <button class="page-link" (click)="irParaPagina(p)">{{ p }}</button>
-                </li>
+            }
+            <li class="page-item" [class.disabled]="paginaAtual() === totalPaginas()">
+              <button class="page-link text-dark" (click)="irParaPagina(paginaAtual() + 1)"><i class="bi bi-chevron-right"></i></button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    }
+  </div>
+
+</div>
+
+<div #usuarioModal class="modal fade" id="usuarioModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4 shadow-lg border-0">
+      
+      <div class="modal-header bg-light border-bottom">
+        <h1 class="modal-title fs-5 fw-bold text-dark"><i class="bi bi-person-plus text-primary me-2"></i>Cadastrar Utilizador</h1>
+        <button type="button" class="btn-close" (click)="fecharFormCadastro()"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <p class="text-secondary small mb-4">Preencha os dados do novo utilizador para dar-lhe acesso ao sistema.</p>
+
+        @if (mensagemSucesso()) {
+          <div class="alert alert-success small d-flex align-items-center shadow-sm border-0">
+            <i class="bi bi-check-circle-fill fs-5 me-2"></i>{{ mensagemSucesso() }}
+          </div>
+        }
+        @if (mensagemErro()) {
+          <div class="alert alert-danger small d-flex align-items-center shadow-sm border-0">
+            <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>{{ mensagemErro() }}
+          </div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" id="formUsuario">
+
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-6">
+              <label for="nome" class="form-label small fw-bold text-secondary">Nome Completo</label>
+              <input id="nome" type="text" formControlName="nome" class="form-control bg-light" placeholder="Ex: João da Silva">
+              @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
+                <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Verifique o nome introduzido.</small>
               }
-              <li class="page-item" [class.disabled]="paginaAtual() === totalPaginas()">
-                <button class="page-link" (click)="irParaPagina(paginaAtual() + 1)">›</button>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      }
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="email" class="form-label small fw-bold text-secondary">E-mail</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-secondary"></i></span>
+                <input id="email" type="email" formControlName="email" class="form-control bg-light border-start-0 ps-0" placeholder="Ex: joao@email.com">
+              </div>
+              @if (form.get('email')?.invalid && form.get('email')?.touched) {
+                <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Introduza um e-mail válido.</small>
+              }
+            </div>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-md-4">
+              <label for="senha" class="form-label small fw-bold text-secondary">Senha</label>
+              <input id="senha" type="password" formControlName="senha" class="form-control bg-light" placeholder="Mínimo 8 caracteres">
+              @if (form.get('senha')?.invalid && form.get('senha')?.touched) {
+                <small class="text-danger mt-1 d-block"><i class="bi bi-shield-exclamation me-1"></i>Requisitos de senha não atingidos.</small>
+              }
+            </div>
+
+            <div class="col-12 col-md-4">
+              <label for="perfil" class="form-label small fw-bold text-secondary">Perfil de Acesso</label>
+              <select id="perfil" formControlName="perfil" class="form-select bg-light">
+                <option value="">Selecione</option>
+                @for (p of perfis; track p) {
+                  <option [value]="p">{{ p }}</option>
+                }
+              </select>
+              @if (form.get('perfil')?.invalid && form.get('perfil')?.touched) {
+                <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Obrigatório.</small>
+              }
+            </div>
+
+            <div class="col-12 col-md-4">
+              <label for="data_nasc" class="form-label small fw-bold text-secondary">Data de Nascimento</label>
+              <input id="data_nasc" type="date" formControlName="data_nasc" class="form-control bg-light">
+              @if (form.get('data_nasc')?.invalid && form.get('data_nasc')?.touched) {
+                <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Obrigatório.</small>
+              }
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer bg-light border-top">
+        <button type="button" class="btn btn-outline-secondary" (click)="fecharFormCadastro()">Cancelar</button>
+        <button type="submit" form="formUsuario" class="btn btn-primary shadow-sm" [disabled]="form.invalid || enviando()">
+          @if (enviando()) {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span> A cadastrar...
+          } @else {
+            <i class="bi bi-check2-circle me-1"></i> Cadastrar Utilizador
+          }
+        </button>
+      </div>
 
     </div>
   </div>
-
-  @if (mostrarForm()) {
-    <div class="modal d-block" style="background: rgba(17,24,39,0.4); backdrop-filter: blur(2px);" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content rounded-4 shadow-lg">
-          <div class="modal-header border-bottom">
-            <h2 class="modal-title fs-4 fw-medium text-dark">Cadastrar novo usuário</h2>
-            <button type="button" class="btn-close" (click)="fecharFormCadastro()"></button>
-          </div>
-
-          <div class="modal-body">
-            <p class="text-muted small mb-4">Preencha os dados do novo usuário para cadastrá-lo no sistema.</p>
-
-            <form [formGroup]="form" (ngSubmit)="onSubmit()">
-
-              <div class="mb-3">
-                <label for="nome" class="form-label small fw-semibold">Nome</label>
-                <input id="nome" type="text" formControlName="nome" class="form-control" placeholder="Ex: João da Silva">
-                @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
-                  @if (form.get('nome')?.errors?.['required']) {
-                    <small class="text-danger">Nome é obrigatório.</small>
-                  }
-                  @if (form.get('nome')?.errors?.['minlength']) {
-                    <small class="text-danger">Nome deve ter no mínimo 2 caracteres.</small>
-                  }
-                  @if (form.get('nome')?.errors?.['maxlength']) {
-                    <small class="text-danger">Nome deve ter no máximo 150 caracteres.</small>
-                  }
-                  @if (form.get('nome')?.errors?.['pattern']) {
-                    <small class="text-danger">Nome contém caracteres inválidos.</small>
-                  }
-                }
-              </div>
-
-              <div class="mb-3">
-                <label for="email" class="form-label small fw-semibold">Email</label>
-                <input id="email" type="email" formControlName="email" class="form-control" placeholder="Ex: joao@email.com">
-                @if (form.get('email')?.invalid && form.get('email')?.touched) {
-                  @if (form.get('email')?.errors?.['required']) {
-                    <small class="text-danger">Email é obrigatório.</small>
-                  }
-                  @if (form.get('email')?.errors?.['email']) {
-                    <small class="text-danger">Email inválido.</small>
-                  }
-                  @if (form.get('email')?.errors?.['minlength']) {
-                    <small class="text-danger">Email deve ter no mínimo 3 caracteres.</small>
-                  }
-                  @if (form.get('email')?.errors?.['maxlength']) {
-                    <small class="text-danger">Email deve ter no máximo 255 caracteres.</small>
-                  }
-                }
-              </div>
-
-              <div class="mb-3">
-                <label for="senha" class="form-label small fw-semibold">Senha</label>
-                <input id="senha" type="password" formControlName="senha" class="form-control" placeholder="Mínimo 8 caracteres">
-                @if (form.get('senha')?.invalid && form.get('senha')?.touched) {
-                  @if (form.get('senha')?.errors?.['required']) {
-                    <small class="text-danger">Senha é obrigatória.</small>
-                  }
-                  @if (form.get('senha')?.errors?.['minlength']) {
-                    <small class="text-danger">Senha deve ter no mínimo 8 caracteres.</small>
-                  }
-                  @if (form.get('senha')?.errors?.['maxlength']) {
-                    <small class="text-danger">Senha deve ter no máximo 72 caracteres.</small>
-                  }
-                  @if (form.get('senha')?.errors?.['pattern']) {
-                    <small class="text-danger">A senha deve conter ao menos uma letra maiúscula, uma minúscula, um número e um caractere especial.</small>
-                  }
-                }
-              </div>
-
-              <div class="row g-3 mb-3">
-                <div class="col-6">
-                  <label for="perfil" class="form-label small fw-semibold">Perfil</label>
-                  <select id="perfil" formControlName="perfil" class="form-select form-select-sm">
-                    <option value="">Selecione</option>
-                    @for (p of perfis; track p) {
-                      <option [value]="p">{{ p }}</option>
-                    }
-                  </select>
-                  @if (form.get('perfil')?.invalid && form.get('perfil')?.touched) {
-                    @if (form.get('perfil')?.errors?.['required']) {
-                      <small class="text-danger">Obrigatório.</small>
-                    }
-                  }
-                </div>
-                <div class="col-6">
-                  <label for="data_nasc" class="form-label small fw-semibold">Data de Nascimento</label>
-                  <input id="data_nasc" type="date" formControlName="data_nasc" class="form-control">
-                  @if (form.get('data_nasc')?.invalid && form.get('data_nasc')?.touched) {
-                    @if (form.get('data_nasc')?.errors?.['required']) {
-                      <small class="text-danger">Obrigatória.</small>
-                    }
-                  }
-                </div>
-              </div>
-
-              <div class="mb-4">
-                <label for="foto_perfil" class="form-label small fw-semibold">
-                  Foto de Perfil <span class="text-muted fw-normal">(opcional)</span>
-                </label>
-                <input id="foto_perfil" type="text" formControlName="foto_perfil" class="form-control" placeholder="URL da imagem">
-                @if (form.get('foto_perfil')?.invalid && form.get('foto_perfil')?.touched) {
-                  @if (form.get('foto_perfil')?.errors?.['maxlength']) {
-                    <small class="text-danger">URL deve ter no máximo 500 caracteres.</small>
-                  }
-                }
-              </div>
-
-              @if (mensagemSucesso()) {
-                <p class="text-center text-success fw-semibold small">{{ mensagemSucesso() }}</p>
-              }
-              @if (mensagemErro()) {
-                <p class="text-center text-danger fw-semibold small">{{ mensagemErro() }}</p>
-              }
-
-              <div class="modal-footer border-top px-0 pb-0">
-                <button type="button" (click)="fecharFormCadastro()" class="btn btn-light btn-sm">Cancelar</button>
-                <button type="submit" [disabled]="enviando()" class="btn btn-primary btn-sm shadow-sm">
-                  {{ enviando() ? 'Cadastrando...' : 'Cadastrar usuário' }}
-                </button>
-              </div>
-
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  }
-
 </div>
