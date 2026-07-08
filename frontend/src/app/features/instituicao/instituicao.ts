@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { InstituicaoService } from '../../../client/services/instituicao.service';
 import { CoreAuthService } from '../../core/auth/auth-session';
+import { Modal } from 'bootstrap';
 
 @Component({
   selector: 'app-instituicao',
@@ -13,12 +14,13 @@ import { CoreAuthService } from '../../core/auth/auth-session';
   styleUrls: ['./instituicao.scss']
 })
 export default class InstituicaoComponent implements OnInit {
+  @ViewChild('instituicaoModal') instituicaoModalRef!: ElementRef;
   form!: FormGroup;
   carregando = signal(true);
   enviando = signal(false);
-  mostrarModal = signal(false);
   mensagemSucesso = signal('');
   mensagemErro = signal('');
+  mensagemErroGeral = signal('');
   carregandoCidades = signal(false);
   instituicaoId: string | null = null;
 
@@ -82,11 +84,12 @@ export default class InstituicaoComponent implements OnInit {
       }
     });
   }
+
   carregarDados(): void {
     this.instituicaoId = this.authSession.getInstituicao();
 
     if (!this.instituicaoId) {
-      this.mensagemErro.set('Instituição não vinculada ao seu perfil de Gestor.');
+      this.mensagemErroGeral.set('Instituição não vinculada ao seu perfil de Gestor.');
       this.carregando.set(false);
       return;
     }
@@ -108,7 +111,7 @@ export default class InstituicaoComponent implements OnInit {
         this.carregando.set(false);
       },
       error: () => {
-        this.mensagemErro.set('Não foi possível carregar os dados da instituição.');
+        this.mensagemErroGeral.set('Não foi possível carregar os dados da instituição.');
         this.carregando.set(false);
       }
     });
@@ -130,6 +133,8 @@ export default class InstituicaoComponent implements OnInit {
       next: () => {
         this.mensagemSucesso.set('Dados da instituição atualizados com sucesso!');
         this.enviando.set(false);
+        this.carregarDados();
+        setTimeout(() => this.fecharModal(), 1500);
       },
       error: (err: any) => {
         const msg = err.error?.message;
@@ -144,12 +149,14 @@ export default class InstituicaoComponent implements OnInit {
   }
 
   abrirModal(): void {
-    this.mostrarModal.set(true);
+    this.mensagemSucesso.set('');
+    this.mensagemErro.set('');
+    const modal = new Modal(this.instituicaoModalRef.nativeElement);
+    modal.show();
   }
 
   fecharModal(): void {
-    this.mostrarModal.set(false);
-    this.mensagemSucesso.set('');
-    this.mensagemErro.set('');
+    const modal = Modal.getInstance(this.instituicaoModalRef.nativeElement);
+    modal?.hide();
   }
 }
