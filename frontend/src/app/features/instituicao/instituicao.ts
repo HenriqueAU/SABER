@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { HttpClient } from '@angular/common/http';
 import { InstituicaoService } from '../../../client/services/instituicao.service';
 import { CoreAuthService } from '../../core/auth/auth-session';
-import { Modal } from 'bootstrap';
+import Modal from 'bootstrap/js/dist/modal';
 
 @Component({
   selector: 'app-instituicao',

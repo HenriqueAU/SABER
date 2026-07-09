@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators,FormsModule } f
 import { UsuariosService } from '../../../client/services/usuarios.service'; 
 import { CoreAuthService } from '../../core/auth/auth-session';
 import { TipoPerfil } from '../../core/auth/tipo-perfil.enum'
-import { Modal } from 'bootstrap';
+import Modal from 'bootstrap/js/dist/modal';
 
 @Component({
   selector: 'app-usuario',
