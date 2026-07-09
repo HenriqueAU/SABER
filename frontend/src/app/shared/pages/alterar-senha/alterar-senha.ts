@@ -1,9 +1,27 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { CoreAuthService } from '../../../core/auth/auth-session';
 import { BASE_PATH_DEFAULT } from '../../../../client/tokens';
+
+function senhaForteValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const valor = control.value || '';
+
+    const temMaiuscula = /[A-Z]/.test(valor);
+    const temNumero = /[0-9]/.test(valor);
+    const temSimbolo = /[^A-Za-z0-9]/.test(valor);
+
+    const erros: ValidationErrors = {};
+    if (!temMaiuscula) erros['semMaiuscula'] = true;
+    if (!temNumero) erros['semNumero'] = true;
+    if (!temSimbolo) erros['semSimbolo'] = true;
+
+    return Object.keys(erros).length > 0 ? erros : null;
+  };
+}
 
 @Component({
   selector: 'app-alterar-senha',
@@ -18,16 +36,37 @@ export default class AlterarSenhaComponent {
   mensagemErro = signal<string>('');
   carregando = signal<boolean>(false);
 
+  senhaAtualVisivel = false;
+  novaSenhaVisivel = false;
+  mostrarCriterios = signal<boolean>(false);
+
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private authSession = inject(CoreAuthService);
   private basePath = inject(BASE_PATH_DEFAULT);
+  private router = inject(Router);
 
   constructor() {
     this.form = this.fb.group({
       senhaAtual: ['', [Validators.required]],
-      novaSenha: ['', [Validators.required, Validators.minLength(8)]]
+      novaSenha: ['', [Validators.required, Validators.minLength(8), senhaForteValidator()]]
     });
+  }
+
+  toggleVisibilidadeSenhaAtual(): void {
+    this.senhaAtualVisivel = !this.senhaAtualVisivel;
+  }
+
+  toggleVisibilidadeNovaSenha(): void {
+    this.novaSenhaVisivel = !this.novaSenhaVisivel;
+  }
+
+  toggleCriterios() {
+    this.mostrarCriterios.update(v => !v);
+  }
+
+  voltar() {
+    this.router.navigate(['/home']);
   }
 
   onSubmit() {
