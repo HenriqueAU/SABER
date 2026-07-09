@@ -34,67 +34,109 @@ export class DashboardService {
   }
 
   async generosMaisProcurados(instituicaoId: string, faixaEtaria?: string) {
-  const query = this.emprestimoRepository
-    .createQueryBuilder('emprestimo')
-    .innerJoin('emprestimo.exemplar', 'exemplar')
-    .innerJoin('exemplar.livro', 'livro')
-    .innerJoin('livro_genero', 'livroGenero', 'livroGenero.livro_id = livro.id')
-    .innerJoin('genero', 'genero', 'genero.id = livroGenero.genero_id')
-    .where('livro.instituicao_id = :instituicaoId', { instituicaoId });
+    const query = this.emprestimoRepository
+      .createQueryBuilder('emprestimo')
+      .innerJoin('emprestimo.exemplar', 'exemplar')
+      .innerJoin('exemplar.livro', 'livro')
+      .innerJoin('emprestimo.usuario', 'usuario')
+      .innerJoin(
+        'livro_genero',
+        'livroGenero',
+        'livroGenero.livro_id = livro.id',
+      )
+      .innerJoin('genero', 'genero', 'genero.id = livroGenero.genero_id')
+      .where('livro.instituicao_id = :instituicaoId', { instituicaoId });
 
-  if (faixaEtaria) {
-    query.andWhere('livro.faixa_etaria = :faixaEtaria', { faixaEtaria });
-  }
+    if (faixaEtaria) {
+      switch (faixaEtaria) {
+        case '0-12':
+          query.andWhere(
+            "DATE_PART('year', AGE(usuario.data_nasc)) BETWEEN 0 AND 12",
+          );
+          break;
+        case '13-17':
+          query.andWhere(
+            "DATE_PART('year', AGE(usuario.data_nasc)) BETWEEN 13 AND 17",
+          );
+          break;
+        case '18-25':
+          query.andWhere(
+            "DATE_PART('year', AGE(usuario.data_nasc)) BETWEEN 18 AND 25",
+          );
+          break;
+        case '26-40':
+          query.andWhere(
+            "DATE_PART('year', AGE(usuario.data_nasc)) BETWEEN 26 AND 40",
+          );
+          break;
+        case '40+':
+          query.andWhere("DATE_PART('year', AGE(usuario.data_nasc)) > 40");
+          break;
+      }
+    }
 
-  const resultado = await query
-    .select('genero.id', 'generoId')
-    .addSelect('genero.nome', 'nome')
-    .addSelect('COUNT(emprestimo.id)', 'totalEmprestimos')
-    .groupBy('genero.id')
-    .addGroupBy('genero.nome')
-    .orderBy('"totalEmprestimos"', 'DESC')
-    .getRawMany();
+    const resultado = await query
+      .select('genero.id', 'generoId')
+      .addSelect('genero.nome', 'nome')
+      .addSelect('COUNT(emprestimo.id)', 'totalEmprestimos')
+      .groupBy('genero.id')
+      .addGroupBy('genero.nome')
+      .orderBy('"totalEmprestimos"', 'DESC')
+      .getRawMany();
 
-  return resultado.map((r) => ({
-    ...r,
+    return resultado.map((r) => ({
+      ...r,
     totalEmprestimos: Number(r.totalEmprestimos),
-  }));
-}
-async mediaLeitura(instituicaoId: string) {
-  const agora = new Date();
-  const inicioMesAtual = new Date(agora.getFullYear(), agora.getMonth(), 1);
-  const inicioMesAnterior = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
-  const fimMesAnterior = new Date(agora.getFullYear(), agora.getMonth(), 0, 23, 59, 59);
-  const [mesAtual, mesAnterior] = await Promise.all([
-    this.emprestimoRepository
-      .createQueryBuilder('emprestimo')
-      .innerJoin('emprestimo.exemplar', 'exemplar')
-      .innerJoin('exemplar.livro', 'livro')
-      .where('livro.instituicao_id = :instituicaoId', { instituicaoId })
+    }));
+  }
+  async mediaLeitura(instituicaoId: string) {
+    const agora = new Date();
+    const inicioMesAtual = new Date(agora.getFullYear(), agora.getMonth(), 1);
+    const inicioMesAnterior = new Date(
+      agora.getFullYear(),
+      agora.getMonth() - 1,
+      1,
+    );
+    const fimMesAnterior = new Date(
+      agora.getFullYear(),
+      agora.getMonth(),
+      0,
+      23,
+      59,
+      59,
+    );
+    const [mesAtual, mesAnterior] = await Promise.all([
+      this.emprestimoRepository
+        .createQueryBuilder('emprestimo')
+        .innerJoin('emprestimo.exemplar', 'exemplar')
+        .innerJoin('exemplar.livro', 'livro')
+        .where('livro.instituicao_id = :instituicaoId', { instituicaoId })
+        .andWhere('emprestimo.data_retirada >= :inicio', {
+          inicio: inicioMesAtual,
+        })
+        .getCount(),
 
-      .andWhere('emprestimo.data_retirada >= :inicio', { inicio: inicioMesAtual })
-      .getCount(),
+      this.emprestimoRepository
+        .createQueryBuilder('emprestimo')
+        .innerJoin('emprestimo.exemplar', 'exemplar')
+        .innerJoin('exemplar.livro', 'livro')
+        .where('livro.instituicao_id = :instituicaoId', { instituicaoId })
+        .andWhere('emprestimo.data_retirada >= :inicio', {
+          inicio: inicioMesAnterior,
+        })
+        .andWhere('emprestimo.data_retirada <= :fim', { fim: fimMesAnterior })
+        .getCount(),
+    ]);
 
-    this.emprestimoRepository
-      .createQueryBuilder('emprestimo')
-      .innerJoin('emprestimo.exemplar', 'exemplar')
-      .innerJoin('exemplar.livro', 'livro')
-      .where('livro.instituicao_id = :instituicaoId', { instituicaoId })
-      
-      .andWhere('emprestimo.data_retirada >= :inicio', { inicio: inicioMesAnterior })
-      .andWhere('emprestimo.data_retirada <= :fim', { fim: fimMesAnterior })
-      .getCount(),
-  ]);
+    const variacao =
+      mesAnterior === 0
+        ? null
+        : Number((((mesAtual - mesAnterior) / mesAnterior) * 100).toFixed(1));
 
-  const variacao =
-    mesAnterior === 0
-      ? null
-      : Number((((mesAtual - mesAnterior) / mesAnterior) * 100).toFixed(1));
-
-  return {
-    mesAtual,
-    mesAnterior,
-    variacaoPercent: variacao,
-  };
-}
+    return {
+      mesAtual,
+      mesAnterior,
+      variacaoPercent: variacao,
+    };
+  }
 }

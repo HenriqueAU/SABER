@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 
 Chart.register(...registerables);
 
-type FaixaEtaria = 'todas' | 'livre' | '10+' | '12+' | '14+' | '16+' | '18+';
+type FaixaEtaria = 'todas' | '0-12' | '13-17' | '18-25' | '26-40' | '40+';
 
 @Component({
   selector: 'app-home-gestor',
@@ -35,6 +35,36 @@ export default class HomeGestorComponent implements OnInit {
   paginaAtual = signal<number>(1);
   itensPorPagina = 10;
 
+  totalDevolvidos = computed(() =>
+    this.emprestimos().filter((e: any) => e.data_devolucao_efetiva).length
+  );
+
+  totalNoPrazo = computed(() =>
+    this.emprestimos().filter((e: any) =>
+      e.data_devolucao_efetiva &&
+      new Date(e.data_devolucao_efetiva) <= new Date(e.data_devolucao_esperada)
+    ).length
+  );
+
+  totalAtrasados = computed(() =>
+    this.emprestimos().filter((e: any) =>
+      e.data_devolucao_efetiva &&
+      new Date(e.data_devolucao_efetiva) > new Date(e.data_devolucao_esperada)
+    ).length
+  );
+
+  porcentagemNoPrazo = computed(() => {
+    const total = this.totalDevolvidos();
+    if (total === 0) return 0;
+    return Math.round((this.totalNoPrazo() / total) * 100);
+  });
+
+  porcentagemAtrasados = computed(() => {
+    const total = this.totalDevolvidos();
+    if (total === 0) return 0;
+    return Math.round((this.totalAtrasados() / total) * 100);
+  });
+
   emprestimosPaginados = computed(() => {
     const inicio = (this.paginaAtual() - 1) * this.itensPorPagina;
     const fim = inicio + this.itensPorPagina;
@@ -56,12 +86,11 @@ export default class HomeGestorComponent implements OnInit {
 
   faixas: { label: string; value: FaixaEtaria }[] = [
     { label: 'Todas as idades', value: 'todas' },
-    { label: 'Livre', value: 'livre' },
-    { label: '10+', value: '10+' },
-    { label: '12+', value: '12+' },
-    { label: '14+', value: '14+' },
-    { label: '16+', value: '16+' },
-    { label: '18+', value: '18+' },
+    { label: '0–12 anos', value: '0-12' },
+    { label: '13–17 anos', value: '13-17' },
+    { label: '18–25 anos', value: '18-25' },
+    { label: '26–40 anos', value: '26-40' },
+    { label: '40+ anos', value: '40+' },
   ];
 
   private genresChartInstance: Chart | null = null;
@@ -86,7 +115,7 @@ export default class HomeGestorComponent implements OnInit {
         const ativos = emprestimos.filter((e: any) => !e.data_devolucao_efetiva);
         this.emprestimosAtivos.set(ativos.length);
       },
-      error: (err) => this.mensagemErro.set('Erro ao carregar dados do dashboard'),
+      error: () => this.mensagemErro.set('Erro ao carregar dados do dashboard'),
     });
 
     this.carregarGeneros();
@@ -101,7 +130,7 @@ export default class HomeGestorComponent implements OnInit {
         this.generos.set(dados);
         setTimeout(() => this.renderGenresChart(), 0);
       },
-      error: (err) => this.mensagemErro.set('Erro ao carregar gêneros mais procurados'),
+      error: () => this.mensagemErro.set('Erro ao carregar gêneros mais procurados'),
     });
   }
 
@@ -138,7 +167,7 @@ export default class HomeGestorComponent implements OnInit {
         labels: dados.map(g => g.nome),
         datasets: [{
           data: dados.map(g => g.totalEmprestimos),
-          backgroundColor: ['#4f46e5', '#7c3aed', '#a855f7', '#c084fc', '#e9d5ff'],
+          backgroundColor: ['#003A79', '#0EA5E9', '#EAB308', '#16A34A', '#DC2626', '#8696AC', '#F97316', '#0D9488'],
           borderWidth: 0,
         }],
       },
