@@ -2,7 +2,6 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { MembroClubeService } from '../../../client/services/membroClube.service';
 import { ClubesService } from '../../../client/services/clubes.service';
@@ -22,13 +21,14 @@ import { LivroGeneroService } from '../livro/generos/livro-genero.service';
 })
 export default class ClubeLivroComponent implements OnInit {
   modoListagem = signal(true);
-  abaAtiva = signal<'detalhes' | 'feedbacks'>('detalhes'); // 'avaliacao' removida das abas pois virou Modal
+  abaAtiva = signal<'detalhes' | 'feedbacks'>('detalhes');
   paginaAtual = signal(1);
   readonly itensPorPagina = 12;
   termoBusca = signal('');
   generoFiltro = signal('');
-  
+
   filtroAbas = signal<'TODOS' | 'MEUS' | 'OUTROS'>('TODOS');
+
   clubes = signal<any[]>([]);
   meusClubes = signal<any[]>([]);
   carregandoMeusClubes = signal(false);
@@ -54,7 +54,6 @@ export default class ClubeLivroComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private http = inject(HttpClient);
   private clubesService = inject(ClubesService);
   private perguntasService = inject(PerguntasService);
   private itemPerguntaService = inject(ItemPerguntaService);
@@ -70,7 +69,7 @@ export default class ClubeLivroComponent implements OnInit {
       .sort()
   );
 
-  // ATUALIZADO: Filtro unificado processando termo de busca, gênero e relacionamento lateral (Todos/Meus/Outros)
+
   clubesFiltrados = computed(() => {
     const usuarioId = this.authService.getId();
     const filtroAbasAtual = this.filtroAbas();
@@ -80,13 +79,13 @@ export default class ClubeLivroComponent implements OnInit {
       const nomeClube = c.nome?.toLowerCase() || '';
       const termo = this.termoBusca().toLowerCase();
       const matchNome = tituloLivro.includes(termo) || nomeClube.includes(termo);
-      
+
       const generosDoLivro = c.livro?.id ? (this.generosPorLivro()[c.livro.id] ?? []) : [];
       const matchGenero = !this.generoFiltro() || generosDoLivro.includes(this.generoFiltro());
 
       if (!(matchNome && matchGenero)) return false;
 
-      const souMembro = this.meusClubes().some(mc => mc.id === c.id) || 
+      const souMembro = this.meusClubes().some(mc => mc.id === c.id) ||
                         c.membros?.some((m: any) => String(m.usuario_id) === String(usuarioId));
 
       if (filtroAbasAtual === 'MEUS') return souMembro;
@@ -119,13 +118,14 @@ export default class ClubeLivroComponent implements OnInit {
     this.paginaAtual.set(1);
   }
 
-  // NOVO: Altera a aba do filtro lateral redefinindo a paginação
+
+  
   alterarFiltroAbas(tipo: 'TODOS' | 'MEUS' | 'OUTROS'): void {
     this.filtroAbas.set(tipo);
     this.paginaAtual.set(1);
   }
 
-  // NOVO: Regra baseada estritamente na flag 'ativo' e na 'data_fim' (Omitindo status "Cheio")
+  
   obterStatusClube(clube: any): 'Ativo' | 'Encerrado' {
     if (!clube || !clube.ativo) return 'Encerrado';
     if (clube.data_fim) {
@@ -135,10 +135,9 @@ export default class ClubeLivroComponent implements OnInit {
     return 'Ativo';
   }
 
-  
   async entrarNoClube(clubeId: string | number) {
     const usuarioId = this.authService.getId();
-    
+
     if (!usuarioId) {
       this.mensagemErro.set('Você precisa estar autenticado para entrar em um clube.');
       return;
@@ -164,6 +163,7 @@ export default class ClubeLivroComponent implements OnInit {
       this.enviando.set(false);
     }
   }
+
   ngOnInit(): void {
     this.perfilUsuario = this.authService.getPerfil();
     this.form = this.fb.group({});
@@ -181,18 +181,44 @@ export default class ClubeLivroComponent implements OnInit {
     });
   }
 
+  // ATUALIZADO: carrega clubes + meus clubes em paralelo (forkJoin), sem HttpClient direto
   async carregarClubes() {
     this.carregando.set(true);
+    this.carregandoMeusClubes.set(true);
+
+    const precisaMeusClubes =
+      this.perfilUsuario === TipoPerfil.ALUNO || this.perfilUsuario === TipoPerfil.PROFESSOR;
+
+    const requisicaoMeusClubes = precisaMeusClubes
+      ? (this.perfilUsuario === TipoPerfil.PROFESSOR
+          ? this.clubesService.clubeControllerFindClubesDoProfessor()
+          : this.clubesService.clubeControllerFindMeusClubes())
+      : null;
+
     try {
-      const res = await firstValueFrom(this.clubesService.clubeControllerFindAll());
-      this.clubes.set(Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || []);
+      if (requisicaoMeusClubes) {
+        const [clubesRes, meusClubesRes] = await firstValueFrom(
+          forkJoin([
+            this.clubesService.clubeControllerFindAll(),
+            requisicaoMeusClubes
+          ])
+        );
+
+        this.clubes.set(Array.isArray(clubesRes) ? clubesRes : []);
+        this.meusClubes.set(Array.isArray(meusClubesRes) ? meusClubesRes : []);
+      } else {
+        const clubesRes = await firstValueFrom(this.clubesService.clubeControllerFindAll());
+        this.clubes.set(Array.isArray(clubesRes) ? clubesRes : []);
+        this.meusClubes.set([]);
+      }
+
       this.paginaAtual.set(1);
       this.carregarGeneros();
-      this.carregarMeusClubes();
     } catch (error) {
       this.mensagemErro.set('Não foi possível carregar a lista de clubes.');
     } finally {
       this.carregando.set(false);
+      this.carregandoMeusClubes.set(false);
     }
   }
 
@@ -216,19 +242,18 @@ export default class ClubeLivroComponent implements OnInit {
     });
   }
 
+  // ATUALIZADO: agora usa ClubesService em vez de HttpClient direto; usado após entrar em um clube
   async carregarMeusClubes(): Promise<void> {
     if (this.perfilUsuario !== TipoPerfil.ALUNO && this.perfilUsuario !== TipoPerfil.PROFESSOR) return;
 
     this.carregandoMeusClubes.set(true);
     try {
-      const endpoint = this.perfilUsuario === TipoPerfil.PROFESSOR
-        ? 'meus-clubes-professor'
-        : 'meus-clubes';
+      const requisicao = this.perfilUsuario === TipoPerfil.PROFESSOR
+        ? this.clubesService.clubeControllerFindClubesDoProfessor()
+        : this.clubesService.clubeControllerFindMeusClubes();
 
-      const res = await firstValueFrom(
-        this.http.get<any[]>(`${this.clubesService['basePath']}/clubes/${endpoint}`)
-      );
-      this.meusClubes.set(Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || []);
+      const res = await firstValueFrom(requisicao);
+      this.meusClubes.set(Array.isArray(res) ? res : []);
     } catch (error) {
       this.meusClubes.set([]);
     } finally {
@@ -271,14 +296,14 @@ export default class ClubeLivroComponent implements OnInit {
     });
   }
 
-  // ATUALIZADO: Agora inicializa a estrutura do form sem quebrar a navegação de abas (focado para uso em Modal)
+
   abrirAvaliacao() {
     this.mensagemSucesso.set('');
     this.mensagemErro.set('');
-    
+
     Object.keys(this.form.controls).forEach(key => this.form.removeControl(key));
     this.form.enable();
-    
+
     this.perguntas().forEach(pergunta => {
       this.form.addControl(pergunta.id, this.fb.control('', Validators.required));
     });
@@ -344,7 +369,7 @@ export default class ClubeLivroComponent implements OnInit {
 
     try {
       const res = await firstValueFrom(this.respostasService.respostaMembroControllerFindAll());
-      this.respostasMembros.set(Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || []);
+      this.respostasMembros.set(Array.isArray(res) ? res : []);
     } catch (error) {
       this.mensagemErro.set('Erro ao buscar respostas dos alunos.');
     } finally {

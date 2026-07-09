@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { BASE_PATH_DEFAULT } from '../../../../client/tokens';
+import { NotificacoesService } from '../../../../client/services/notificacoes.service';
 
 interface Notificacao {
   id: string;
@@ -16,15 +15,13 @@ interface Notificacao {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './notificacoes-generico.html',
-  styleUrls: ['./notificacoes.scss']
 })
 export default class NotificacoesGenericoComponent implements OnInit {
   notificacoes = signal<Notificacao[]>([]);
   carregando = signal<boolean>(true);
   mensagemErro = signal<string>('');
 
-  private http = inject(HttpClient);
-  private basePath = inject(BASE_PATH_DEFAULT);
+  private notificacoesService = inject(NotificacoesService);
 
   ngOnInit(): void {
     this.carregarNotificacoes();
@@ -34,8 +31,8 @@ export default class NotificacoesGenericoComponent implements OnInit {
     this.carregando.set(true);
     this.mensagemErro.set('');
 
-    this.http.get<Notificacao[]>(`${this.basePath}/notificacoes`).subscribe({
-      next: (dados) => {
+    this.notificacoesService.notificacaoControllerFindAll().subscribe({
+      next: (dados: Notificacao[]) => {
         this.notificacoes.set(dados);
         this.carregando.set(false);
       },
@@ -47,9 +44,9 @@ export default class NotificacoesGenericoComponent implements OnInit {
   }
 
   marcarComoLida(notificacao: Notificacao) {
-    this.http.patch(`${this.basePath}/notificacoes/${notificacao.id}/lida`, {}).subscribe({
+    this.notificacoesService.notificacaoControllerMarkAsRead(notificacao.id).subscribe({
       next: () => {
-        this.notificacoes.update(notifs => 
+        this.notificacoes.update(notifs =>
           notifs.map(n => n.id === notificacao.id ? { ...n, lida: true } : n)
         );
       },
