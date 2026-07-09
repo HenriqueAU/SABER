@@ -51,7 +51,7 @@ input:focus {
   margin-top: 4px;
 }
 
-button {
+.btn-submit-senha {
   width: 100%;
   padding: 12px;
   background-color: #007bff;
@@ -65,11 +65,11 @@ button {
   margin-top: 10px;
 }
 
-button:hover:not(:disabled) {
+.btn-submit-senha:hover:not(:disabled) {
   background-color: #0056b3;
 }
 
-button:disabled {
+.btn-submit-senha:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
@@ -91,4 +91,27 @@ button:disabled {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
+}
+.btn-olho-senha {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.btn-olho-senha:hover,
+.btn-olho-senha:focus {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.btn-sem-hover {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.btn-sem-hover:hover,
+.btn-sem-hover:focus {
+  background: transparent !important;
+  box-shadow: none !important;
 }

@@ -6,31 +6,43 @@
       <p>Explore os clubes disponíveis na sua instituição.</p>
     </header>
 
-    <div style="display: flex; justify-content: center; margin-bottom: 28px;">
-      <div style="display: flex; gap: 10px; align-items: center; width: 100%; max-width: 700px;">
-        <div style="position: relative; flex: 1;">
-          <input
-            type="text"
-            [ngModel]="termoBusca()"
-            (ngModelChange)="termoBusca.set($event); onFiltroChange()"
-            placeholder="Buscar por título ou autor"
-            style="width: 100%; padding: 9px 12px 9px 34px; border: 1px solid #e8edf2; border-radius: 8px; font-size: 14px; color: #444; background: #fafbfc; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
-            (focus)="$event.target.style.borderColor='#a0b4c8'"
-            (blur)="$event.target.style.borderColor='#e8edf2'"
-          />
-        </div>
-        <select
-          [ngModel]="generoFiltro()"
-          (ngModelChange)="generoFiltro.set($event); onFiltroChange()"
-          style="padding: 9px 12px; border: 1px solid #e8edf2; border-radius: 8px; font-size: 14px; min-width: 160px; background: #fafbfc; color: #555; outline: none; cursor: pointer;"
-        >
-          <option value="">Todos os gêneros</option>
-          @for (genero of generosDisponiveis(); track genero) {
-            <option [value]="genero">{{ genero }}</option>
-          }
-        </select>
-      </div>
+    <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+  <div style="display: flex; gap: 10px; align-items: center; width: 100%; max-width: 700px;">
+    <div style="position: relative; flex: 1;">
+      <input
+        type="text"
+        [ngModel]="termoBusca()"
+        (ngModelChange)="termoBusca.set($event); onFiltroChange()"
+        placeholder="Buscar por título ou autor"
+        style="width: 100%; padding: 9px 12px 9px 34px; border: 1px solid #e8edf2; border-radius: 8px; font-size: 14px; color: #444; background: #fafbfc; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
+        (focus)="$event.target.style.borderColor='#a0b4c8'"
+        (blur)="$event.target.style.borderColor='#e8edf2'"
+      />
     </div>
+    <select
+      [ngModel]="generoFiltro()"
+      (ngModelChange)="generoFiltro.set($event); onFiltroChange()"
+      style="padding: 9px 12px; border: 1px solid #e8edf2; border-radius: 8px; font-size: 14px; min-width: 160px; background: #fafbfc; color: #555; outline: none; cursor: pointer;"
+    >
+      <option value="">Todos os gêneros</option>
+      @for (genero of generosDisponiveis(); track genero) {
+        <option [value]="genero">{{ genero }}</option>
+      }
+    </select>
+
+    @if (perfilUsuario === TipoPerfilEnum.ALUNO || perfilUsuario === TipoPerfilEnum.PROFESSOR) {
+      <select
+        [ngModel]="filtroAbas()"
+        (ngModelChange)="alterarFiltroAbas($event)"
+        style="padding: 9px 12px; border: 1px solid #e8edf2; border-radius: 8px; font-size: 14px; min-width: 160px; background: #fafbfc; color: #555; outline: none; cursor: pointer;"
+      >
+        <option value="TODOS">Todos os Clubes</option>
+        <option value="MEUS">Meus Clubes</option>
+        <option value="OUTROS">Outros Clubes</option>
+      </select>
+    }
+  </div>
+</div>
 
     @if (carregando()) {
       <div class="loading">A carregar clubes...</div>
@@ -39,13 +51,23 @@
     @if (mensagemErro()) {
       <div class="alerta erro">{{ mensagemErro() }}</div>
     }
+    @if (mensagemSucesso()) {
+      <div class="alerta sucesso">{{ mensagemSucesso() }}</div>
+    }
 
-    @if ((perfilUsuario === TipoPerfilEnum.ALUNO || perfilUsuario === TipoPerfilEnum.PROFESSOR) && meusClubes().length > 0) {
-      <div style="margin-bottom: 36px;">
-        <h2 style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 16px;">Meus Clubes</h2>
-        <div class="clubes-grid">
-          @for (c of meusClubes(); track c.id) {
-            <div class="clube-card clicavel" (click)="abrirClube(c.id)" >
+    @if (!carregando() && clubesFiltrados().length > 0) {
+      <div class="clubes-grid">
+        @for (c of clubesPaginados(); track c.id) {
+          <div class="clube-card" style="position: relative; display: flex; flex-direction: column; justify-content: space-between;">
+            
+            <span 
+              style="position: absolute; top: 12px; right: 12px; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 12px;"
+              [style.background]="obterStatusClube(c) === 'Ativo' ? '#d1e7dd' : '#f8d7da'"
+              [style.color]="obterStatusClube(c) === 'Ativo' ? '#0f5132' : '#842029'">
+              {{ obterStatusClube(c) }}
+            </span>
+
+            <div class="clicavel" (click)="abrirClube(c.id)" style="cursor: pointer; flex-grow: 1; padding-top: 15px;">
               <div class="clube-card-header">
                 <h3>{{ c.livro?.titulo || c.nome || 'Clube de Leitura' }}</h3>
                 @if (c.livro?.titulo && c.nome) {
@@ -60,27 +82,16 @@
                 }
               </div>
             </div>
-          }
-        </div>
-      </div>
-      <h2 style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 16px;">Todos os Clubes</h2>
-    }
 
-    @if (!carregando() && clubesFiltrados().length > 0) {
-      <div class="clubes-grid">
-        @for (c of clubesPaginados(); track c.id) {
-          <div class="clube-card clicavel" (click)="abrirClube(c.id)">
-            <div class="clube-card-header">
-              <h3>{{ c.livro?.titulo || c.nome || 'Clube de Leitura' }}</h3>
-              @if (c.livro?.titulo && c.nome) {
-                <small style="opacity: 0.7; display: block; margin-top: 4px;">{{ c.nome }}</small>
-              }
-            </div>
-            <div class="clube-card-body">
-              <p><strong>Início:</strong> {{ c.data_inicio | date:'dd/MM/yyyy' }}</p>
-              <p><strong>Fim:</strong> {{ c.data_fim | date:'dd/MM/yyyy' }}</p>
-              @if (c.local_encontro) {
-                <p><strong>Local:</strong> {{ c.local_encontro }}</p>
+            <div class="mt-auto pt-3 px-3 pb-3">
+              @if (obterStatusClube(c) === 'Ativo' && !meusClubes().some(mc => mc.id === c.id)) {
+                <button 
+                  type="button" 
+                  class="btn btn-outline-primary btn-sm w-100"
+                  [disabled]="enviando()"
+                  (click)="entrarNoClube(c.id); $event.stopPropagation()">
+                  Participar do Clube
+                </button>
               }
             </div>
           </div>
@@ -184,7 +195,14 @@
             <div class="acoes-clube">
               @if (perfilUsuario === TipoPerfilEnum.ALUNO) {
                 @if (clubeEncerrado()) {
-                  <button class="btn-acao-primario" (click)="abrirAvaliacao()">Avaliar Clube</button>
+                 <button 
+                  type="button"
+                  class="btn btn-primary"
+                  data-bs-toggle="modal" 
+                  data-bs-target="#modalAvaliacao" 
+                  (click)="abrirAvaliacao()">
+                   Avaliar Clube
+                </button>
                 }
                 @if (!clubeEncerrado()) {
                   <div class="aviso-bloqueio">
@@ -202,37 +220,6 @@
 
         @if (abaAtiva() !== 'detalhes') {
           <hr class="divisor">
-        }
-
-        @if (abaAtiva() === 'avaliacao') {
-          <div class="questionario-card">
-            <header class="clube-header">
-              <h2>Avaliação do Clube</h2>
-              <p>Preencha o questionário abaixo com o seu feedback.</p>
-            </header>
-
-            <form [formGroup]="form" (ngSubmit)="onSubmit()">
-              @for (pergunta of perguntas(); track pergunta.id; let i = $index) {
-                <div class="pergunta-bloco">
-                  <h3>{{ i + 1 }}. {{ pergunta.texto }}</h3>
-                  <div class="opcoes-lista">
-                    @for (item of getItensDaPergunta(pergunta.id); track item.id) {
-                      <label class="opcao-item">
-                        <input type="radio" [formControlName]="pergunta.id" [value]="item.id">
-                        <span class="opcao-texto">{{ item.texto }}</span>
-                      </label>
-                    }
-                  </div>
-                  @if (form.get(pergunta.id)?.invalid && form.get(pergunta.id)?.touched) {
-                    <small class="texto-erro">Por favor, selecione uma opção.</small>
-                  }
-                </div>
-              }
-              <button class="btn-enviar" type="submit" [disabled]="form.invalid || enviando() || form.disabled">
-                {{ enviando() ? 'A enviar...' : 'Enviar Avaliação' }}
-              </button>
-            </form>
-          </div>
         }
 
         @if (abaAtiva() === 'feedbacks') {
@@ -278,4 +265,50 @@
     }
   }
 
+</div>
+
+<div class="modal fade" id="modalAvaliacao" tabindex="-1" aria-labelledby="modalAvaliacaoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow-lg">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title" id="modalAvaliacaoLabel">Avaliação do Clube</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" id="ngFormAvaliacao">
+        <div class="modal-body">
+          <p class="text-secondary small mb-3">Preencha o questionário abaixo com o seu feedback.</p>
+
+          @for (pergunta of perguntas(); track pergunta.id; let i = $index) {
+            <div class="mb-3">
+              <label class="form-label fw-medium">{{ i + 1 }}. {{ pergunta.texto }}</label>
+              <div class="d-flex flex-column gap-2">
+                @for (item of getItensDaPergunta(pergunta.id); track item.id) {
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" [formControlName]="pergunta.id" [value]="item.id" [id]="'opcao-' + item.id">
+                    <label class="form-check-label" [for]="'opcao-' + item.id">{{ item.texto }}</label>
+                  </div>
+                }
+              </div>
+              @if (form.get(pergunta.id)?.invalid && form.get(pergunta.id)?.touched) {
+                <small class="text-danger d-block mt-1">Por favor, selecione uma opção.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer bg-light">
+          <button type="button" data-bs-dismiss="modal" class="btn btn-light btn-sm">Cancelar</button>
+          <button 
+            type="submit" 
+            form="ngFormAvaliacao"
+            data-bs-dismiss="modal"
+            [disabled]="form.invalid || enviando() || form.disabled"
+            class="btn btn-primary btn-sm shadow-sm">
+            {{ enviando() ? 'A enviar...' : 'Enviar Avaliação' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>

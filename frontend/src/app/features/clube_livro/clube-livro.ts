@@ -22,11 +22,13 @@ import { LivroGeneroService } from '../livro/generos/livro-genero.service';
 })
 export default class ClubeLivroComponent implements OnInit {
   modoListagem = signal(true);
-  abaAtiva = signal<'detalhes' | 'avaliacao' | 'feedbacks'>('detalhes');
+  abaAtiva = signal<'detalhes' | 'feedbacks'>('detalhes'); // 'avaliacao' removida das abas pois virou Modal
   paginaAtual = signal(1);
   readonly itensPorPagina = 12;
   termoBusca = signal('');
   generoFiltro = signal('');
+  
+  filtroAbas = signal<'TODOS' | 'MEUS' | 'OUTROS'>('TODOS');
   clubes = signal<any[]>([]);
   meusClubes = signal<any[]>([]);
   carregandoMeusClubes = signal(false);
@@ -68,17 +70,30 @@ export default class ClubeLivroComponent implements OnInit {
       .sort()
   );
 
-  clubesFiltrados = computed(() =>
-    this.clubes().filter(c => {
+  // ATUALIZADO: Filtro unificado processando termo de busca, gênero e relacionamento lateral (Todos/Meus/Outros)
+  clubesFiltrados = computed(() => {
+    const usuarioId = this.authService.getId();
+    const filtroAbasAtual = this.filtroAbas();
+
+    return this.clubes().filter(c => {
       const tituloLivro = c.livro?.titulo?.toLowerCase() || '';
       const nomeClube = c.nome?.toLowerCase() || '';
       const termo = this.termoBusca().toLowerCase();
       const matchNome = tituloLivro.includes(termo) || nomeClube.includes(termo);
+      
       const generosDoLivro = c.livro?.id ? (this.generosPorLivro()[c.livro.id] ?? []) : [];
       const matchGenero = !this.generoFiltro() || generosDoLivro.includes(this.generoFiltro());
-      return matchNome && matchGenero;
-    })
-  );
+
+      if (!(matchNome && matchGenero)) return false;
+
+      const souMembro = this.meusClubes().some(mc => mc.id === c.id) || 
+                        c.membros?.some((m: any) => String(m.usuario_id) === String(usuarioId));
+
+      if (filtroAbasAtual === 'MEUS') return souMembro;
+      if (filtroAbasAtual === 'OUTROS') return !souMembro;
+      return true;
+    });
+  });
 
   totalPaginas = computed(() =>
     Math.ceil(this.clubesFiltrados().length / this.itensPorPagina) || 1
@@ -104,6 +119,51 @@ export default class ClubeLivroComponent implements OnInit {
     this.paginaAtual.set(1);
   }
 
+  // NOVO: Altera a aba do filtro lateral redefinindo a paginação
+  alterarFiltroAbas(tipo: 'TODOS' | 'MEUS' | 'OUTROS'): void {
+    this.filtroAbas.set(tipo);
+    this.paginaAtual.set(1);
+  }
+
+  // NOVO: Regra baseada estritamente na flag 'ativo' e na 'data_fim' (Omitindo status "Cheio")
+  obterStatusClube(clube: any): 'Ativo' | 'Encerrado' {
+    if (!clube || !clube.ativo) return 'Encerrado';
+    if (clube.data_fim) {
+      const dataFim = new Date(clube.data_fim);
+      if (dataFim < new Date()) return 'Encerrado';
+    }
+    return 'Ativo';
+  }
+
+  
+  async entrarNoClube(clubeId: string | number) {
+    const usuarioId = this.authService.getId();
+    
+    if (!usuarioId) {
+      this.mensagemErro.set('Você precisa estar autenticado para entrar em um clube.');
+      return;
+    }
+
+    this.enviando.set(true);
+    this.mensagemErro.set('');
+    this.mensagemSucesso.set('');
+
+    try {
+      await firstValueFrom(
+        this.membroClubeService.membroClubeControllerCreate({
+          clube_id: clubeId,
+          usuario_id: usuarioId,
+          status: 'confirmado'
+        } as any)
+      );
+      this.mensagemSucesso.set('Inscrição realizada com sucesso!');
+      await this.carregarMeusClubes();
+    } catch (error) {
+      this.mensagemErro.set('Ocorreu um erro ao tentar entrar no clube.');
+    } finally {
+      this.enviando.set(false);
+    }
+  }
   ngOnInit(): void {
     this.perfilUsuario = this.authService.getPerfil();
     this.form = this.fb.group({});
@@ -141,10 +201,12 @@ export default class ClubeLivroComponent implements OnInit {
       next: (relacoes) => {
         const mapa: Record<string, string[]> = {};
         relacoes.forEach((relacao: any) => {
-          const livroId = relacao.livro.id;
-          const nomeGenero = relacao.genero.nome;
-          if (!mapa[livroId]) mapa[livroId] = [];
-          mapa[livroId].push(nomeGenero);
+          if (relacao.livro && relacao.genero) {
+            const livroId = relacao.livro.id;
+            const nomeGenero = relacao.genero.nome;
+            if (!mapa[livroId]) mapa[livroId] = [];
+            mapa[livroId].push(nomeGenero);
+          }
         });
         this.generosPorLivro.set(mapa);
       },
@@ -190,11 +252,7 @@ export default class ClubeLivroComponent implements OnInit {
       this.clubeDetalhes.set(await firstValueFrom(this.clubesService.clubeControllerFindOne(this.clubeId!)));
 
       const detalhes = this.clubeDetalhes();
-      if (detalhes?.data_fim) {
-        this.clubeEncerrado.set(new Date() > new Date(detalhes.data_fim));
-      } else {
-        this.clubeEncerrado.set(false);
-      }
+      this.clubeEncerrado.set(this.obterStatusClube(detalhes) === 'Encerrado');
 
       this.perguntas.set(await firstValueFrom(this.perguntasService.perguntaControllerFindAll()) || []);
       this.itensPergunta.set(await firstValueFrom(this.itemPerguntaService.itemPerguntaControllerFindAll()) || []);
@@ -213,10 +271,14 @@ export default class ClubeLivroComponent implements OnInit {
     });
   }
 
+  // ATUALIZADO: Agora inicializa a estrutura do form sem quebrar a navegação de abas (focado para uso em Modal)
   abrirAvaliacao() {
-    this.abaAtiva.set('avaliacao');
     this.mensagemSucesso.set('');
+    this.mensagemErro.set('');
+    
     Object.keys(this.form.controls).forEach(key => this.form.removeControl(key));
+    this.form.enable();
+    
     this.perguntas().forEach(pergunta => {
       this.form.addControl(pergunta.id, this.fb.control('', Validators.required));
     });

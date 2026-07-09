@@ -1,4 +1,8 @@
 <div class="alterar-senha-container">
+  <button type="button" class="btn btn-icon btn-sem-hover text-secondary ps-0 mb-2" (click)="voltar()">
+  <i class="bi bi-arrow-left me-1"></i>Voltar
+  </button>
+  
   <h2 class="fw-bold mb-2"><i class="bi bi-shield-lock text-primary me-2"></i>Alterar Senha</h2>
   <p class="text-secondary mb-4">Por favor, insira a sua senha atual e a nova senha desejada.</p>
 
@@ -17,30 +21,60 @@
   }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    
+
     <div class="form-group mb-3">
       <label for="senhaAtual" class="form-label fw-semibold">Senha Atual</label>
-      <input 
-        id="senhaAtual" 
-        type="password" 
-        class="form-control p-2"
-        formControlName="senhaAtual" 
-        placeholder="Digite sua senha atual"
-      >
+      <div class="position-relative">
+        <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary fs-5"></i>
+        <input 
+          id="senhaAtual" 
+          [type]="senhaAtualVisivel ? 'text' : 'password'" 
+          class="form-control ps-5 py-3"
+          formControlName="senhaAtual" 
+          placeholder="Digite sua senha atual"
+        >
+       <button
+          id="visibilidade-senha-atual"
+          type="button" 
+          class="btn btn-icon btn-olho-senha position-absolute top-50 end-0 translate-middle-y me-3 text-secondary"
+          (click)="toggleVisibilidadeSenhaAtual()"
+        >
+          <i
+            class="bi fs-5"
+            [class.bi-eye]="!senhaAtualVisivel"
+            [class.bi-eye-slash]="senhaAtualVisivel"
+          ></i>
+        </button>
+      </div>
       @if (form.get('senhaAtual')?.invalid && form.get('senhaAtual')?.touched) {
         <small class="text-danger d-block mt-1"><i class="bi bi-info-circle me-1"></i>A senha atual é obrigatória.</small>
       }
     </div>
 
-    <div class="form-group mb-4">
+    <div class="form-group mb-2">
       <label for="novaSenha" class="form-label fw-semibold">Nova Senha</label>
-      <input 
-        id="novaSenha" 
-        type="password" 
-        class="form-control p-2"
-        formControlName="novaSenha" 
-        placeholder="Mínimo 8 caracteres"
+      <div class="position-relative">
+        <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary fs-5"></i>
+        <input 
+          id="novaSenha" 
+          [type]="novaSenhaVisivel ? 'text' : 'password'" 
+          class="form-control ps-5 py-3"
+          formControlName="novaSenha" 
+          placeholder="Mínimo 8 caracteres"
+        >
+       <button
+        id="visibilidade-nova-senha"
+        type="button" 
+        class="btn btn-icon btn-olho-senha position-absolute top-50 end-0 translate-middle-y me-3 text-secondary"
+        (click)="toggleVisibilidadeNovaSenha()"
       >
+        <i
+          class="bi fs-5"
+          [class.bi-eye]="!novaSenhaVisivel"
+          [class.bi-eye-slash]="novaSenhaVisivel"
+        ></i>
+      </button>
+      </div>
       @if (form.get('novaSenha')?.errors?.['required'] && form.get('novaSenha')?.touched) {
         <small class="text-danger d-block mt-1"><i class="bi bi-info-circle me-1"></i>A nova senha é obrigatória.</small>
       }
@@ -49,7 +83,35 @@
       }
     </div>
 
-    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" [disabled]="form.invalid || carregando()">
+    <div class="mb-4">
+  <button type="button" class="btn btn-icon btn-sem-hover btn-sm text-secondary ps-0" (click)="toggleCriterios()">
+    <i class="bi" [class.bi-chevron-down]="!mostrarCriterios()" [class.bi-chevron-up]="mostrarCriterios()"></i>
+    {{ mostrarCriterios() ? 'Esconder critérios da senha' : 'Ver critérios da senha' }}
+  </button>
+
+      @if (mostrarCriterios()) {
+        <ul class="small ps-4 mb-0 list-unstyled">
+          <li [class.text-success]="!form.get('novaSenha')?.hasError('minlength') && form.get('novaSenha')?.value" [class.text-secondary]="form.get('novaSenha')?.hasError('minlength') || !form.get('novaSenha')?.value">
+            <i class="bi me-1" [class.bi-check-circle-fill]="!form.get('novaSenha')?.hasError('minlength') && form.get('novaSenha')?.value" [class.bi-circle]="form.get('novaSenha')?.hasError('minlength') || !form.get('novaSenha')?.value"></i>
+            Mínimo de 8 caracteres
+          </li>
+          <li [class.text-success]="!form.get('novaSenha')?.hasError('semMaiuscula') && form.get('novaSenha')?.value" [class.text-secondary]="form.get('novaSenha')?.hasError('semMaiuscula') || !form.get('novaSenha')?.value">
+            <i class="bi me-1" [class.bi-check-circle-fill]="!form.get('novaSenha')?.hasError('semMaiuscula') && form.get('novaSenha')?.value" [class.bi-circle]="form.get('novaSenha')?.hasError('semMaiuscula') || !form.get('novaSenha')?.value"></i>
+            Pelo menos 1 letra maiúscula
+          </li>
+          <li [class.text-success]="!form.get('novaSenha')?.hasError('semNumero') && form.get('novaSenha')?.value" [class.text-secondary]="form.get('novaSenha')?.hasError('semNumero') || !form.get('novaSenha')?.value">
+            <i class="bi me-1" [class.bi-check-circle-fill]="!form.get('novaSenha')?.hasError('semNumero') && form.get('novaSenha')?.value" [class.bi-circle]="form.get('novaSenha')?.hasError('semNumero') || !form.get('novaSenha')?.value"></i>
+            Pelo menos 1 número
+          </li>
+          <li [class.text-success]="!form.get('novaSenha')?.hasError('semSimbolo') && form.get('novaSenha')?.value" [class.text-secondary]="form.get('novaSenha')?.hasError('semSimbolo') || !form.get('novaSenha')?.value">
+            <i class="bi me-1" [class.bi-check-circle-fill]="!form.get('novaSenha')?.hasError('semSimbolo') && form.get('novaSenha')?.value" [class.bi-circle]="form.get('novaSenha')?.hasError('semSimbolo') || !form.get('novaSenha')?.value"></i>
+            Pelo menos 1 símbolo (ex: !@#$%)
+          </li>
+        </ul>
+      }
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold" [disabled]="form.invalid || carregando()">
       @if (carregando()) {
         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> A alterar...
       } @else {
