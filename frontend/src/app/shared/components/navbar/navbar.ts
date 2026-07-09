@@ -1,15 +1,17 @@
-import { Component, Host, HostListener, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, HostListener, OnInit, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CoreAuthService } from '../../../core/auth/auth-session';
+import { UsuariosService } from '../../../../client';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
 })
-export class Navbar {
-  private sessionService = inject(CoreAuthService);
+export class Navbar implements OnInit {
+  private coreAuthService = inject(CoreAuthService);
+  private usuariosService = inject(UsuariosService);
   private router = inject(Router);
   get isLoginPage(): boolean {
     return this.router.url === '/login'; 
@@ -18,8 +20,20 @@ export class Navbar {
     return this.router.url === '/onboarding';
   }
 
-  perfil = this.sessionService.perfil;
-  estaLogado = this.sessionService.estaLogado;
+  perfil = this.coreAuthService.perfil;
+  estaLogado = this.coreAuthService.estaLogado;
+
+  usuarioId!: string;
+  fotoPerfil: string | null = null;
+
+  ngOnInit(): void {
+    this.usuarioId = this.coreAuthService.getId();
+    
+    this.usuariosService.usuarioControllerFindOne(this.usuarioId).subscribe(usuario => {
+      this.fotoPerfil = usuario.foto_perfil;
+    })
+
+  }
 
   navbarHidden = false;
   private lastScrollTop = 0;
@@ -57,9 +71,9 @@ export class Navbar {
   }
 
   logOut() {
-    this.sessionService.removeToken();
-    this.sessionService.estaLogado.set(false);
-    this.sessionService.perfil.set(null);
+    this.coreAuthService.removeToken();
+    this.coreAuthService.estaLogado.set(false);
+    this.coreAuthService.perfil.set(null);
 
     this.router.navigate(['/onboarding']);
   }
