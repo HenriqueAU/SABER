@@ -36,15 +36,7 @@ export default class NotificacoesGenericoComponent implements OnInit {
 
     this.http.get<Notificacao[]>(`${this.basePath}/notificacoes`).subscribe({
       next: (dados) => {
-        const horaBR = dados.map(notif => {
-          const dataOriginal = new Date(notif.data);
-          dataOriginal.setHours(dataOriginal.getHours() - 3);
-          return {
-            ...notif,
-            data: dataOriginal
-          };
-        });
-        this.notificacoes.set(horaBR);
+        this.notificacoes.set(dados);
         this.carregando.set(false);
       },
       error: () => {
