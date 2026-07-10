@@ -5,7 +5,7 @@ import { RouterLink } from "@angular/router";
 import { forkJoin } from 'rxjs';
 import { UsuariosService } from '../../../../client/services/usuarios.service';
 import { CommonModule, Location } from '@angular/common';
-import { Modal } from 'bootstrap';
+import Modal from 'bootstrap/js/dist/modal';
 import { GenerosService, PreferenciasGeneroService } from '../../../../client';
 
 @Component({
@@ -25,6 +25,8 @@ export default class PerfilComponent implements OnInit{
   usuarioData: any = null;
 
   tipoPerfil: string | null = null;
+
+  imagens = Array.from({ length: 16 }, (_, i) => i);
 
   userForm = new FormGroup({
     nome: new FormControl('', {
@@ -59,15 +61,7 @@ export default class PerfilComponent implements OnInit{
       return;
     }
 
-    this.preferenciasGeneroService
-      .preferenciaGeneroControllerFindAll()
-      .subscribe(data => {
-        this.preferenciasOriginais = data;
-
-        this.generosSelecionados = this.preferenciasOriginais.map(
-          (pref: any) => pref.genero.id
-        );
-      });
+    this.carregarPreferencias();
   }
   
   abrirModalSucesso() {
@@ -79,6 +73,12 @@ export default class PerfilComponent implements OnInit{
 
     const modal = new Modal(successModalElement);
     modal.show();
+  }
+
+  selecionarFotoPerfil(imagem: number) {
+    this.userForm.patchValue({
+      foto_perfil: `assets/imgs/avatares/${imagem}.png`
+    });
   }
 
   carregarPreferencias() {
