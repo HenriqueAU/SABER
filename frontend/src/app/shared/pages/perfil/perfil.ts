@@ -17,8 +17,8 @@ import { GenerosService, PreferenciasGeneroService } from '../../../../client';
 export default class PerfilComponent implements OnInit{
   private coreAuthService = inject(CoreAuthService);
   private usuariosService = inject(UsuariosService);
-  protected preferenciasGeneroService = inject(PreferenciasGeneroService);
-  protected generosService = inject(GenerosService);
+  private preferenciasGeneroService = inject(PreferenciasGeneroService);
+  private generosService = inject(GenerosService);
   private location = inject(Location);
 
   usuarioId!: string;
