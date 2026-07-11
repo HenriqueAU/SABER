@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notificacao } from './notificacao.entity';
@@ -11,7 +15,9 @@ export class NotificacaoService {
     private readonly notificacaoRepository: Repository<Notificacao>,
   ) {}
 
-  async create(createNotificacaoDto: CreateNotificacaoDto): Promise<Notificacao> {
+  async create(
+    createNotificacaoDto: CreateNotificacaoDto,
+  ): Promise<Notificacao> {
     const notificacao = this.notificacaoRepository.create({
       titulo: createNotificacaoDto.titulo,
       mensagem: createNotificacaoDto.mensagem,
@@ -23,7 +29,7 @@ export class NotificacaoService {
   async findAllByUser(usuarioId: string): Promise<Notificacao[]> {
     return await this.notificacaoRepository.find({
       where: { usuario: { id: usuarioId } },
-      order: { data: 'DESC' }, 
+      order: { data: 'DESC' },
     });
   }
 
@@ -34,7 +40,7 @@ export class NotificacaoService {
     });
 
     if (!notificacao) throw new NotFoundException('Notificação não encontrada');
-    
+
     if (notificacao.usuario.id !== usuarioId) {
       throw new ForbiddenException('Acesso negado');
     }

@@ -6,3 +6,17 @@ nav {
 .navbar-hidden {
   transform: translateY(-100%);
 }
+
+.navbar-brand {
+  color: var(--bs-primary);
+}
+
+.nav-link {
+  border-radius: 0.5rem;
+}
+
+.nav-link.active-link {
+  background-color: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary);
+  transition: all 0.2s ease;
+}

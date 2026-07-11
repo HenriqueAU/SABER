@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, ChangeDetectorRef, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { LivrosService } from '../../../client/services/livros.service';
 import { ExemplaresService } from '../../../client/services/exemplares.service';
 import { CoreAuthService } from '../../core/auth/auth-session';
@@ -30,6 +31,7 @@ export default class LivroComponent implements OnInit, AfterViewInit {
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
   private livroGeneroService = inject(LivroGeneroService);
+  private route = inject(ActivatedRoute);
 
   livroForm: FormGroup = this.fb.group({
     titulo: ['', Validators.required],
@@ -221,6 +223,16 @@ export default class LivroComponent implements OnInit, AfterViewInit {
         this.livros = dados;
         this.carregarGeneros();
         this.carregarExemplares();
+
+        const livroIdModal = this.route.snapshot.queryParamMap.get('abrirModal');
+        if (livroIdModal) {
+          const livroParaAbrir = this.livros.find(l => l.id === livroIdModal);
+          if (livroParaAbrir) {
+            setTimeout(() => {
+              this.abrirLivroDetalhesModal(livroParaAbrir);
+            }, 100);
+          }
+        }
       }
     });
   }

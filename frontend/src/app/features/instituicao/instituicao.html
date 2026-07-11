@@ -1,153 +1,160 @@
-<div class="min-vh-100 bg-light d-flex flex-column">
-
-  <div class="text-center py-4">
-    <h1 class="fw-bold text-dark mb-1">SABER</h1>
+<div class="container-fluid py-4 px-4">
+  
+  <div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
+      <div class="text-center text-md-start">
+        <p class="fs-5 fw-medium text-dark mb-0">Visualize e edite as informações gerais da sua instituição.</p>
+      </div>
+      @if (!carregando() && !mensagemErroGeral()) {
+        <button class="btn btn-primary fw-medium shadow-sm" (click)="abrirModal()">
+           <i class="bi bi-pencil-square me-2"></i>Editar Dados
+        </button>
+      }
+    </div>
   </div>
 
-  <div class="d-flex justify-content-center px-3 pb-5">
-    <div style="width: 100%; max-width: 600px;">
-
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fs-4 fw-light text-dark mb-0">Instituição</h2>
-        @if (!carregando()) {
-          <button class="btn btn-primary fw-medium shadow-sm" (click)="abrirModal()">
-             Editar
-          </button>
-        }
+  <div class="container">
+    @if (carregando()) {
+      <div class="text-center py-5 text-secondary">
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <p class="small">A carregar dados da instituição...</p>
       </div>
+    }
 
-      @if (carregando()) {
-        <p class="text-muted small">Carregando dados da instituição...</p>
-      }
+    @if (mensagemErroGeral()) {
+      <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+        <div>{{ mensagemErroGeral() }}</div>
+      </div>
+    }
 
-      @if (mensagemErro() && !mostrarModal()) {
-        <div class="alert alert-danger small">{{ mensagemErro() }}</div>
-      }
-
-      @if (!carregando()) {
-        <div class="card border shadow-sm rounded-3">
-          <div class="card-body p-4">
-
-            <div class="mb-3">
-              <span class="text-muted small d-block mb-1">Nome da Instituição</span>
-              <span class="fw-medium">{{ form.get('nome')?.value || '—' }}</span>
+    @if (!carregando() && !mensagemErroGeral()) {
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body p-4 p-md-5">
+          <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-building text-primary me-2"></i>Detalhes da Instituição</h5>
+          
+          <div class="row g-4">
+            <div class="col-12 col-md-6">
+              <span class="text-secondary small d-block mb-1 fw-semibold text-uppercase">Nome da Instituição</span>
+              <span class="fw-bold text-dark fs-5">{{ form.get('nome')?.value || '—' }}</span>
             </div>
-
-            <hr class="my-3">
-
-            <div class="mb-3">
-              <span class="text-muted small d-block mb-1">Tipo</span>
-              <span class="fw-medium">
+            
+            <div class="col-12 col-md-6">
+              <span class="text-secondary small d-block mb-1 fw-semibold text-uppercase">Tipo de Ensino</span>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fs-6">
                 {{ form.get('tipo')?.value === 'escola' ? 'Escola' : form.get('tipo')?.value === 'faculdade' ? 'Faculdade' : '—' }}
               </span>
             </div>
 
-            <hr class="my-3">
-
-            <div class="mb-3">
-              <span class="text-muted small d-block mb-1">Estado (UF)</span>
-              <span class="fw-medium">{{ form.get('estado')?.value || '—' }}</span>
+            <div class="col-12">
+              <hr class="border-light my-2">
             </div>
 
-            <hr class="my-3">
-
-            <div>
-              <span class="text-muted small d-block mb-1">Cidade</span>
-              <span class="fw-medium">{{ form.getRawValue().cidade || '—' }}</span>
+            <div class="col-12 col-md-6">
+              <span class="text-secondary small d-block mb-1 fw-semibold text-uppercase">Estado (UF)</span>
+              <span class="fw-medium text-dark"><i class="bi bi-map text-secondary me-2"></i>{{ form.get('estado')?.value || '—' }}</span>
             </div>
 
+            <div class="col-12 col-md-6">
+              <span class="text-secondary small d-block mb-1 fw-semibold text-uppercase">Cidade</span>
+              <span class="fw-medium text-dark"><i class="bi bi-geo-alt text-danger me-2"></i>{{ form.getRawValue().cidade || '—' }}</span>
+            </div>
           </div>
         </div>
-      }
-
-    </div>
+      </div>
+    }
   </div>
 
 </div>
 
-@if (mostrarModal()) {
-  <div class="modal d-block" style="background: rgba(17,24,39,0.4); backdrop-filter: blur(2px);" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content rounded-4 shadow-lg">
-
-        <div class="modal-header border-bottom">
-          <h2 class="modal-title fs-4 fw-medium text-dark">Editar Instituição</h2>
-          <button type="button" class="btn-close" (click)="fecharModal()"></button>
-        </div>
-
-        <div class="modal-body">
-          <p class="text-muted small mb-4">Atualize as informações da sua instituição.</p>
-
-          @if (mensagemSucesso()) {
-            <div class="alert alert-success small">{{ mensagemSucesso() }}</div>
-          }
-          @if (mensagemErro()) {
-            <div class="alert alert-danger small">{{ mensagemErro() }}</div>
-          }
-
-          <form [formGroup]="form" (ngSubmit)="onSubmit()">
-
-            <div class="mb-3">
-              <label for="nome" class="form-label small fw-semibold">Nome da Instituição</label>
-              <input id="nome" type="text" formControlName="nome" class="form-control" placeholder="Ex: Escola Estadual Exemplo">
-              @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
-                <small class="text-danger">O nome é obrigatório.</small>
-              }
-            </div>
-
-            <div class="mb-3">
-              <label for="tipo" class="form-label small fw-semibold">Tipo de Instituição</label>
-              <select id="tipo" formControlName="tipo" class="form-select">
-                <option value="" disabled>Selecione o tipo</option>
-                @for (t of tiposInstituicao; track t.value) {
-                  <option [value]="t.value">{{ t.label }}</option>
-                }
-              </select>
-              @if (form.get('tipo')?.invalid && form.get('tipo')?.touched) {
-                <small class="text-danger">O tipo é obrigatório.</small>
-              }
-            </div>
-
-            <div class="mb-3">
-              <label for="estado" class="form-label small fw-semibold">Estado (UF)</label>
-              <select id="estado" formControlName="estado" class="form-select">
-                <option value="" disabled>Selecione o estado</option>
-                @for (uf of estados; track uf.sigla) {
-                  <option [value]="uf.sigla">{{ uf.nome }} ({{ uf.sigla }})</option>
-                }
-              </select>
-              @if (form.get('estado')?.invalid && form.get('estado')?.touched) {
-                <small class="text-danger">O estado é obrigatório.</small>
-              }
-            </div>
-
-            <div class="mb-4">
-              <label for="cidade" class="form-label small fw-semibold">Cidade</label>
-              <select id="cidade" formControlName="cidade" class="form-select">
-                <option value="" disabled>
-                  {{ carregandoCidades() ? 'Carregando cidades...' : 'Selecione a cidade' }}
-                </option>
-                @for (cid of cidades; track cid.nome) {
-                  <option [value]="cid.nome">{{ cid.nome }}</option>
-                }
-              </select>
-              @if (form.get('cidade')?.invalid && form.get('cidade')?.touched) {
-                <small class="text-danger">A cidade é obrigatória.</small>
-              }
-            </div>
-
-            <div class="modal-footer border-top px-0 pb-0">
-              <button type="button" class="btn btn-light btn-sm" (click)="fecharModal()">Cancelar</button>
-              <button type="submit" class="btn btn-primary btn-sm shadow-sm"
-                [disabled]="form.invalid || enviando() || carregandoCidades()">
-                {{ enviando() ? 'Salvando...' : 'Salvar Alterações' }}
-              </button>
-            </div>
-
-          </form>
-        </div>
-
+<div #instituicaoModal class="modal fade" id="instituicaoModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow-lg border-0">
+      
+      <div class="modal-header bg-light border-bottom">
+        <h1 class="modal-title fs-5 fw-bold text-dark"><i class="bi bi-pencil-square text-primary me-2"></i>Editar Instituição</h1>
+        <button type="button" class="btn-close" (click)="fecharModal()"></button>
       </div>
+
+      <div class="modal-body p-4">
+        <p class="text-secondary small mb-4">Mantenha as informações da sua instituição sempre atualizadas.</p>
+
+        @if (mensagemSucesso()) {
+          <div class="alert alert-success small d-flex align-items-center shadow-sm border-0">
+            <i class="bi bi-check-circle-fill fs-5 me-2"></i>{{ mensagemSucesso() }}
+          </div>
+        }
+        @if (mensagemErro()) {
+          <div class="alert alert-danger small d-flex align-items-center shadow-sm border-0">
+            <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>{{ mensagemErro() }}
+          </div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" id="formInstituicao">
+          
+          <div class="mb-3">
+            <label for="nome" class="form-label small fw-bold text-secondary">Nome da Instituição</label>
+            <input id="nome" type="text" formControlName="nome" class="form-control bg-light" placeholder="Ex: Escola Estadual Exemplo">
+            @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
+              <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>O nome é obrigatório.</small>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label for="tipo" class="form-label small fw-bold text-secondary">Tipo de Instituição</label>
+            <select id="tipo" formControlName="tipo" class="form-select bg-light">
+              <option value="" disabled>Selecione o tipo</option>
+              @for (t of tiposInstituicao; track t.value) {
+                <option [value]="t.value">{{ t.label }}</option>
+              }
+            </select>
+            @if (form.get('tipo')?.invalid && form.get('tipo')?.touched) {
+              <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>O tipo é obrigatório.</small>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label for="estado" class="form-label small fw-bold text-secondary">Estado (UF)</label>
+            <select id="estado" formControlName="estado" class="form-select bg-light">
+              <option value="" disabled>Selecione o estado</option>
+              @for (uf of estados; track uf.sigla) {
+                <option [value]="uf.sigla">{{ uf.nome }} ({{ uf.sigla }})</option>
+              }
+            </select>
+            @if (form.get('estado')?.invalid && form.get('estado')?.touched) {
+              <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>O estado é obrigatório.</small>
+            }
+          </div>
+
+          <div class="mb-2">
+            <label for="cidade" class="form-label small fw-bold text-secondary">Cidade</label>
+            <select id="cidade" formControlName="cidade" class="form-select bg-light">
+              <option value="" disabled>
+                {{ carregandoCidades() ? 'A carregar cidades...' : 'Selecione a cidade' }}
+              </option>
+              @for (cid of cidades; track cid.nome) {
+                <option [value]="cid.nome">{{ cid.nome }}</option>
+              }
+            </select>
+            @if (form.get('cidade')?.invalid && form.get('cidade')?.touched) {
+              <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>A cidade é obrigatória.</small>
+            }
+          </div>
+
+        </form>
+      </div>
+      
+      <div class="modal-footer bg-light border-top">
+        <button type="button" class="btn btn-outline-secondary" (click)="fecharModal()">Cancelar</button>
+        <button type="submit" form="formInstituicao" class="btn btn-primary shadow-sm" [disabled]="form.invalid || enviando() || carregandoCidades()">
+          @if (enviando()) {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span> A salvar...
+          } @else {
+            <i class="bi bi-check2-circle me-1"></i> Salvar Alterações
+          }
+        </button>
+      </div>
+
     </div>
   </div>
-}
+</div>

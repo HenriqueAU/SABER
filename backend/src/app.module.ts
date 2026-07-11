@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 import { Instituicao } from './modules/instituicao/instituicao.entity';
 import { Usuario } from './modules/usuario/usuario.entity';
 import { ClubeLivro } from './modules/clube_livro/clube-livro.entity';
@@ -42,6 +43,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
       envFilePath: '.env',
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,

@@ -43,6 +43,7 @@ export class ClubeController {
     status: 200,
     description: 'Lista de clubes retornada com sucesso',
   })
+  @Roles(TipoPerfil.ALUNO)
   @Get()
   findAll(@Req() request: RequestComUser) {
     const instituicao_id = request.user.instituicao;

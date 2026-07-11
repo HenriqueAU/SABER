@@ -1,14 +1,10 @@
-import { Component,
-  OnInit,
-  inject,
-  signal, 
-  computed 
- } from '@angular/core';
- import { CommonModule } from '@angular/common';
- import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms'
- import { UsuariosService } from '../../../client/services/usuarios.service'; 
- import { CoreAuthService } from '../../core/auth/auth-session';
- import { TipoPerfil } from '../../core/auth/tipo-perfil.enum'
+import { Component, OnInit, inject, signal, computed, ViewChild, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators,FormsModule } from '@angular/forms'
+import { UsuariosService } from '../../../client/services/usuarios.service'; 
+import { CoreAuthService } from '../../core/auth/auth-session';
+import { TipoPerfil } from '../../core/auth/tipo-perfil.enum'
+import Modal from 'bootstrap/js/dist/modal';
 
 @Component({
   selector: 'app-usuario',
@@ -18,6 +14,8 @@ import { Component,
   styleUrl: './usuario.scss',
 })
 export default class UsuarioComponent implements OnInit {
+  @ViewChild('usuarioModal') usuarioModalRef!: ElementRef;
+
   usuarios = signal<any[]>([]);
   carregando = signal(true);
   enviando = signal(false);
@@ -28,7 +26,6 @@ export default class UsuarioComponent implements OnInit {
   TipoPerfilEnum = TipoPerfil;
   perfis = Object.values(TipoPerfil);
 
-  mostrarForm = signal(false);
   termoBusca = signal('');
   PerfilSelecionado = signal('');
 
@@ -92,16 +89,19 @@ export default class UsuarioComponent implements OnInit {
 
   abrirFormCadastro() {
     this.form.reset();
-    this.mostrarForm.set(true);
+    this.mensagemSucesso.set('');
+    this.mensagemErro.set('');
+    const modal = new Modal(this.usuarioModalRef.nativeElement);
+    modal.show();
   }
 
   fecharFormCadastro() {
-    this.mostrarForm.set(false);
+    const modal = Modal.getInstance(this.usuarioModalRef.nativeElement);
+    modal?.hide();
   }
 
   carregarUsuarios() {
     this.carregando.set(true);
-    this.mensagemErro.set('');
 
     this.usuariosService.usuarioControllerFindAll().subscribe({
       next: (dados: any) => {
@@ -110,7 +110,6 @@ export default class UsuarioComponent implements OnInit {
         this.carregando.set(false);
       },
       error: () => {
-        this.mensagemErro.set('Não foi possível carregar a lista de usuários.');
         this.carregando.set(false);
       }
     });
@@ -152,6 +151,7 @@ export default class UsuarioComponent implements OnInit {
         this.form.reset();
         this.enviando.set(false);
         this.carregarUsuarios();
+        setTimeout(() => this.fecharFormCadastro(), 2000);
       },
       error: (err) => {
         const msg = err.error?.message;

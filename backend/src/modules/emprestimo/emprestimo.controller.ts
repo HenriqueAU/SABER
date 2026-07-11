@@ -30,7 +30,7 @@ export class EmprestimoController {
   }
 
   @Get()
-  @Roles(TipoPerfil.BIBLIOTECARIO, TipoPerfil.ALUNO)
+  @Roles(TipoPerfil.BIBLIOTECARIO, TipoPerfil.ALUNO, TipoPerfil.GESTOR)
   @ApiOperation({ summary: 'Obter todos os empréstimos' })
   findAll(@Req() request: RequestComUser) {
     const instituicao_id = request.user.instituicao;
