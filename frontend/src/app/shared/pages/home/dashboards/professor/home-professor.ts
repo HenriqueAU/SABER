@@ -19,7 +19,6 @@ export default class HomeProfessorComponent implements OnInit {
   modoListagem = signal<boolean>(true);
   abaAtiva = signal<'detalhes' | 'feedbacks'>('detalhes');
 
-  professorId = signal<string>('');
   clubes = signal<any[]>([]);
   clubeDetalhes = signal<any>(null);
   membrosDoClube = signal<any[]>([]);
@@ -44,11 +43,6 @@ export default class HomeProfessorComponent implements OnInit {
   private authService = inject(CoreAuthService);
 
   ngOnInit(): void {
-    const token = this.authService.getToken();
-    if (token) {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      this.professorId.set(payload.id);
-    }
     this.carregarMeusClubes();
   }
 
@@ -69,12 +63,8 @@ export default class HomeProfessorComponent implements OnInit {
     this.carregando.set(true);
     this.mensagemErro.set('');
     try {
-      const res = await firstValueFrom(this.clubesService.clubeControllerFindAll());
-      const todosClubes = Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || [];
-      const profId = this.professorId();
-      const filtrados = todosClubes.filter((c: any) => 
-        c.professor?.id === profId || c.professor_id === profId || c.professor === profId
-      );
+      const res = await firstValueFrom(this.clubesService.clubeControllerFindClubesDoProfessor());
+      const filtrados = Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || [];
       this.clubes.set(filtrados);
     } catch (error) {
       this.mensagemErro.set('Não foi possível carregar os seus clubes de leitura.');
