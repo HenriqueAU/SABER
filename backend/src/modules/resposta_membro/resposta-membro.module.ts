@@ -16,5 +16,6 @@ import { NotificacaoModule } from '../notificacao/notificacao.module';
   ],
   controllers: [RespostaMembroController],
   providers: [RespostaMembroService],
+  exports: [RespostaMembroService],
 })
 export class RespostaMembroModule {}
