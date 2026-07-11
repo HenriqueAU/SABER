@@ -7,6 +7,7 @@ import { PerguntasService } from '../../../../../../client/services/perguntas.se
 import { ItemPerguntaService } from '../../../../../../client/services/itemPergunta.service';
 import { RespostaMembroService } from '../../../../../../client/services/respostaMembro.service';
 import { CoreAuthService } from '../../../../../core/auth/auth-session';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-home-professor',
@@ -42,6 +43,8 @@ export default class HomeProfessorComponent implements OnInit {
   private itemPerguntaService = inject(ItemPerguntaService);
   private respostasService = inject(RespostaMembroService);
   private authService = inject(CoreAuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   ngOnInit(): void {
     const token = this.authService.getToken();
@@ -76,6 +79,24 @@ export default class HomeProfessorComponent implements OnInit {
         c.professor?.id === profId || c.professor_id === profId || c.professor === profId
       );
       this.clubes.set(filtrados);
+      const clubeIdAcao = this.route.snapshot.queryParams['abrirClubeFeedbacks'];
+      if (clubeIdAcao) {
+        const clubeAlvo = filtrados.find((c: any) => c.id === clubeIdAcao);
+        
+        if (clubeAlvo) {
+          this.abrirClube(clubeAlvo);
+
+          this.router.navigate([], { 
+            relativeTo: this.route, 
+            queryParams: { abrirClubeFeedbacks: null }, 
+            queryParamsHandling: 'merge' 
+          });
+
+          setTimeout(() => {
+            this.abrirFeedbacks();
+          }, 300);
+        }
+      }
     } catch (error) {
       this.mensagemErro.set('Não foi possível carregar os seus clubes de leitura.');
     } finally {
