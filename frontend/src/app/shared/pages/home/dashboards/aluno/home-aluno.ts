@@ -91,6 +91,11 @@ export default class HomeAlunoComponent implements OnInit {
     return new Date(data) < new Date();
   }
 
+  calcularPorcentagem(quantidade: number): number {
+    const quantidades = this.perfilLeitura().map((p) => p.quantidade);
+    const max = quantidades.length > 0 ? Math.max(...quantidades) : 1;
+    return (quantidade / max) * 100;
+  }
   abrirRecomendacao(livroId: string) {
     this.router.navigate(['/livros'], { queryParams: { abrirModal: livroId } });
   }
@@ -106,28 +111,36 @@ export default class HomeAlunoComponent implements OnInit {
     this.erro.set('');
 
     try {
-      const resEmprestimos = await firstValueFrom(this.emprestimosService.emprestimoControllerFindAll());
+      const resEmprestimos = await firstValueFrom(
+        this.emprestimosService.emprestimoControllerFindAll(),
+      );
       const emprestimos = Array.isArray(resEmprestimos) ? resEmprestimos : [];
-      
-      const ativos = emprestimos.filter(e => !e.data_devolucao_efetiva);
-      const historico = emprestimos.filter(e => e.data_devolucao_efetiva);
-      
+
+      const ativos = emprestimos.filter((e) => !e.data_devolucao_efetiva);
+      const historico = emprestimos.filter((e) => e.data_devolucao_efetiva);
+
       this.emprestimosAtivos.set(ativos);
       this.historicoLeitura.set(historico);
       this.totalLivrosLidos.set(historico.length);
 
       const resClubes = await firstValueFrom(this.clubesService.clubeControllerFindMeusClubes());
       const todosClubes = Array.isArray(resClubes) ? resClubes : [];
-      
+
       const hoje = new Date();
-      const cAtivos = todosClubes.filter(c => c.ativo && (!c.data_fim || new Date(c.data_fim) > hoje));
-      const cEncerrados = todosClubes.filter(c => !c.ativo || (c.data_fim && new Date(c.data_fim) <= hoje));
+      const cAtivos = todosClubes.filter(
+        (c) => c.ativo && (!c.data_fim || new Date(c.data_fim) > hoje),
+      );
+      const cEncerrados = todosClubes.filter(
+        (c) => !c.ativo || (c.data_fim && new Date(c.data_fim) <= hoje),
+      );
 
       this.clubesAtivos.set(cAtivos);
       this.clubesEncerrados.set(cEncerrados);
       this.totalClubes.set(todosClubes.length);
 
-      const resPerfil = await firstValueFrom(this.emprestimosService.emprestimoControllerGetLeiturasPorGenero());
+      const resPerfil = await firstValueFrom(
+        this.emprestimosService.emprestimoControllerGetLeiturasPorGenero(),
+      );
       const perfil = Array.isArray(resPerfil) ? resPerfil : [];
       this.perfilLeitura.set(perfil);
 
@@ -135,7 +148,9 @@ export default class HomeAlunoComponent implements OnInit {
         const sortedPerfil = [...perfil].sort((a, b) => b.quantidade - a.quantidade);
         const generosPreferidos = sortedPerfil.map(p => p.genero);
 
-        const resLivroGeneros = await firstValueFrom(this.livroGeneroService.livroGeneroControllerFindAll());
+        const resLivroGeneros = await firstValueFrom(
+          this.livroGeneroService.livroGeneroControllerFindAll(),
+        );
         const livroGeneros = Array.isArray(resLivroGeneros) ? resLivroGeneros : [];
 
         const recomendadosMap = new Map();

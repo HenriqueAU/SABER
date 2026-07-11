@@ -1,10 +1,18 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { CoreAuthService } from '../../../core/auth/auth-session';
-import { BASE_PATH_DEFAULT } from '../../../../client/tokens';
+import { UsuariosService } from '../../../../client/services/usuarios.service';
+import { AlterarSenhaDto } from '../../../../client/models';
 
 function senhaForteValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -28,7 +36,7 @@ function senhaForteValidator(): ValidatorFn {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './alterar-senha.html',
-  styleUrls: ['./alterar-senha.scss']
+  styleUrls: ['./alterar-senha.scss'],
 })
 export default class AlterarSenhaComponent {
   form: FormGroup;
@@ -41,15 +49,14 @@ export default class AlterarSenhaComponent {
   mostrarCriterios = signal<boolean>(false);
 
   private fb = inject(FormBuilder);
-  private http = inject(HttpClient);
+  private usuariosService = inject(UsuariosService);
   private authSession = inject(CoreAuthService);
-  private basePath = inject(BASE_PATH_DEFAULT);
   private router = inject(Router);
 
   constructor() {
     this.form = this.fb.group({
       senhaAtual: ['', [Validators.required]],
-      novaSenha: ['', [Validators.required, Validators.minLength(8), senhaForteValidator()]]
+      novaSenha: ['', [Validators.required, Validators.minLength(8), senhaForteValidator()]],
     });
   }
 
@@ -62,7 +69,7 @@ export default class AlterarSenhaComponent {
   }
 
   toggleCriterios() {
-    this.mostrarCriterios.update(v => !v);
+    this.mostrarCriterios.update((v) => !v);
   }
 
   voltar() {
@@ -102,12 +109,12 @@ export default class AlterarSenhaComponent {
     }
 
     const { senhaAtual, novaSenha } = this.form.value;
-    const payload = { 
-      senha_atual: senhaAtual, 
-      nova_senha: novaSenha 
+    const alterarSenhaDto: AlterarSenhaDto = {
+      senha_atual: senhaAtual,
+      nova_senha: novaSenha,
     };
 
-    this.http.patch(`${this.basePath}/usuario/${usuarioId}/alterar-senha`, payload).subscribe({
+    this.usuariosService.usuarioControllerAlterarSenha(usuarioId, alterarSenhaDto).subscribe({
       next: () => {
         this.mensagemSucesso.set('Senha alterada com sucesso!');
         this.form.reset();
@@ -115,9 +122,13 @@ export default class AlterarSenhaComponent {
       },
       error: (err) => {
         const msg = err.error?.message;
-        this.mensagemErro.set(Array.isArray(msg) ? msg[0] : (msg || 'Erro ao alterar a senha. Verifique a sua senha atual.'));
+        this.mensagemErro.set(
+          Array.isArray(msg)
+            ? msg[0]
+            : msg || 'Erro ao alterar a senha. Verifique a sua senha atual.',
+        );
         this.carregando.set(false);
-      }
+      },
     });
   }
 }
