@@ -3,7 +3,7 @@
     <div class="modal-content bg-success-subtle border-0">
       <div class="modal-header bg-success text-white border-0">
         <h1 class="modal-title fs-5">Sucesso!</h1>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" (click)="onReturn()"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body text-success fw-medium">
         Dados de perfil atualizados com sucesso!
@@ -30,9 +30,37 @@
 
   <div class="d-flex flex-column justify-content-center align-items-center">
     <form class="w-50" [formGroup]="userForm" (ngSubmit)="onSubmit()">
-      
       <div class="bg-white rounded-4 shadow-sm border p-4 mb-4">
-        <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-person me-2"></i>Dados Pessoais</h5>
+        <h5 class="fw-bold mb-2 text-primary"><i class="bi bi-emoji-smile me-2"></i>Seu Avatar</h5>
+        <p class="text-secondary small">Escolha um avatar para representar seu perfil na plataforma.</p>
+        <div class="d-flex justify-content-center">
+          <div class="me-4">
+            <img
+              [src]="userForm.get('foto_perfil')?.value || 'assets/imgs/avatares/0.png'"
+              class="rounded-3"
+              style="max-width: 8rem;"
+            >
+          </div>
+          <ul class="d-flex flex-wrap list-unstyled gap-2 mb-5">
+            @for (imagem of imagens; track imagem) {
+              <li>
+                <button
+                  type="button"
+                  class="border-0 bg-transparent p-0"
+                  (click)="selecionarFotoPerfil(imagem)">
+                  <img
+                    [src]="`assets/imgs/avatares/${imagem}.png`"
+                    style="max-width: 2.7rem;">
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-4 shadow-sm border p-4 mb-4">
+        <h5 class="fw-bold mb-2 text-primary"><i class="bi bi-person me-2"></i>Dados Pessoais</h5>
+        <p class="text-secondary small">Atualize suas informações pessoais.</p>
         
         <div class="mb-3">
           <label class="form-label fw-semibold">Nome Completo</label>
@@ -47,12 +75,31 @@
       </div>
 
       <div class="bg-white rounded-4 shadow-sm border p-4 mb-4">
-        <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-shield-lock me-2"></i>Segurança</h5>
+        <h5 class="fw-bold mb-2 text-primary"><i class="bi bi-shield-lock me-2"></i>Segurança</h5>
         <p class="text-secondary small mb-3">Mantenha sua conta segura atualizando sua senha regularmente.</p>
-        <a routerLink="/alterar-senha" class="btn btn-outline-dark w-100">
+        <a routerLink="/alterar-senha" class="btn btn-outline-primary w-100">
           <i class="bi bi-key me-2"></i>Alterar senha de acesso
         </a>
       </div>
+
+      @if (tipoPerfil === 'aluno') {
+        <div class="bg-white rounded-4 shadow p-4 mb-4">
+          <h5 class="fw-bold mb-2 text-primary"><i class="bi bi-book me-2"></i>Preferências de Gênero</h5>
+          <p class="text-secondary small">Selecione os gêneros de livros de seu interesse.</p>
+          
+          @for (genero of (generos$ | async); track genero.id) {
+            <button
+              type="button"
+              class="btn rounded-pill mb-1 me-1"
+              [class.btn-primary]="isGeneroSelecionado(genero.id)"
+              [class.btn-outline-secondary]="!isGeneroSelecionado(genero.id)"
+              (click)="toggleGenero(genero.id)"
+            >
+            {{ genero.nome }}
+            </button>
+          }
+        </div>
+      }
 
       <div class="d-flex justify-content-end gap-2">
         <button type="button" class="btn btn-light border" (click)="cancelarEdicao()">Cancelar</button>
