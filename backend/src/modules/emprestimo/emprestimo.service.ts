@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere } from 'typeorm';
+import { Repository, FindOptionsWhere, IsNull, LessThan, Not } from 'typeorm';
 import { Emprestimo } from './emprestimo.entity';
 import { CreateEmprestimoDto } from './dto/create-emprestimo.dto';
 import { UpdateEmprestimoDto } from './dto/update-emprestimo.dto';
@@ -9,9 +9,12 @@ import { StatusExemplar } from '../exemplar/exemplar.entity';
 import { TipoPerfil } from '../usuario/usuario.entity';
 import { LivroGenero } from '../livro_genero/livro-genero.entity';
 import { Genero } from '../genero/genero.entity';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { UsuarioService } from '../usuario/usuario.service';
-import { NotificacaoService } from '../notificacao/notificacao.service';
+
+interface GeneroQuantidade {
+  genero: string;
+  quantidade: string;
+}
 
 @Injectable()
 export class EmprestimoService {
@@ -20,7 +23,6 @@ export class EmprestimoService {
     private readonly emprestimoRepository: Repository<Emprestimo>,
     private readonly exemplarService: ExemplarService,
     private readonly usuarioService: UsuarioService,
-    private readonly notificacaoService: NotificacaoService,
   ) {}
 
   async create(createEmprestimoDto: CreateEmprestimoDto): Promise<Emprestimo> {
@@ -115,10 +117,15 @@ export class EmprestimoService {
   }
 
   async getLeiturasPorGenero(usuarioId: string) {
-    const result = await this.emprestimoRepository.createQueryBuilder('emprestimo')
+    const result = await this.emprestimoRepository
+      .createQueryBuilder('emprestimo')
       .innerJoin('emprestimo.exemplar', 'exemplar')
       .innerJoin('exemplar.livro', 'livro')
-      .innerJoin(LivroGenero, 'livro_genero', 'livro_genero.livro_id = livro.id')
+      .innerJoin(
+        LivroGenero,
+        'livro_genero',
+        'livro_genero.livro_id = livro.id',
+      )
       .innerJoin(Genero, 'genero', 'livro_genero.genero_id = genero.id')
       .select('genero.nome', 'genero')
       .addSelect('COUNT(emprestimo.id)', 'quantidade')
@@ -127,39 +134,34 @@ export class EmprestimoService {
       .groupBy('genero.nome')
       .getRawMany();
 
-    return result.map(row => ({
+    return (result as GeneroQuantidade[]).map((row) => ({
       genero: row.genero,
-      quantidade: Number(row.quantidade)
+      quantidade: Number(row.quantidade),
     }));
   }
+  async findAllAtrasados(): Promise<Emprestimo[]> {
+    return await this.emprestimoRepository.find({
+      where: {
+        data_devolucao_efetiva: IsNull(),
+        data_devolucao_esperada: LessThan(new Date()),
+      },
+      relations: [
+        'exemplar',
+        'exemplar.livro',
+        'usuario',
+        'usuario.instituicao',
+      ],
+    });
+  }
 
-  @Cron(CronExpression.EVERY_DAY_AT_1AM)
-  async verificarAtrasosEnotificarGestores() {
-    const hoje = new Date();
-    const infratores = await this.emprestimoRepository.createQueryBuilder('emprestimo')
-      .innerJoin('emprestimo.usuario', 'usuario')
-      .innerJoin('usuario.instituicao', 'instituicao')
-      .select('usuario.id', 'usuarioId')
-      .addSelect('usuario.nome', 'usuarioNome')
-      .addSelect('instituicao.id', 'instituicaoId')
-      .addSelect('COUNT(emprestimo.id)', 'qtdAtrasos')
-      .where('emprestimo.data_devolucao_efetiva IS NULL')
-      .andWhere('emprestimo.data_devolucao_esperada < :hoje', { hoje })
-      .groupBy('usuario.id, usuario.nome, instituicao.id')
-      .having('COUNT(emprestimo.id) >= :limite', { limite: 3 })
-      .getRawMany();
-      
-    for (const infrator of infratores) {
-      const usuariosDaInstituicao = await this.usuarioService.findAll(infrator.instituicaoId);
-      const gestores = usuariosDaInstituicao.filter(u => u.perfil === TipoPerfil.GESTOR);
-
-      for (const gestor of gestores) {
-        await this.notificacaoService.create({
-          titulo: 'Limite de Atrasos Excedido',
-          mensagem: `O aluno ${infrator.usuarioNome} atingiu o limite crítico com ${infrator.qtdAtrasos} livros em atraso na biblioteca. Por favor, verifique a situação.`,
-          usuario_id: gestor.id,
-        });
-      }
-    }
+  async findHistoricoByAluno(usuarioId: string): Promise<Emprestimo[]> {
+    return await this.emprestimoRepository.find({
+      where: {
+        usuario: { id: usuarioId },
+        data_devolucao_efetiva: Not(IsNull()),
+      },
+      order: { data_devolucao_efetiva: 'DESC' },
+      relations: ['usuario', 'usuario.instituicao'],
+    });
   }
 }

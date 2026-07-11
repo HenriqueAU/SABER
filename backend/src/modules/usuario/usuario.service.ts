@@ -138,7 +138,7 @@ export class UsuarioService {
 
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(novaSenha, salt);
-    
+
     usuario.senha_hash = hash;
     await this.usuarioRepository.save(usuario);
   }

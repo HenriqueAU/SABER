@@ -12,6 +12,7 @@ import { ItemPergunta } from '../item_pergunta/item-pergunta.entity';
 import { MembroClubeService } from '../membro_clube/membro-clube.service';
 import { ItemPerguntaService } from '../item_pergunta/item-pergunta.service';
 import { TipoPerfil } from '../usuario/usuario.entity';
+import { NotificacaoService } from '../notificacao/notificacao.service';
 
 @Injectable()
 export class RespostaMembroService {
@@ -20,6 +21,7 @@ export class RespostaMembroService {
     private readonly respostaMembroRepository: Repository<RespostaMembro>,
     private readonly membroClubeService: MembroClubeService,
     private readonly itemPerguntaService: ItemPerguntaService,
+    private readonly notificacaoService: NotificacaoService,
   ) {}
 
   async create(
@@ -45,7 +47,21 @@ export class RespostaMembroService {
       itemPergunta: { id: item_pergunta_id },
     });
 
-    return await this.respostaMembroRepository.save(novaRespostaMembro);
+    const respostaSalva =
+      await this.respostaMembroRepository.save(novaRespostaMembro);
+
+    const membroComClube = await this.membroClubeService.findOne(membro_id);
+    const professorId = membroComClube.clube?.professor?.id;
+
+    if (professorId) {
+      await this.notificacaoService.create({
+        titulo: 'Nova Avaliação Recebida',
+        mensagem: `Um aluno avaliou o clube "${membroComClube.clube.nome}".`,
+        usuario_id: professorId,
+      });
+    }
+
+    return respostaSalva;
   }
 
   async findAll(
