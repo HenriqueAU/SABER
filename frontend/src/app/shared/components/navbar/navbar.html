@@ -1,102 +1,96 @@
 @if (!isLoginPage) {
-  <nav
-    class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top"
-    [class.navbar-hidden]="navbarHidden">
+  <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top" [class.navbar-hidden]="navbarHidden">
 
     <div class="container-fluid">
       @if (isOnboardingPage) {
-        <a
-          class="navbar-brand fw-bold"
-          href="#"
-          (click)="scrollToTop($event)">
-          <!-- <img src="assets/logo.png" class="me-2" style="height: 25px; width: auto;" alt="Logo" /> -->
-          SABER
-        </a>
 
-        <ul class="navbar-nav fw-bold flex-row ms-4 gap-3">
-          <li class="nav-item">
-            <a class="nav-link" href="#" (click)="scrollToBottom($event)">
-              Sobre Nós
-            </a>
-          </li>
+      <a class="navbar-brand fw-bold ms-2 d-flex align-items-center" href="#" (click)="scrollToTop($event)">
+        <img src="assets/imgs/logos/logo-azul.png" class="me-1" style="height: 20px; width: auto;" alt="Logo" />
+        SABER
+      </a>
 
-          <li class="nav-item fw-bold">
-            <a class="nav-link" href="#" (click)="scrollToBottom($event)">
-              Contato
-            </a>
-          </li>
-        </ul>
-
-        <div class="ms-auto">
-          <a class="btn btn-primary" [routerLink]="getLoginOrHomeRoute()">
-            Fazer Login
+      <ul class="navbar-nav fw-bold flex-row ms-1 gap-3">
+        <li class="nav-item">
+          <a class="nav-link fw-bold py-1" href="#" (click)="scrollToBottom($event)">
+            Contato
           </a>
-        </div>
-      } @else {
-          <ul class="navbar-nav flex-row gap-3">
-            <li class="nav-item">
-              <a class="nav-link fw-bold" routerLink="/home">Home</a>
-            </li>
+        </li>
+      </ul>
 
-            @if (perfil() === 'gestor') {
-              <li class="nav-item">
-                <a class="nav-link fw-bold" routerLink="/instituicao">Instituição</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link fw-bold" routerLink="/usuarios">Usuários</a>
-              </li>
-            }
-            @if (perfil() === 'bibliotecario') {
-              <li class="nav-item">
-                <a class="nav-link fw-bold" routerLink="/livros">Livros</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link fw-bold" routerLink="/emprestimos">Empréstimos</a>
-              </li>
-            }
-            @if (perfil() === 'professor') {
-              <li class="nav-item">
-                <a class="nav-link fw-bold" routerLink="/clubes">Clubes</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link fw-bold" routerLink="/livros">Livros</a>
-              </li>
-            }
+      <div class="ms-auto">
+        <a class="btn btn-primary" [routerLink]="getLoginOrHomeRoute()">
+          Fazer Login
+        </a>
+      </div>
+      } @else {
+      <ul class="navbar-nav flex-row gap-3 align-items-center">
+        <li class="nav-item">
+          <a class="nav-link fw-bold py-1" routerLink="/home" routerLinkActive="active-link">Home</a>
+        </li>
+
+        @if (perfil() === 'gestor') {
+        <li class="nav-item">
+          <a class="nav-link fw-bold py-1" routerLink="/instituicao" routerLinkActive="active-link">Instituição</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link fw-bold py-1" routerLink="/usuarios" routerLinkActive="active-link">Usuários</a>
+        </li>
+        }
+        @if (perfil() === 'bibliotecario') {
+        <li class="nav-item">
+          <a class="nav-link fw-bold py-1" routerLink="/livros" routerLinkActive="active-link">Livros</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link fw-bold py-1" routerLink="/emprestimos" routerLinkActive="active-link">Empréstimos</a>
+        </li>
+        }
+        @if (perfil() === 'professor') {
+        <li class="nav-item">
+          <a class="nav-link fw-bold py-1" routerLink="/livros" routerLinkActive="active-link">Livros</a>
+        </li>
+        }
+        @if (perfil() === 'aluno') {
+        <li class="nav-item">
+          <a class="nav-link fw-bold py-1" routerLink="/clubes" routerLinkActive="active-link">Clubes</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link fw-bold py-1" routerLink="/livros" routerLinkActive="active-link">Livros</a>
+        </li>
+        }
+      </ul>
+      <ul class="navbar-nav flex-row ms-auto gap-1">
+        <li class="nav-item fs-5">
+          <a class="nav-link" routerLink="/notificacoes" aria-label="Notificações">
+            <i class="bi bi-bell"></i>
+          </a>
+        </li>
+
+        <li class="nav-item dropdown">
+          <button class="nav-link p-1 d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+
+            <img
+              [src]="fotoPerfil || 'assets/imgs/avatares/0.png'"
+              alt="Foto de Perfil"
+              class="rounded-circle"
+              style="width: 36px; height: 36px; object-fit: cover;"
+            >
+            <i class="bi bi-chevron-down small"></i>
+          </button>
+
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" routerLink="/perfil">Configurações de usuário</a></li>
             @if (perfil() === 'aluno') {
-              <li class="nav-item">
-                <a class="nav-link fw-bold" routerLink="/clubes">Clubes</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link fw-bold" routerLink="/livros">Livros</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link fw-bold" routerLink="/perfil-leitura">Perfil de leitura</a>
-              </li>
+              <li><a class="dropdown-item" routerLink="/perfil-leitura">Perfil de leitura</a></li>
             }
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><button class="dropdown-item" type="button" (click)="logOut()">Sair</button></li>
           </ul>
-          <ul class="navbar-nav flex-row ms-auto gap-1">
-            <li class="nav-item fs-5">
-              <a class="nav-link" routerLink="/notificacoes" aria-label="Notificações">
-                <i class="bi bi-bell"></i>
-              </a>
-            </li>
-            <li class="nav-item fs-5">
-              <a class="nav-link" routerLink="/perfil" aria-label="Perfil">
-                <i class="bi bi-person-circle"></i>
-              </a>
-            </li>
-            <li class="nav-item fs-5">
-              <button
-                type="button"
-                class="nav-link"
-                (click)="logOut()"
-                aria-label="Sair">
-                <i class="bi bi-box-arrow-right"></i>
-              </button>
-            </li>
-          </ul>
+        </li>
+      </ul>
       }
     </div>
   </nav>
-
 }
