@@ -95,6 +95,7 @@ export default class HomeAlunoComponent implements OnInit {
     const quantidades = this.perfilLeitura().map((p) => p.quantidade);
     const max = quantidades.length > 0 ? Math.max(...quantidades) : 1;
     return (quantidade / max) * 100;
+  }
   abrirRecomendacao(livroId: string) {
     this.router.navigate(['/livros'], { queryParams: { abrirModal: livroId } });
   }
