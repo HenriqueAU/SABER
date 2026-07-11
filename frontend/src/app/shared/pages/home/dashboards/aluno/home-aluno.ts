@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed, HostListener } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, HostListener} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -20,14 +20,15 @@ export default class HomeAlunoComponent implements OnInit {
 
   carregando = signal<boolean>(true);
   erro = signal<string>('');
+
   totalLivrosLidos = signal<number>(0);
   totalClubes = signal<number>(0);
+  totalPaginasLidas = signal<number>(0);
+
   emprestimosAtivos = signal<any[]>([]);
-  historicoLeitura = signal<any[]>([]);
   clubesAtivos = signal<any[]>([]);
-  clubesEncerrados = signal<any[]>([]);
-  perfilLeitura = signal<any[]>([]);
   recomendacoes = signal<any[]>([]);
+
   paginaRecomendacoesAtual = signal<number>(1);
   larguraTela = signal<number>(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
@@ -39,10 +40,7 @@ export default class HomeAlunoComponent implements OnInit {
   }
 
   itensPorPaginaRecomendacoes = computed(() => {
-    const w = this.larguraTela();
-    if (w < 768) return 2;
-    if (w < 992) return 4;
-    return 6;
+    return this.larguraTela() < 576 ? 3 : 4;
   });
 
   paginaSegura = computed(() => {
@@ -61,27 +59,6 @@ export default class HomeAlunoComponent implements OnInit {
     return Math.ceil(this.recomendacoes().length / this.itensPorPaginaRecomendacoes()) || 1;
   });
 
-  coresGrafico = ['#003A79', '#0EA5E9', '#EAB308', '#16A34A', '#DC2626', '#8696AC'];
-
-  graficoDoughnut = computed(() => {
-    const perfil = this.perfilLeitura();
-    if (!perfil || perfil.length === 0) return '';
-
-    const total = perfil.reduce((acc, curr) => acc + curr.quantidade, 0);
-    let gradientParts: string[] = [];
-    let startAngle = 0;
-
-    perfil.forEach((item, index) => {
-      const percentage = (item.quantidade / total) * 100;
-      const endAngle = startAngle + percentage;
-      const color = this.coresGrafico[index % this.coresGrafico.length];
-      gradientParts.push(`${color} ${startAngle}% ${endAngle}%`);
-      startAngle = endAngle;
-    });
-
-    return `conic-gradient(${gradientParts.join(', ')})`;
-  });
-
   ngOnInit(): void {
     this.carregarPainel();
   }
@@ -91,11 +68,6 @@ export default class HomeAlunoComponent implements OnInit {
     return new Date(data) < new Date();
   }
 
-  calcularPorcentagem(quantidade: number): number {
-    const quantidades = this.perfilLeitura().map((p) => p.quantidade);
-    const max = quantidades.length > 0 ? Math.max(...quantidades) : 1;
-    return (quantidade / max) * 100;
-  }
   abrirRecomendacao(livroId: string) {
     this.router.navigate(['/livros'], { queryParams: { abrirModal: livroId } });
   }
@@ -111,63 +83,65 @@ export default class HomeAlunoComponent implements OnInit {
     this.erro.set('');
 
     try {
-      const resEmprestimos = await firstValueFrom(
-        this.emprestimosService.emprestimoControllerFindAll(),
-      );
+      const resEmprestimos = await firstValueFrom(this.emprestimosService.emprestimoControllerFindAll());
       const emprestimos = Array.isArray(resEmprestimos) ? resEmprestimos : [];
 
       const ativos = emprestimos.filter((e) => !e.data_devolucao_efetiva);
       const historico = emprestimos.filter((e) => e.data_devolucao_efetiva);
 
       this.emprestimosAtivos.set(ativos);
-      this.historicoLeitura.set(historico);
       this.totalLivrosLidos.set(historico.length);
 
       const resClubes = await firstValueFrom(this.clubesService.clubeControllerFindMeusClubes());
       const todosClubes = Array.isArray(resClubes) ? resClubes : [];
 
       const hoje = new Date();
-      const cAtivos = todosClubes.filter(
-        (c) => c.ativo && (!c.data_fim || new Date(c.data_fim) > hoje),
-      );
-      const cEncerrados = todosClubes.filter(
-        (c) => !c.ativo || (c.data_fim && new Date(c.data_fim) <= hoje),
-      );
+      const cAtivos = todosClubes.filter((c) => c.ativo && (!c.data_fim || new Date(c.data_fim) > hoje));
 
       this.clubesAtivos.set(cAtivos);
-      this.clubesEncerrados.set(cEncerrados);
       this.totalClubes.set(todosClubes.length);
 
-      const resPerfil = await firstValueFrom(
-        this.emprestimosService.emprestimoControllerGetLeiturasPorGenero(),
-      );
+      const resLivroGeneros = await firstValueFrom(this.livroGeneroService.livroGeneroControllerFindAll());
+      const livroGeneros = Array.isArray(resLivroGeneros) ? resLivroGeneros : [];
+      
+      const resPerfil = await firstValueFrom(this.emprestimosService.emprestimoControllerGetLeiturasPorGenero());
       const perfil = Array.isArray(resPerfil) ? resPerfil : [];
-      this.perfilLeitura.set(perfil);
+
+      const recomendadosMap = new Map<string, any>();
+      const livroIndisponivel = (livroId: string) => {
+        const jaLeu = historico.some(h => h.exemplar?.livro?.id === livroId);
+        const estaLendo = ativos.some(a => a.exemplar?.livro?.id === livroId);
+        return jaLeu || estaLendo;
+      };
 
       if (perfil.length > 0) {
         const sortedPerfil = [...perfil].sort((a, b) => b.quantidade - a.quantidade);
-        const generosPreferidos = sortedPerfil.map(p => p.genero);
+        
+        for (const itemPerfil of sortedPerfil) {
+          const generoAtual = itemPerfil.genero?.trim().toLowerCase();
+          if (!generoAtual) continue;
 
-        const resLivroGeneros = await firstValueFrom(
-          this.livroGeneroService.livroGeneroControllerFindAll(),
-        );
-        const livroGeneros = Array.isArray(resLivroGeneros) ? resLivroGeneros : [];
-
-        const recomendadosMap = new Map();
-        for (const generoAtual of generosPreferidos) {
           for (const lg of livroGeneros) {
-            if (lg.genero?.nome === generoAtual && lg.livro) {
-              const jaLeu = historico.some(h => h.exemplar?.livro?.id === lg.livro.id);
-              const estaLendo = ativos.some(a => a.exemplar?.livro?.id === lg.livro.id);
-              
-              if (!jaLeu && !estaLendo && !recomendadosMap.has(lg.livro.id)) {
-                recomendadosMap.set(lg.livro.id, { ...lg.livro, generoNome: generoAtual });
+            const generoLivro = lg.genero?.nome?.trim().toLowerCase();
+            
+            if (generoLivro === generoAtual && lg.livro) {
+              if (!livroIndisponivel(lg.livro.id) && !recomendadosMap.has(lg.livro.id)) {
+                recomendadosMap.set(lg.livro.id, { ...lg.livro, generoNome: lg.genero.nome });
               }
             }
           }
         }
-        this.recomendacoes.set(Array.from(recomendadosMap.values()));
       }
+      if (recomendadosMap.size === 0) {
+        for (const lg of livroGeneros) {
+          if (lg.livro && !livroIndisponivel(lg.livro.id) && !recomendadosMap.has(lg.livro.id)) {
+            recomendadosMap.set(lg.livro.id, { ...lg.livro, generoNome: lg.genero?.nome || 'Destaque' });
+          }
+        }
+      }
+
+      this.recomendacoes.set(Array.from(recomendadosMap.values()));
+
     } catch (e) {
       this.erro.set('Não foi possível carregar os dados do painel. Verifique a sua conexão.');
     } finally {
