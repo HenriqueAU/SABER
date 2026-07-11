@@ -12,14 +12,18 @@ import { ItemPergunta } from '../item_pergunta/item-pergunta.entity';
 import { MembroClubeService } from '../membro_clube/membro-clube.service';
 import { ItemPerguntaService } from '../item_pergunta/item-pergunta.service';
 import { TipoPerfil } from '../usuario/usuario.entity';
+import { NotificacaoService } from '../notificacao/notificacao.service';
 
 @Injectable()
 export class RespostaMembroService {
+  private readonly controleDeDisparo = new Map<string, number>();
+
   constructor(
     @InjectRepository(RespostaMembro)
     private readonly respostaMembroRepository: Repository<RespostaMembro>,
     private readonly membroClubeService: MembroClubeService,
     private readonly itemPerguntaService: ItemPerguntaService,
+    private readonly notificacaoService: NotificacaoService,
   ) {}
 
   async create(
@@ -45,7 +49,50 @@ export class RespostaMembroService {
       itemPergunta: { id: item_pergunta_id },
     });
 
-    return await this.respostaMembroRepository.save(novaRespostaMembro);
+    const salva = await this.respostaMembroRepository.save(novaRespostaMembro);
+    const respostaCompleta = await this.respostaMembroRepository.findOne({
+      where: { id: salva.id },
+      relations: ['membro', 'membro.usuario', 'membro.clube', 'membro.clube.professor']
+    });
+
+    if (respostaCompleta && respostaCompleta.membro.clube.professor) {
+      const professorId = respostaCompleta.membro.clube.professor.id;
+      const nomeAluno = respostaCompleta.membro.usuario.nome;
+      const nomeClube = respostaCompleta.membro.clube.nome || 'Clube de Leitura';
+      const clubeId = respostaCompleta.membro.clube.id;
+
+      const chaveLock = `${alunoLogadoId}_${clubeId}`;
+      const tempoAtual = Date.now();
+      const tempoUltimoDisparo = this.controleDeDisparo.get(chaveLock) || 0;
+      
+      if (tempoAtual - tempoUltimoDisparo < 10000) {
+        return salva;
+      }
+      this.controleDeDisparo.set(chaveLock, tempoAtual);
+      
+      const mensagemExata = `O aluno ${nomeAluno} respondeu ao questionário do clube ${nomeClube}.[CLUBE:${clubeId}]`;
+      const notificacoes = await this.notificacaoService.findAllByUser(professorId);
+      const jaFoiNotificado = notificacoes.some(n => {
+        if (n.mensagem !== mensagemExata) return false;
+        
+        const dataNotificacao = new Date(n.data).getTime();
+        const tempoReferencia = respostaCompleta.created_at 
+          ? new Date(respostaCompleta.created_at).getTime() 
+          : Date.now();
+        const diferencaEmSegundos = Math.abs((tempoReferencia - dataNotificacao) / 1000);
+        
+        return diferencaEmSegundos < 60; 
+      });
+
+      if (!jaFoiNotificado) {
+        await this.notificacaoService.create({
+          titulo: 'Novo Feedback de Leitura',
+          mensagem: mensagemExata,
+          usuario_id: professorId
+        });
+      }
+    }
+    return salva;
   }
 
   async findAll(

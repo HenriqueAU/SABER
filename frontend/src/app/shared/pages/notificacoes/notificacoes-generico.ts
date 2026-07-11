@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificacoesService } from '../../../../client/services/notificacoes.service';
+import { Router } from '@angular/router';
 
 interface Notificacao {
   id: string;
@@ -8,6 +9,8 @@ interface Notificacao {
   mensagem: string;
   data: Date;
   lida: boolean;
+  mensagemLimpa?: string;
+  clubeId?: string;
 }
 
 @Component({
@@ -22,6 +25,7 @@ export default class NotificacoesGenericoComponent implements OnInit {
   mensagemErro = signal<string>('');
 
   private notificacoesService = inject(NotificacoesService);
+  private router = inject(Router);
 
   ngOnInit(): void {
     this.carregarNotificacoes();
@@ -33,7 +37,15 @@ export default class NotificacoesGenericoComponent implements OnInit {
 
     this.notificacoesService.notificacaoControllerFindAll().subscribe({
       next: (dados: Notificacao[]) => {
-        this.notificacoes.set(dados);
+        const formatadas = dados.map(notif => {
+          const hasLink = notif.mensagem.match(/\[CLUBE:(.*?)\]/);
+          return {
+            ...notif,
+            mensagemLimpa: notif.mensagem.replace(/\[CLUBE:.*?\]/, ''),
+            clubeId: hasLink ? hasLink[1] : undefined
+          };
+        });
+        this.notificacoes.set(formatadas);
         this.carregando.set(false);
       },
       error: () => {
@@ -43,7 +55,9 @@ export default class NotificacoesGenericoComponent implements OnInit {
     });
   }
 
-  marcarComoLida(notificacao: Notificacao) {
+  marcarComoLida(notificacao: Notificacao, evento?: Event) {
+    if (evento) evento.stopPropagation();
+    if (notificacao.lida) return;
     this.notificacoesService.notificacaoControllerMarkAsRead(notificacao.id).subscribe({
       next: () => {
         this.notificacoes.update(notifs =>
@@ -54,5 +68,15 @@ export default class NotificacoesGenericoComponent implements OnInit {
         this.mensagemErro.set(`Não foi possível marcar "${notificacao.titulo}" como lida.`);
       }
     });
+  }
+  
+  abrirNotificacao(notificacao: Notificacao) {
+    if (!notificacao.lida) {
+      this.marcarComoLida(notificacao);
+    }
+
+    if (notificacao.clubeId) {
+      this.router.navigate(['/home'], { queryParams: { abrirClubeFeedbacks: notificacao.clubeId } });
+    }
   }
 }
