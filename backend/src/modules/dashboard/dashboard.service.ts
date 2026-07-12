@@ -2,6 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Emprestimo } from '../emprestimo/emprestimo.entity';
+import { LivroGenero } from '../livro_genero/livro-genero.entity';
+import { Genero } from '../genero/genero.entity';
+
+interface LivroMaisEmprestadoRaw {
+  livroId: string;
+  titulo: string;
+  autor: string;
+  totalEmprestimos: string;
+}
 
 @Injectable()
 export class DashboardService {
@@ -25,11 +34,11 @@ export class DashboardService {
       .addGroupBy('livro.autor')
       .orderBy('"totalEmprestimos"', 'DESC')
       .limit(5)
-      .getRawMany();
+      .getRawMany<LivroMaisEmprestadoRaw>();
 
-    return resultado.map((r)=>({
-        ...r,
-        totalEmprestimos: Number(r.totalEmprestimos),
+    return resultado.map((r) => ({
+      ...r,
+      totalEmprestimos: Number(r.totalEmprestimos),
     }));
   }
 
@@ -39,12 +48,8 @@ export class DashboardService {
       .innerJoin('emprestimo.exemplar', 'exemplar')
       .innerJoin('exemplar.livro', 'livro')
       .innerJoin('emprestimo.usuario', 'usuario')
-      .innerJoin(
-        'livro_genero',
-        'livroGenero',
-        'livroGenero.livro_id = livro.id',
-      )
-      .innerJoin('genero', 'genero', 'genero.id = livroGenero.genero_id')
+      .innerJoin(LivroGenero, 'livroGenero', 'livroGenero.livro_id = livro.id')
+      .innerJoin(Genero, 'genero', 'genero.id = livroGenero.genero_id')
       .where('livro.instituicao_id = :instituicaoId', { instituicaoId });
 
     if (faixaEtaria) {
@@ -82,11 +87,11 @@ export class DashboardService {
       .groupBy('genero.id')
       .addGroupBy('genero.nome')
       .orderBy('"totalEmprestimos"', 'DESC')
-      .getRawMany();
+      .getRawMany<LivroMaisEmprestadoRaw>();
 
     return resultado.map((r) => ({
       ...r,
-    totalEmprestimos: Number(r.totalEmprestimos),
+      totalEmprestimos: Number(r.totalEmprestimos),
     }));
   }
   async mediaLeitura(instituicaoId: string) {

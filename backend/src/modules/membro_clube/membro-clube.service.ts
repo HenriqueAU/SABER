@@ -65,7 +65,7 @@ export class MembroClubeService {
   async findOne(id: string): Promise<MembroClube> {
     const membroClube = await this.membroClubeRepository.findOne({
       where: { id },
-      relations: ['usuario', 'clube'],
+      relations: ['usuario', 'clube', 'clube.professor'],
     });
     if (!membroClube) {
       throw new NotFoundException('Membro do Clube não encontrado');
@@ -104,6 +104,15 @@ export class MembroClubeService {
   async remove(id: string): Promise<void> {
     const membroClube = await this.findOne(id);
     await this.membroClubeRepository.remove(membroClube);
+  }
+  async findTodosMembrosEmClubesEncerrados(): Promise<MembroClube[]> {
+    const hoje = new Date();
+    return await this.membroClubeRepository
+      .createQueryBuilder('membro')
+      .innerJoinAndSelect('membro.usuario', 'usuario')
+      .innerJoinAndSelect('membro.clube', 'clube')
+      .where('clube.ativo = false OR clube.data_fim < :hoje', { hoje })
+      .getMany();
   }
   private async validarUsuario(usuario_id: string): Promise<Usuario> {
     const usuario = await this.usuarioService.findOneInterno(usuario_id);

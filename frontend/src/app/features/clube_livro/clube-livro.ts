@@ -69,6 +69,9 @@ export default class ClubeLivroComponent implements OnInit {
       .sort()
   );
 
+  eMembroDoClube = computed(() =>
+    this.meusClubes().some(mc => mc.id === this.clubeDetalhes()?.id)
+  );
 
   clubesFiltrados = computed(() => {
     const usuarioId = this.authService.getId();
@@ -87,6 +90,9 @@ export default class ClubeLivroComponent implements OnInit {
 
       const souMembro = this.meusClubes().some(mc => mc.id === c.id) ||
                         c.membros?.some((m: any) => String(m.usuario_id) === String(usuarioId));
+
+      const statusClube = this.obterStatusClube(c);
+      if (statusClube === 'Encerrado' && !souMembro) return false;
 
       if (filtroAbasAtual === 'MEUS') return souMembro;
       if (filtroAbasAtual === 'OUTROS') return !souMembro;
@@ -119,13 +125,13 @@ export default class ClubeLivroComponent implements OnInit {
   }
 
 
-  
+
   alterarFiltroAbas(tipo: 'TODOS' | 'MEUS' | 'OUTROS'): void {
     this.filtroAbas.set(tipo);
     this.paginaAtual.set(1);
   }
 
-  
+
   obterStatusClube(clube: any): 'Ativo' | 'Encerrado' {
     if (!clube || !clube.ativo) return 'Encerrado';
     if (clube.data_fim) {
@@ -181,7 +187,6 @@ export default class ClubeLivroComponent implements OnInit {
     });
   }
 
-  // ATUALIZADO: carrega clubes + meus clubes em paralelo (forkJoin), sem HttpClient direto
   async carregarClubes() {
     this.carregando.set(true);
     this.carregandoMeusClubes.set(true);
@@ -242,7 +247,6 @@ export default class ClubeLivroComponent implements OnInit {
     });
   }
 
-  // ATUALIZADO: agora usa ClubesService em vez de HttpClient direto; usado após entrar em um clube
   async carregarMeusClubes(): Promise<void> {
     if (this.perfilUsuario !== TipoPerfil.ALUNO && this.perfilUsuario !== TipoPerfil.PROFESSOR) return;
 
@@ -282,6 +286,10 @@ export default class ClubeLivroComponent implements OnInit {
       this.perguntas.set(await firstValueFrom(this.perguntasService.perguntaControllerFindAll()) || []);
       this.itensPergunta.set(await firstValueFrom(this.itemPerguntaService.itemPerguntaControllerFindAll()) || []);
 
+      this.montarFormAvaliacao();
+
+      await this.carregarMeusClubes();
+
     } catch (error) {
       this.mensagemErro.set('Não foi possível carregar os detalhes deste clube.');
     } finally {
@@ -296,17 +304,18 @@ export default class ClubeLivroComponent implements OnInit {
     });
   }
 
+  montarFormAvaliacao(): void {
+    Object.keys(this.form.controls).forEach(key => this.form.removeControl(key));
+    this.perguntas().forEach(pergunta => {
+      this.form.addControl(pergunta.id, this.fb.control('', Validators.required))
+    })
+  }
 
   abrirAvaliacao() {
     this.mensagemSucesso.set('');
     this.mensagemErro.set('');
-
-    Object.keys(this.form.controls).forEach(key => this.form.removeControl(key));
+    this.form.reset();
     this.form.enable();
-
-    this.perguntas().forEach(pergunta => {
-      this.form.addControl(pergunta.id, this.fb.control('', Validators.required));
-    });
   }
 
   async onSubmit() {

@@ -23,7 +23,9 @@
         <div class="notificacao-card card border-0 border-start border-4 shadow-sm p-3 transition-all"
              [class.border-primary]="!notif.lida"
              [class.border-light-subtle]="notif.lida"
-             [class.bg-card-lida]="notif.lida">
+             [class.bg-card-lida]="notif.lida"
+             [style.cursor]="notif.clubeId ? 'pointer' : 'default'"
+             (click)="abrirNotificacao(notif)">
           
           <div class="d-flex justify-content-between align-items-center gap-3">
             <div class="d-flex gap-2 align-items-start">
@@ -36,22 +38,28 @@
               </div>
               <div>
                 <h4 class="fw-bold m-0 small-title">{{ notif.titulo }}</h4>
-                <p class="text-secondary my-1 small-text text-break">{{ notif.mensagem }}</p>
+                <p class="text-secondary my-1 small-text text-break">{{ notif.mensagemLimpa || notif.mensagem }}</p>
                 <span class="text-muted extra-small-text">
                   <i class="bi bi-clock me-1"></i>{{ notif.data | date:'dd/MM/yyyy HH:mm' }}
                 </span>
               </div>
             </div>
 
-            @if (!notif.lida) {
-              <button class="btn btn-sm btn-outline-primary py-1 px-2 extra-small-text flex-shrink-0 rounded-pill" (click)="marcarComoLida(notif)">
-                <i class="bi bi-check2-all me-1"></i>Lida
-              </button>
-            }
+            <div class="d-flex align-items-center gap-2">
+              @if (notif.clubeId) {
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1 flex-shrink-0 extra-small-text">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>Ver Clube
+                </span>
+              }
+              @if (!notif.lida) {
+                <button class="btn btn-sm btn-outline-primary py-1 px-2 extra-small-text flex-shrink-0 rounded-pill" (click)="marcarComoLida(notif, $event)">
+                  <i class="bi bi-check2-all me-1"></i>Lida
+                </button>
+              }
+            </div>
           </div>
         </div>
       } @empty {
-        <!-- Estado Vazio baseado na imagem_2cda17.png -->
         <div class="card border-0 shadow-sm p-5 text-center text-secondary custom-card">
           <i class="bi bi-bell-slash fs-1 opacity-25 mb-2"></i>
           <p class="mb-0 text-muted small-text">Não há nenhuma notificação no momento.</p>

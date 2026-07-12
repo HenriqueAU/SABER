@@ -36,6 +36,11 @@ export class CreateLivroDto {
   @IsOptional()
   ano_publicacao?: number;
 
+  @ApiPropertyOptional({ description: 'Número de páginas', example: 320 })
+  @IsInt()
+  @IsOptional()
+  paginas?: number;
+  
   @ApiPropertyOptional({ description: 'Resumo do livro' })
   @IsString()
   @IsOptional()
