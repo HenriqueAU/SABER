@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 
 Chart.register(...registerables);
 
-type FaixaEtaria = 'todas' | 'livre' | '10+' | '12+' | '14+' | '16+' | '18+';
+type FaixaEtaria = 'todas' | '0-12' | '13-17' | '18-25' | '26-40' | '40+';
 
 @Component({
   selector: 'app-home-bibliotecario',
