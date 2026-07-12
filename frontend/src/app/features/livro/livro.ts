@@ -12,7 +12,7 @@ import GenerosComponent from './generos/generos';
 import { LivroGeneroService } from './generos/livro-genero.service';
 import { catchError, debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { Modal } from "bootstrap";
+import Modal from 'bootstrap/js/dist/modal';
 
 interface Livro extends CreateLivroDto {
   id: string;

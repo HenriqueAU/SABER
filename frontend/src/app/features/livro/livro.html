@@ -2,15 +2,8 @@
   <div class="modal-dialog modal-dialog-centered modal-xl" (click)="$event.stopPropagation()">
     <div class="modal-content rounded-4 shadow-lg flex-row overflow-hidden" style="max-height: 92vh; min-height: 70vh;">
       @if(livroDetalhes) {
-        <div class="col-md-4 bg-primary-subtle flex-shrink-0 position-relative d-none d-sm-block border-end">
-          @if (livroDetalhes.capa_url) {
-            <img [src]="livroDetalhes.capa_url" [alt]="livroDetalhes.titulo" class="w-100 h-100" style="object-fit: cover;">
-          } @else {
-            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center text-secondary">
-              <i class="bi bi-book mb-2 opacity-75 fs-1"></i>
-              <span class="text-uppercase fw-semibold small" style="letter-spacing: 0.1em;">Sem capa</span>
-            </div>
-          }
+        <div class="col-md-4 bg-light flex-shrink-0 position-relative d-none d-sm-block border-end">
+          <img [src]="livroDetalhes.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" [alt]="livroDetalhes.titulo" class="w-100 h-100" style="object-fit: cover;">
         </div>
 
         <div class="col-md-8 d-flex flex-column overflow-hidden position-relative">
@@ -246,31 +239,26 @@
     </select>
   </div>
 
-  <div class="row g-4">
+  <div class="row g-2 g-md-4">
     @for (livro of livrosPaginados; track livro.id) {
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+      
+      <div class="col-4 col-sm-3 col-lg-2">
         <div class="card h-100 shadow-sm border-0 overflow-hidden" style="cursor: pointer;" (click)="abrirLivroDetalhesModal(livro)">
 
           <div class="position-relative bg-light border-bottom" style="aspect-ratio: 2/3; overflow: hidden;">
-            @if (livro.capa_url) {
-              <img [src]="livro.capa_url" [alt]="livro.titulo" class="w-100 h-100" style="object-fit: cover;">
-            } @else {
-              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center text-secondary bg-primary-subtle">
-                <i class="bi bi-book mb-2 opacity-75 fs-1"></i>
-                <span class="text-uppercase fw-semibold">Sem capa</span>
-              </div>
-            }
+            <img [src]="livro.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" [alt]="livro.titulo" class="w-100 h-100" style="object-fit: cover;">
           </div>
 
-          <div class="card-body d-flex flex-column">
-            <h3 class="fs-6 fw-bold text-dark mb-1 text-truncate-2" [title]="livro.titulo">
+          <div class="card-body p-2 p-md-3 d-flex flex-column">
+            <h6 class="fw-bold text-dark mb-1 text-truncate" style="font-size: 0.85rem;" [title]="livro.titulo">
               {{ livro.titulo }}
-            </h3>
-            <p class="text-secondary small text-truncate mb-2" [title]="livro.autor">
+            </h6>
+            <p class="text-secondary text-truncate mb-2" style="font-size: 0.75rem;" [title]="livro.autor">
               {{ livro.autor }}
             </p>
+            
             <div class="mb-2">
-              <span class="badge {{ getColorStatusExemplar(livro.id) }}">
+              <span class="badge {{ getColorStatusExemplar(livro.id) }} text-truncate w-100" style="font-size: 0.65rem;">
                 {{ getStatusExemplar(livro.id) }}
               </span>
             </div>
@@ -278,7 +266,7 @@
             @if (generosPorLivro[livro.id]?.length) {
               <div class="d-flex flex-wrap gap-1 mb-2">
                 @for (nome of generosPorLivro[livro.id]; track nome) {
-                  <span class="badge bg-secondary text-white rounded-pill">
+                  <span class="badge bg-secondary text-white rounded-pill text-truncate" style="font-size: 0.65rem; max-width: 100%;">
                     {{ nome }}
                   </span>
                 }
@@ -286,9 +274,9 @@
             }
 
             @if (isBibliotecario) {
-              <div class="mt-auto pt-3">
-                <button (click)="abrirLivroFormModal(livro); $event.stopPropagation()" class="btn btn-outline-primary btn-sm w-100">
-                  Editar livro
+              <div class="mt-auto pt-2">
+                <button (click)="abrirLivroFormModal(livro); $event.stopPropagation()" class="btn btn-outline-primary btn-sm w-100" style="font-size: 0.75rem;">
+                  Editar
                 </button>
               </div>
             }
