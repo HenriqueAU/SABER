@@ -38,6 +38,9 @@ export class Livro {
   @Column({ type: 'int', nullable: true })
   ano_publicacao?: number;
 
+  @Column({ type: 'int', nullable: true })
+  paginas?: number;
+
   @Column({ type: 'text', nullable: true })
   sinopse?: string;
 
