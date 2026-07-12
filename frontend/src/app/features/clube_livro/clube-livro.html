@@ -2,7 +2,6 @@
 
   @if (modoListagem()) {
     <header class="clube-header">
-      <h1>Clubes de Leitura</h1>
       <p>Explore os clubes disponíveis na sua instituição.</p>
     </header>
 
@@ -59,8 +58,8 @@
       <div class="clubes-grid">
         @for (c of clubesPaginados(); track c.id) {
           <div class="clube-card" style="position: relative; display: flex; flex-direction: column; justify-content: space-between;">
-            
-            <span 
+
+            <span
               style="position: absolute; top: 12px; right: 12px; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 12px;"
               [style.background]="obterStatusClube(c) === 'Ativo' ? '#d1e7dd' : '#f8d7da'"
               [style.color]="obterStatusClube(c) === 'Ativo' ? '#0f5132' : '#842029'">
@@ -85,8 +84,8 @@
 
             <div class="mt-auto pt-3 px-3 pb-3">
               @if (obterStatusClube(c) === 'Ativo' && !meusClubes().some(mc => mc.id === c.id)) {
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   class="btn btn-outline-primary btn-sm w-100"
                   [disabled]="enviando()"
                   (click)="entrarNoClube(c.id); $event.stopPropagation()">
@@ -108,7 +107,7 @@
             [style.cursor]="paginaAtual() === 1 ? 'not-allowed' : 'pointer'">
             ← Anterior
           </button>
-          
+
           <span style="font-weight: 500; color: #555;">
             Página <strong>{{ paginaAtual() }}</strong> de {{ totalPaginas() }}
           </span>
@@ -157,7 +156,7 @@
               @if (clubeDetalhes().livro.sinopse) {
                 <p style="margin: 0 0 12px 0; color: #555; line-height: 1.5; font-size: 14px;">{{ clubeDetalhes().livro.sinopse }}</p>
               }
-              
+
               <div style="display: flex; gap: 20px; font-size: 13px; color: #777; border-top: 1px solid #eee; padding-top: 10px;">
                 @if (clubeDetalhes().livro.editora) {
                   <span><strong>Editora:</strong> {{ clubeDetalhes().livro.editora }}</span>
@@ -175,7 +174,7 @@
           @if (clubeDetalhes().nome) {
             <p class="text-muted" style="margin-top: -10px; margin-bottom: 20px; font-style: italic;">Identificação: {{ clubeDetalhes().nome }}</p>
           }
-          
+
           <div class="info-grid">
             <div class="info-item">
               <span>Local do Encontro</span>
@@ -194,12 +193,12 @@
           @if (abaAtiva() === 'detalhes') {
             <div class="acoes-clube">
               @if (perfilUsuario === TipoPerfilEnum.ALUNO) {
-                @if (clubeEncerrado()) {
-                 <button 
+                @if (clubeEncerrado() && eMembroDoClube()) {
+                 <button
                   type="button"
                   class="btn btn-primary"
-                  data-bs-toggle="modal" 
-                  data-bs-target="#modalAvaliacao" 
+                  data-bs-toggle="modal"
+                  data-bs-target="#modalAvaliacao"
                   (click)="abrirAvaliacao()">
                    Avaliar Clube
                 </button>
@@ -299,8 +298,8 @@
 
         <div class="modal-footer bg-light">
           <button type="button" data-bs-dismiss="modal" class="btn btn-light btn-sm">Cancelar</button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             form="ngFormAvaliacao"
             data-bs-dismiss="modal"
             [disabled]="form.invalid || enviando() || form.disabled"

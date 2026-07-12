@@ -107,7 +107,8 @@ export class ClubeService {
   }
 
   async findMeusClubes(alunoId: string): Promise<ClubeLivro[]> {
-    return await this.clubeLivroRepository.createQueryBuilder('clube')
+    return await this.clubeLivroRepository
+      .createQueryBuilder('clube')
       .innerJoin(MembroClube, 'membro', 'membro.clube_id = clube.id')
       .leftJoinAndSelect('clube.professor', 'professor')
       .leftJoinAndSelect('clube.livro', 'livro')
@@ -115,9 +116,9 @@ export class ClubeService {
       .getMany();
   }
   async findClubesDoProfessor(professorId: string): Promise<ClubeLivro[]> {
-  return await this.clubeLivroRepository.find({
-    where: { professor: { id: professorId } },
-    relations: ['professor', 'livro'],
-  });
-}
+    return await this.clubeLivroRepository.find({
+      where: { professor: { id: professorId } },
+      relations: ['professor', 'livro'],
+    });
+  }
 }
