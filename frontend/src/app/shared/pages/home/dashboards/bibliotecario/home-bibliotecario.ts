@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 
 Chart.register(...registerables);
 
-type FaixaEtaria = 'todas' | 'livre' | '10+' | '12+' | '14+' | '16+' | '18+';
+type FaixaEtaria = 'todas' | '0-12' | '13-17' | '18-25' | '26-40' | '40+';
 
 @Component({
   selector: 'app-home-bibliotecario',
@@ -24,7 +24,7 @@ export default class HomeBibliotecarioComponent implements OnInit {
 
   emprestimos = signal<any[]>([]);
   emprestimosAtivos = signal<number>(0);
-  totalExemplares = signal<number>(0); 
+  totalExemplares = signal<number>(0);
   rankingLivros = signal<any[]>([]);
   generos = signal<any[]>([]);
   mediaLeitura = signal<any | null>(null);
@@ -41,13 +41,30 @@ export default class HomeBibliotecarioComponent implements OnInit {
     return this.emprestimos().slice(inicio, fim);
   });
 
-  totalPaginas = computed(() =>
-    Math.ceil(this.emprestimos().length / this.itensPorPagina)
+  totalPaginas = computed(() => Math.ceil(this.emprestimos().length / this.itensPorPagina));
+
+  paginas = computed(() => Array.from({ length: this.totalPaginas() }, (_, i) => i + 1));
+
+  totalDevolvidos = computed(
+    () => this.emprestimos().filter((e: any) => e.data_devolucao_efetiva).length,
   );
 
-  paginas = computed(() =>
-    Array.from({ length: this.totalPaginas() }, (_, i) => i + 1)
+  totalNoPrazo = computed(
+    () =>
+      this.emprestimos().filter(
+        (e: any) =>
+          e.data_devolucao_efetiva &&
+          new Date(e.data_devolucao_efetiva) <= new Date(e.data_devolucao_esperada),
+      ).length,
   );
+
+  porcentagemNoPrazo = computed(() => {
+    const total = this.totalDevolvidos();
+    if (total === 0) return 0;
+    return Math.round((this.totalNoPrazo() / total) * 100);
+  });
+
+  porcentagemAtrasados = computed(() => 100 - this.porcentagemNoPrazo());
 
   irParaPagina(pagina: number): void {
     if (pagina < 1 || pagina > this.totalPaginas()) return;
@@ -56,12 +73,11 @@ export default class HomeBibliotecarioComponent implements OnInit {
 
   faixas: { label: string; value: FaixaEtaria }[] = [
     { label: 'Todas as idades', value: 'todas' },
-    { label: 'Livre', value: 'livre' },
-    { label: '10+', value: '10+' },
-    { label: '12+', value: '12+' },
-    { label: '14+', value: '14+' },
-    { label: '16+', value: '16+' },
-    { label: '18+', value: '18+' },
+    { label: '0–12 anos', value: '0-12' },
+    { label: '13–17 anos', value: '13-17' },
+    { label: '18–25 anos', value: '18-25' },
+    { label: '26–40 anos', value: '26-40' },
+    { label: '40+ anos', value: '40+' },
   ];
 
   private genresChartInstance: Chart | null = null;
@@ -124,9 +140,7 @@ export default class HomeBibliotecarioComponent implements OnInit {
   get deltaLabel(): string {
     const d = this.mediaLeitura()?.variacaoPercent ?? 0;
     const abs = Math.abs(d);
-    return d >= 0
-      ? `↑ ${abs}% a mais que o mês anterior`
-      : `↓ ${abs}% a menos que o mês anterior`;
+    return d >= 0 ? `↑ ${abs}% a mais que o mês anterior` : `↓ ${abs}% a menos que o mês anterior`;
   }
 
   private renderGenresChart(): void {
@@ -142,12 +156,14 @@ export default class HomeBibliotecarioComponent implements OnInit {
     this.genresChartInstance = new Chart(canvas, {
       type: 'doughnut',
       data: {
-        labels: dados.map(g => g.nome),
-        datasets: [{
-          data: dados.map(g => g.totalEmprestimos),
-          backgroundColor: ['#4f46e5', '#7c3aed', '#a855f7', '#c084fc', '#e9d5ff'],
-          borderWidth: 0,
-        }],
+        labels: dados.map((g) => g.nome),
+        datasets: [
+          {
+            data: dados.map((g) => g.totalEmprestimos),
+            backgroundColor: ['#003A79', '#0EA5E9', '#EAB308', '#16A34A', '#DC2626', '#8696AC', '#F97316', '#0D9488'],
+            borderWidth: 0,
+          },
+        ],
       },
       options: {
         responsive: true,
