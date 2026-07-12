@@ -24,7 +24,7 @@ export default class HomeProfessorComponent implements OnInit {
   clubes = signal<any[]>([]);
   clubeDetalhes = signal<any>(null);
   membrosDoClube = signal<any[]>([]);
-  
+
   perguntas = signal<any[]>([]);
   itensPergunta = signal<any[]>([]);
   respostasMembros = signal<any[]>([]);
@@ -47,10 +47,9 @@ export default class HomeProfessorComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   ngOnInit(): void {
-    const token = this.authService.getToken();
-    if (token) {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      this.professorId.set(payload.id);
+    const professorId = this.authService.getId()
+    if (professorId) {
+      this.professorId.set(professorId);
     }
     this.carregarMeusClubes();
   }
@@ -61,10 +60,10 @@ export default class HomeProfessorComponent implements OnInit {
     hoje.setHours(0, 0, 0, 0);
     const inicio = new Date(dataInicio);
     inicio.setHours(0, 0, 0, 0);
-    
+
     const diffTime = inicio.getTime() - hoje.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     return diffDays > 0 ? diffDays : null;
   }
 
@@ -75,21 +74,21 @@ export default class HomeProfessorComponent implements OnInit {
       const res = await firstValueFrom(this.clubesService.clubeControllerFindAll());
       const todosClubes = Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || [];
       const profId = this.professorId();
-      const filtrados = todosClubes.filter((c: any) => 
+      const filtrados = todosClubes.filter((c: any) =>
         c.professor?.id === profId || c.professor_id === profId || c.professor === profId
       );
       this.clubes.set(filtrados);
       const clubeIdAcao = this.route.snapshot.queryParams['abrirClubeFeedbacks'];
       if (clubeIdAcao) {
         const clubeAlvo = filtrados.find((c: any) => c.id === clubeIdAcao);
-        
+
         if (clubeAlvo) {
           this.abrirClube(clubeAlvo);
 
-          this.router.navigate([], { 
-            relativeTo: this.route, 
-            queryParams: { abrirClubeFeedbacks: null }, 
-            queryParamsHandling: 'merge' 
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { abrirClubeFeedbacks: null },
+            queryParamsHandling: 'merge'
           });
 
           setTimeout(() => {
@@ -108,7 +107,7 @@ export default class HomeProfessorComponent implements OnInit {
     this.clubeDetalhes.set(clube);
     this.modoListagem.set(false);
     this.abaAtiva.set('detalhes');
-    
+
     if (clube?.data_fim) {
       const dataFim = new Date(clube.data_fim);
       this.clubeEncerrado.set(new Date() > dataFim);
@@ -128,11 +127,11 @@ export default class HomeProfessorComponent implements OnInit {
   async carregarDadosExtras(clubeId: string) {
     this.carregandoMembros.set(true);
     this.erroMembros.set('');
-    
+
     try {
       const resMembros = await firstValueFrom(this.membroClubeService.membroClubeControllerFindAll(clubeId));
       this.membrosDoClube.set(Array.isArray(resMembros) ? resMembros : (resMembros as any)?.data || (resMembros as any)?.items || []);
-      
+
       const resPerguntas = await firstValueFrom(this.perguntasService.perguntaControllerFindAll());
       this.perguntas.set(resPerguntas || []);
 

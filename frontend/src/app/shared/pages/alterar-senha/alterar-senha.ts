@@ -91,13 +91,10 @@ export default class AlterarSenhaComponent {
       return;
     }
 
-    let usuarioId = '';
-    try {
-      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-      const payload = JSON.parse(atob(base64));
-      usuarioId = payload.id;
-    } catch (e) {
-      this.mensagemErro.set('Erro ao processar a sua sessão.');
+    const usuarioId = this.authSession.getId()
+
+    if(!usuarioId) {
+      this.mensagemErro.set('Erro ao processar sua sessão')
       this.carregando.set(false);
       return;
     }
