@@ -24,20 +24,30 @@
       <div class="row g-4">
         @for (c of clubes(); track c.id) {
           <div class="col-12 col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm h-100" style="cursor: pointer; transition: transform 0.2s;" (click)="abrirClube(c)" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-              <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-                <h5 class="fw-bold text-dark text-truncate mb-0">
-                  <i class="bi bi-people text-primary me-2"></i>{{ c.nome || c.livro?.titulo || 'Clube de Leitura' }}
-                </h5>
-              </div>
-              <div class="card-body">
-                @if (getDiasParaInicio(c.data_inicio); as dias) {
-                  <p class="mb-2"><i class="bi bi-rocket-takeoff text-primary me-2"></i><strong>Início:</strong> <span class="text-primary fw-medium">Começará em {{ dias }} dia(s)</span></p>
-                }
-                <p class="mb-2"><i class="bi bi-calendar-event text-secondary me-2"></i><strong>Fim:</strong> {{ (c.data_fim | date:'dd/MM/yyyy') || 'Não definido' }}</p>
-                @if (c.local_encontro) {
-                  <p class="mb-0 text-truncate"><i class="bi bi-geo-alt text-danger me-2"></i><strong>Local:</strong> {{ c.local_encontro }}</p>
-                }
+            <div class="card border-0 shadow-sm h-100 overflow-hidden" style="cursor: pointer; transition: transform 0.2s;" (click)="abrirClube(c)" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div class="row g-0 h-100">
+                <div class="col-4 position-relative bg-light border-end" style="aspect-ratio: 2/3;">
+                  <img [src]="c.livro?.capa_url || c.livro?.capaUrl || 'assets/imgs/livros/livro-sem-capa.png'" alt="Capa do Livro" class="w-100 h-100 object-fit-cover position-absolute top-0 start-0">
+                </div>
+                <div class="col-8 d-flex flex-column">
+                  <div class="card-body p-3 d-flex flex-column h-100">
+                    <h6 class="fw-bold text-dark text-truncate mb-1" title="{{ c.livro?.titulo }}">
+                      {{ c.livro?.titulo || 'Título não informado' }}
+                    </h6>
+                    <p class="text-primary text-truncate mb-2 small fw-medium" title="{{ c.nome }}">
+                      <i class="bi bi-people me-1"></i>{{ c.nome || 'Clube de Leitura' }}
+                    </p>
+                    <div class="mt-auto">
+                      @if (getDiasParaInicio(c.data_inicio); as dias) {
+                        <div class="mb-1 small"><i class="bi bi-rocket-takeoff text-primary me-1"></i>Início: <span class="text-primary fw-medium">{{ dias }} dia(s)</span></div>
+                      }
+                      <div class="mb-1 small"><i class="bi bi-calendar-event text-secondary me-1"></i>Fim: {{ (c.data_fim | date:'dd/MM/yyyy') || 'Não definido' }}</div>
+                      @if (c.local_encontro) {
+                        <div class="mb-0 text-truncate small" title="{{ c.local_encontro }}"><i class="bi bi-geo-alt text-danger me-1"></i>{{ c.local_encontro }}</div>
+                      }
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -61,26 +71,8 @@
       <div class="row g-4">
         
         <div class="col-12 col-lg-4">
-          <div class="card border-0 shadow-sm h-100">
-            <img [src]="detalhes.livro?.capa_url || detalhes.livro?.capaUrl || 'assets/imgs/teste2.png'" alt="Capa do Livro" class="card-img-top object-fit-cover" style="height: 300px;">
-            <div class="card-body">
-              <span class="badge bg-primary-subtle text-primary border border-primary-subtle mb-3">Clube de Leitura</span>
-              <h4 class="fw-bold mb-1">{{ detalhes.nome || 'Clube de Leitura' }}</h4>
-              <h6 class="mb-3 text-secondary"><i class="bi bi-book me-2"></i>{{ detalhes.livro?.titulo || 'Título não informado' }}</h6>
-              <p class="small text-muted mb-3 fw-medium">Por: {{ detalhes.livro?.autor || 'Autor Desconhecido' }}</p>
-              
-              <p class="small text-secondary mb-4" style="display: -webkit-box; -webkit-line-clamp: 5; line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">
-                {{ detalhes.livro?.sinopse || 'Nenhuma sinopse disponível para este livro no momento.' }}
-              </p>
-              
-              <div class="bg-light p-3 rounded-3 small text-secondary">
-                @if (detalhes.livro?.isbn) { <div class="mb-1"><strong class="text-dark">ISBN:</strong> {{ detalhes.livro.isbn }}</div> }
-                @if (detalhes.livro?.editora) { <div class="mb-1"><strong class="text-dark">Editora:</strong> {{ detalhes.livro.editora }}</div> }
-                @if (detalhes.livro?.ano_publicacao || detalhes.livro?.ano) { 
-                  <div><strong class="text-dark">Ano:</strong> {{ detalhes.livro.ano_publicacao || detalhes.livro.ano }}</div> 
-                }
-              </div>
-            </div>
+          <div class="card border-0 shadow-sm overflow-hidden bg-light mx-auto" style="aspect-ratio: 2/3; max-width: 400px;">
+            <img [src]="detalhes.livro?.capa_url || detalhes.livro?.capaUrl || 'assets/imgs/livros/livro-sem-capa.png'" alt="Capa do Livro" class="w-100 h-100 object-fit-cover">
           </div>
         </div>
 
@@ -88,33 +80,69 @@
           
           <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-start mb-3 gap-3">
+                <div>
+                  <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-book me-2"></i>{{ detalhes.livro?.titulo || 'Título não informado' }}</h4>
+                  <p class="text-secondary fw-medium mb-1">Por: {{ detalhes.livro?.autor || 'Autor Desconhecido' }}</p>
+                  <h5 class="text-primary mb-0 mt-2"><i class="bi bi-people me-2"></i>{{ detalhes.nome || 'Clube de Leitura' }}</h5>
+                </div>
+                <span class="badge bg-primary-subtle text-primary border flex-shrink-0" style="font-size: 0.85rem;">Clube de Leitura</span>
+              </div>
+              
+              <p class="small text-secondary mb-3 text-justify">
+                {{ detalhes.livro?.sinopse || 'Nenhuma sinopse disponível para este livro no momento.' }}
+              </p>
+              
+              <div class="d-flex flex-wrap gap-4 bg-light p-3 rounded-3 small text-secondary">
+                @if (detalhes.livro?.isbn) { <div><strong class="text-dark d-block text-uppercase" style="font-size: 0.75rem;">ISBN</strong> {{ detalhes.livro.isbn }}</div> }
+                @if (detalhes.livro?.editora) { <div><strong class="text-dark d-block text-uppercase" style="font-size: 0.75rem;">Editora</strong> {{ detalhes.livro.editora }}</div> }
+                @if (detalhes.livro?.ano_publicacao || detalhes.livro?.ano) { 
+                  <div><strong class="text-dark d-block text-uppercase" style="font-size: 0.75rem;">Ano</strong> {{ detalhes.livro.ano_publicacao || detalhes.livro.ano }}</div> 
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-3 p-md-4">
               <h5 class="fw-bold mb-4"><i class="bi bi-info-circle text-primary me-2"></i>Informações do Encontro</h5>
               
-              <div class="row g-3 mb-4">
+              <div class="d-flex flex-nowrap gap-2 mb-2">
                 @if (detalhes.local_encontro) {
-                  <div class="col-12 col-md-4">
-                    <div class="p-3 bg-light rounded-3 h-100">
-                      <span class="d-block small text-secondary mb-1">Local do Encontro</span>
-                      <strong class="text-dark"><i class="bi bi-geo-alt me-2 text-danger"></i>{{ detalhes.local_encontro }}</strong>
+                  <div class="flex-fill" style="min-width: 0;">
+                    <div class="p-2 p-md-3 bg-light rounded-3 h-100 border border-light text-center d-flex flex-column justify-content-center">
+                      <span class="d-block text-secondary text-uppercase mb-1" style="font-size: 0.65rem;">Local</span>
+                      <strong class="text-dark text-truncate d-block" style="font-size: 0.8rem;" title="{{ detalhes.local_encontro }}"><i class="bi bi-geo-alt me-1 text-danger d-none d-sm-inline"></i>{{ detalhes.local_encontro }}</strong>
                     </div>
                   </div>
                 }
                 
-                <div class="col-12 col-md-4">
-                  <div class="p-3 bg-light rounded-3 h-100">
-                    <span class="d-block small text-secondary mb-1">Início</span>
-                    @if (getDiasParaInicio(detalhes.data_inicio); as dias) {
-                      <strong class="text-primary"><i class="bi bi-clock-history me-2"></i>Começará em {{ dias }} dia(s)</strong>
-                    } @else {
-                      <strong class="text-success"><i class="bi bi-check-circle me-2"></i>Já iniciado</strong>
+                <div class="flex-fill" style="min-width: 0;">
+                  <div class="p-2 p-md-3 bg-light rounded-3 h-100 border border-light text-center d-flex flex-column justify-content-center">
+                    <span class="d-block text-secondary text-uppercase mb-1" style="font-size: 0.65rem;">Status</span>
+                    @if (clubeEncerrado()) {
+                      <strong class="text-secondary text-truncate d-block" style="font-size: 0.8rem;" title="Encerrado"><i class="bi bi-slash-circle me-1 d-none d-sm-inline"></i>Encerrado</strong>
+                    }
+                    @else if (getDiasParaInicio(detalhes.data_inicio); as dias) {
+                      <strong class="text-primary text-truncate d-block" style="font-size: 0.8rem;" title="Em {{ dias }} dia(s)"><i class="bi bi-clock-history me-1 d-none d-sm-inline"></i>Em {{ dias }} d.</strong>
+                    } 
+                    @else {
+                      <strong class="text-success text-truncate d-block" style="font-size: 0.8rem;" title="Iniciado"><i class="bi bi-check-circle me-1 d-none d-sm-inline"></i>Iniciado</strong>
                     }
                   </div>
                 </div>
+                
+                <div class="flex-fill" style="min-width: 0;">
+                  <div class="p-2 p-md-3 bg-light rounded-3 h-100 border border-light text-center d-flex flex-column justify-content-center">
+                    <span class="d-block text-secondary text-uppercase mb-1" style="font-size: 0.65rem;">Início</span>
+                    <strong class="text-dark text-truncate d-block" style="font-size: 0.8rem;"><i class="bi bi-calendar-event me-1 text-secondary d-none d-sm-inline"></i>{{ detalhes.data_inicio | date:'dd/MM' }}</strong>
+                  </div>
+                </div>
 
-                <div class="col-12 col-md-4">
-                  <div class="p-3 bg-light rounded-3 h-100">
-                    <span class="d-block small text-secondary mb-1">Data de encerramento</span>
-                    <strong class="text-dark"><i class="bi bi-calendar-check me-2 text-secondary"></i>{{ (detalhes.data_fim | date:'dd/MM/yyyy') || 'Não definido' }}</strong>
+                <div class="flex-fill" style="min-width: 0;">
+                  <div class="p-2 p-md-3 bg-light rounded-3 h-100 border border-light text-center d-flex flex-column justify-content-center">
+                    <span class="d-block text-secondary text-uppercase mb-1" style="font-size: 0.65rem;">Fim</span>
+                    <strong class="text-dark text-truncate d-block" style="font-size: 0.8rem;"><i class="bi bi-calendar-check me-1 text-secondary d-none d-sm-inline"></i>{{ (detalhes.data_fim | date:'dd/MM') || 'N/A' }}</strong>
                   </div>
                 </div>
               </div>
@@ -157,10 +185,10 @@
                 }
 
                 @if (!carregandoMembros() && !erroMembros()) {
-                  <ul class="list-group list-group-flush">
-                    @for (membro of membrosDoClube(); track membro.id) {
+                  <ul class="list-group list-group-flush mb-3">
+                    @for (membro of membrosPaginados; track membro.id) {
                       <li class="list-group-item d-flex align-items-center px-0 py-3 border-light">
-                        <img [src]="membro.usuario?.foto_perfil || 'assets/imgs/teste1.png'" alt="Foto do Aluno" class="rounded-circle shadow-sm object-fit-cover me-3" style="width: 48px; height: 48px;">
+                        <img [src]="membro.usuario?.foto_perfil || 'assets/imgs/avatares/0.png'" alt="Foto do Aluno" class="rounded-circle shadow-sm object-fit-cover me-3" style="width: 48px; height: 48px;">
                         <div>
                           <strong class="d-block text-dark">{{ membro.usuario?.nome || 'Aluno Desconhecido' }}</strong>
                           <small class="text-secondary"><i class="bi bi-envelope me-1"></i>{{ membro.usuario?.email || 'Sem e-mail' }}</small>
@@ -173,6 +201,24 @@
                       </div>
                     }
                   </ul>
+
+                  @if (totalPaginasAlunos > 1) {
+                    <nav aria-label="Navegação de páginas de alunos" class="mt-4">
+                      <ul class="pagination pagination-sm justify-content-center mb-0">
+                        <li class="page-item" [class.disabled]="paginaAtualAlunos() === 1">
+                          <a class="page-link" href="#" (click)="mudarPaginaAlunos(paginaAtualAlunos() - 1, $event)">Anterior</a>
+                        </li>
+                        @for (pagina of paginasExibidasAlunos; track $index) {
+                          <li class="page-item" [class.active]="pagina === paginaAtualAlunos()" [class.disabled]="pagina === '...'">
+                            <a class="page-link" href="#" (click)="mudarPaginaAlunos(pagina, $event)">{{ pagina }}</a>
+                          </li>
+                        }
+                        <li class="page-item" [class.disabled]="paginaAtualAlunos() === totalPaginasAlunos">
+                          <a class="page-link" href="#" (click)="mudarPaginaAlunos(paginaAtualAlunos() + 1, $event)">Próxima</a>
+                        </li>
+                      </ul>
+                    </nav>
+                  }
                 }
               </div>
             </div>

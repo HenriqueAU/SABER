@@ -20,7 +20,6 @@ export default class HomeProfessorComponent implements OnInit {
   modoListagem = signal<boolean>(true);
   abaAtiva = signal<'detalhes' | 'feedbacks'>('detalhes');
 
-  professorId = signal<string>('');
   clubes = signal<any[]>([]);
   clubeDetalhes = signal<any>(null);
   membrosDoClube = signal<any[]>([]);
@@ -37,6 +36,47 @@ export default class HomeProfessorComponent implements OnInit {
   mensagemErro = signal<string>('');
   erroMembros = signal<string>('');
 
+  paginaAtualAlunos = signal<number>(1);
+  itensPorPaginaAlunos = 5;
+
+  get membrosPaginados(): any[] {
+    const inicio = (this.paginaAtualAlunos() - 1) * this.itensPorPaginaAlunos;
+    const fim = inicio + this.itensPorPaginaAlunos;
+    return this.membrosDoClube().slice(inicio, fim);
+  }
+
+  get totalPaginasAlunos(): number {
+    return Math.ceil(this.membrosDoClube().length / this.itensPorPaginaAlunos);
+  }
+
+  get paginasExibidasAlunos(): (number | string)[] {
+    const total = this.totalPaginasAlunos;
+    const atual = this.paginaAtualAlunos();
+    const paginas: (number | string)[] = [];
+
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) {
+        paginas.push(i);
+      }
+    } else {
+      if (atual <= 4) {
+        paginas.push(1, 2, 3, 4, 5, '...', total);
+      } else if (atual >= total - 3) {
+        paginas.push(1, '...', total - 4, total - 3, total - 2, total - 1, total);
+      } else {
+        paginas.push(1, '...', atual - 1, atual, atual + 1, '...', total);
+      }
+    }
+    return paginas;
+  }
+
+  mudarPaginaAlunos(pagina: number | string, event?: Event) {
+    if (event) event.preventDefault();
+    if (typeof pagina === 'number' && pagina >= 1 && pagina <= this.totalPaginasAlunos) {
+      this.paginaAtualAlunos.set(pagina);
+    }
+  }
+
   private clubesService = inject(ClubesService);
   private membroClubeService = inject(MembroClubeService);
   private perguntasService = inject(PerguntasService);
@@ -47,10 +87,6 @@ export default class HomeProfessorComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   ngOnInit(): void {
-    const professorId = this.authService.getId()
-    if (professorId) {
-      this.professorId.set(professorId);
-    }
     this.carregarMeusClubes();
   }
 
@@ -71,12 +107,8 @@ export default class HomeProfessorComponent implements OnInit {
     this.carregando.set(true);
     this.mensagemErro.set('');
     try {
-      const res = await firstValueFrom(this.clubesService.clubeControllerFindAll());
-      const todosClubes = Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || [];
-      const profId = this.professorId();
-      const filtrados = todosClubes.filter((c: any) =>
-        c.professor?.id === profId || c.professor_id === profId || c.professor === profId
-      );
+      const res = await firstValueFrom(this.clubesService.clubeControllerFindClubesDoProfessor());
+      const filtrados = Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || [];
       this.clubes.set(filtrados);
       const clubeIdAcao = this.route.snapshot.queryParams['abrirClubeFeedbacks'];
       if (clubeIdAcao) {
@@ -122,6 +154,7 @@ export default class HomeProfessorComponent implements OnInit {
     this.modoListagem.set(true);
     this.clubeDetalhes.set(null);
     this.membrosDoClube.set([]);
+    this.paginaAtualAlunos.set(1);
   }
 
   async carregarDadosExtras(clubeId: string) {
@@ -174,7 +207,12 @@ export default class HomeProfessorComponent implements OnInit {
 
     this.perguntaSelecionadaId.set(perguntaId);
     const itensDestaPergunta = this.getItensDaPergunta(perguntaId);
-    const respostas = this.respostasMembros();
+
+    const membrosIds = this.membrosDoClube().map((m: any) => m.id);
+    const respostas = this.respostasMembros().filter(r => {
+      const membroId = r.membro_clube?.id || r.membro_clube_id || r.membroClube?.id || r.membroClube;
+      return membrosIds.includes(membroId);
+    });
 
     const stats = itensDestaPergunta.map(item => {
       const votos = respostas.filter(resposta => {
