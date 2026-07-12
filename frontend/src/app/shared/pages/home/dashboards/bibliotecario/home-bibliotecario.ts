@@ -73,12 +73,11 @@ export default class HomeBibliotecarioComponent implements OnInit {
 
   faixas: { label: string; value: FaixaEtaria }[] = [
     { label: 'Todas as idades', value: 'todas' },
-    { label: 'Livre', value: 'livre' },
-    { label: '10+', value: '10+' },
-    { label: '12+', value: '12+' },
-    { label: '14+', value: '14+' },
-    { label: '16+', value: '16+' },
-    { label: '18+', value: '18+' },
+    { label: '0–12 anos', value: '0-12' },
+    { label: '13–17 anos', value: '13-17' },
+    { label: '18–25 anos', value: '18-25' },
+    { label: '26–40 anos', value: '26-40' },
+    { label: '40+ anos', value: '40+' },
   ];
 
   private genresChartInstance: Chart | null = null;
