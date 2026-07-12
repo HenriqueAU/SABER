@@ -36,7 +36,7 @@
                 <p class="text-secondary mb-1 text-uppercase fw-semibold text-truncate" style="font-size: 0.65rem;" title="Páginas lidas">
                   <i class="bi bi-file-earmark-text me-1"></i><span class="d-none d-sm-inline">Páginas lidas</span><span class="d-inline d-sm-none">Páginas</span>
                 </p>
-                <h3 class="fw-bold mb-0 text-primary">{{ totalPaginasLidas() }}</h3>
+                <h3 class="fw-bold mb-0 text-primary">{{ totalPaginasLidas() > 0 ? totalPaginasLidas(), '-'}}</h3>
               </div>
             </div>
           </div>
