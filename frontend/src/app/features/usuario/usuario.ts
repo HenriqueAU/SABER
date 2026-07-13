@@ -40,7 +40,8 @@ export default class UsuarioComponent implements OnInit {
     this.usuarios().filter((usuario) => {
       const nomeOk =
         !this.termoBusca() ||
-        usuario.nome.toLowerCase().includes(this.termoBusca().toLowerCase());
+        usuario.nome.toLowerCase().includes(this.termoBusca().toLowerCase()) ||
+        usuario.email.toLowerCase().includes(this.termoBusca().toLocaleLowerCase());
       const perfilOk =
         !this.PerfilSelecionado() ||
         usuario.perfil === this.PerfilSelecionado();
