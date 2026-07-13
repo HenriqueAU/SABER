@@ -14,12 +14,14 @@
                 [src]="livroSelecionado.capa_url || 'assets/imgs/teste2.png'"
                 class="rounded me-3"
                 width="70"
-                [alt]="livroSelecionado.titulo">
+                [alt]="livroSelecionado.titulo"
+              />
               <div>
                 <small class="text-uppercase text-secondary fw-bold">Livro Selecionado</small>
                 <div class="fw-bold">{{ livroSelecionado.titulo }}</div>
                 <small class="text-secondary">
-                  {{ livroSelecionado.autor }} • ISBN {{ livroSelecionado?.isbn || 'não informado'}}
+                  {{ livroSelecionado.autor }} • ISBN
+                  {{ livroSelecionado?.isbn || 'não informado' }}
                 </small>
               </div>
             </div>
@@ -39,7 +41,9 @@
                   </div>
                 </div>
                 @if (exemplar.status === 'disponivel') {
-                  <button class="btn btn-primary" (click)="selecionarExemplar(exemplar)">Selecionar</button>
+                  <button class="btn btn-primary" (click)="selecionarExemplar(exemplar)">
+                    Selecionar
+                  </button>
                 }
               </div>
             </div>
@@ -65,12 +69,13 @@
               [src]="livroSelecionado?.capa_url || 'assets/imgs/teste2.png'"
               class="me-3"
               width="70"
-              [alt]="livroSelecionado?.titulo">
+              [alt]="livroSelecionado?.titulo"
+            />
             <div>
               <small class="text-uppercase text-secondary fw-bold">Livro Selecionado</small>
               <div class="fw-bold">{{ livroSelecionado?.titulo }}</div>
               <small class="text-secondary">
-                {{ livroSelecionado?.autor }} • ISBN {{ livroSelecionado?.isbn || 'não informado'}}
+                {{ livroSelecionado?.autor }} • ISBN {{ livroSelecionado?.isbn || 'não informado' }}
               </small>
             </div>
           </div>
@@ -80,14 +85,17 @@
           <div class="mb-3">
             <label class="col-form-label">Selecionar Aluno</label>
             <div class="position-relative">
-              <i class="bi bi-person-plus position-absolute top-50 start-0 translate-middle-y ms-3 fs-5 text-secondary"></i>
+              <i
+                class="bi bi-person-plus position-absolute top-50 start-0 translate-middle-y ms-3 fs-5 text-secondary"
+              ></i>
               <input
                 type="text"
                 class="form-control ps-5"
                 placeholder="Nome do aluno"
                 formControlName="nome_aluno"
                 (input)="filtrarAlunos()"
-                maxlength="255">
+                maxlength="255"
+              />
             </div>
 
             @if (alunosFiltrados.length > 0) {
@@ -96,7 +104,8 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
-                    (click)="selecionarAluno(aluno)">
+                    (click)="selecionarAluno(aluno)"
+                  >
                     <div class="fw-semibold">{{ aluno.nome }}</div>
                     <small class="text-secondary">{{ aluno.email }}</small>
                   </button>
@@ -109,24 +118,37 @@
           <div class="mb-3">
             <label class="col-form-label">Data de Devolução</label>
             <div class="position-relative">
-              <i class="bi bi-calendar4-week position-absolute top-50 start-0 translate-middle-y ms-3 fs-5 text-secondary"></i>
+              <i
+                class="bi bi-calendar4-week position-absolute top-50 start-0 translate-middle-y ms-3 fs-5 text-secondary"
+              ></i>
               <input
                 type="date"
                 class="form-control ps-5"
                 formControlName="data_devolucao_esperada"
-                maxlength="255">
+                maxlength="255"
+              />
             </div>
           </div>
         </form>
 
         <div class="alert alert-info mt-4 mb-0" role="alert">
           <i class="bi bi-info-circle me-1"></i>
-          O prazo padrão de empréstimo é de 14 dias. A data de devolução foi preenchida automaticamente com base na política da biblioteca.
+          O prazo padrão de empréstimo é de 14 dias. A data de devolução foi preenchida
+          automaticamente com base na política da biblioteca.
         </div>
       </div>
       <div class="modal-footer bg-light">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" form="emprestimoForm" class="btn btn-primary" [disabled]="emprestimoForm.invalid">Confirmar Empréstimo</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          form="emprestimoForm"
+          class="btn btn-primary"
+          [disabled]="emprestimoForm.invalid"
+        >
+          Confirmar Empréstimo
+        </button>
       </div>
     </div>
   </div>
@@ -165,12 +187,22 @@
 <div class="container py-4">
   <ul class="nav nav-tabs">
     <li class="nav-item">
-      <a class="nav-link text-primary fw-semibold" [class.active]="abaAtiva === 'emprestimo'" (click)="abaAtiva = 'emprestimo'" style="cursor: pointer;">
+      <a
+        class="nav-link text-primary fw-semibold"
+        [class.active]="abaAtiva === 'emprestimo'"
+        (click)="abaAtiva = 'emprestimo'"
+        style="cursor: pointer"
+      >
         <i class="bi bi-journal-plus me-1"></i> Registrar Empréstimo
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link text-primary fw-semibold" [class.active]="abaAtiva === 'devolucao'" (click)="abaAtiva = 'devolucao'" style="cursor: pointer;">
+      <a
+        class="nav-link text-primary fw-semibold"
+        [class.active]="abaAtiva === 'devolucao'"
+        (click)="abaAtiva = 'devolucao'"
+        style="cursor: pointer"
+      >
         <i class="bi bi-arrow-return-left me-1"></i> Devoluções Ativas
         @if (emprestimosAtivos.length > 0) {
           <span class="badge bg-primary ms-1 rounded-pill">{{ emprestimosAtivos.length }}</span>
@@ -178,7 +210,12 @@
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link text-primary fw-semibold" [class.active]="abaAtiva === 'historico'" (click)="abaAtiva = 'historico'" style="cursor: pointer;">
+      <a
+        class="nav-link text-primary fw-semibold"
+        [class.active]="abaAtiva === 'historico'"
+        (click)="abaAtiva = 'historico'"
+        style="cursor: pointer"
+      >
         <i class="bi bi-clock-history me-1"></i> Histórico de Empréstimos
       </a>
     </li>
@@ -187,7 +224,8 @@
   @if (abaAtiva === 'emprestimo') {
     <div class="container py-4">
       <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3"
+      >
         <div class="text-center text-md-start">
           <p class="text-secondary mb-0">
             Selecione o livro que deseja registrar para o empréstimo individual.
@@ -199,13 +237,16 @@
     <div class="card shadow-sm border-0 mb-4">
       <div class="card-body p-0">
         <div class="position-relative">
-          <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"></i>
+          <i
+            class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"
+          ></i>
           <input
             type="text"
             class="form-control border-0 ps-5 py-3"
             placeholder="Pesquise por título ou autor"
             [(ngModel)]="termoPesquisa"
-            maxlength="255">
+            maxlength="255"
+          />
         </div>
       </div>
     </div>
@@ -221,7 +262,10 @@
         <div class="text-center py-5 text-secondary">
           <i class="bi bi-book fs-1"></i>
           <h5 class="mt-3">Encontre um livro</h5>
-          <p>Digite o título ou o autor na barra de pesquisa acima para encontrar um livro para empréstimo.</p>
+          <p>
+            Digite o título ou o autor na barra de pesquisa acima para encontrar um livro para
+            empréstimo.
+          </p>
         </div>
       } @else if (filtrarLivros(livros).length === 0) {
         <div class="text-center py-5 text-secondary">
@@ -236,7 +280,11 @@
               <div class="card h-100 shadow-sm border-0">
                 <div class="row g-0 h-100">
                   <div class="col-4 p-2 d-flex align-items-center justify-content-center">
-                    <img [src]="livro.capa_url || 'assets/imgs/teste2.png'" class="img-fluid rounded" [alt]="'Capa ' + livro.titulo">
+                    <img
+                      [src]="livro.capa_url || 'assets/imgs/teste2.png'"
+                      class="img-fluid rounded"
+                      [alt]="'Capa ' + livro.titulo"
+                    />
                   </div>
                   <div class="col-8">
                     <div class="card-body d-flex flex-column h-100">
@@ -247,7 +295,11 @@
                           {{ getStatusExemplar(livro.id) }}
                         </span>
                       </p>
-                      <button type="button" class="btn btn-outline-primary btn-sm w-100" (click)="abrirModalExemplares(livro)">
+                      <button
+                        type="button"
+                        class="btn btn-outline-primary btn-sm w-100"
+                        (click)="abrirModalExemplares(livro)"
+                      >
                         <i class="bi bi-plus-circle me-1"></i> Selecionar
                       </button>
                     </div>
@@ -271,8 +323,8 @@
   @if (abaAtiva === 'devolucao') {
     <div class="container py-4">
       <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
-
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3"
+      >
         <div class="text-center text-md-start">
           <p class="text-secondary mb-0">
             Gerencie os empréstimos ativos e marque os livros que foram devolvidos à biblioteca.
@@ -304,17 +356,24 @@
                   <div class="fw-bold">{{ getTituloLivro(emp) }}</div>
                   <small class="text-secondary">Cód: {{ getCodigoExemplar(emp) }}</small>
                 </td>
-                <td>{{ emp.data_retirada | date:'dd/MM/yyyy' }}</td>
-                  <td>
-                    <span [class.text-danger]="estaAtrasado(emp.data_devolucao_esperada)" [class.fw-bold]="estaAtrasado(emp.data_devolucao_esperada)">
-                      {{ emp.data_devolucao_esperada | date:'dd/MM/yyyy' }}
-                      @if (estaAtrasado(emp.data_devolucao_esperada)) {
-                        <i class="bi bi-exclamation-circle text-danger ms-1" title="Em atraso"></i>
-                      }
-                    </span>
-                  </td>
+                <td>{{ emp.data_retirada | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <span
+                    [class.text-danger]="estaAtrasado(emp.data_devolucao_esperada)"
+                    [class.fw-bold]="estaAtrasado(emp.data_devolucao_esperada)"
+                  >
+                    {{ emp.data_devolucao_esperada | date: 'dd/MM/yyyy' }}
+                    @if (estaAtrasado(emp.data_devolucao_esperada)) {
+                      <i class="bi bi-exclamation-circle text-danger ms-1" title="Em atraso"></i>
+                    }
+                  </span>
+                </td>
                 <td class="text-end pe-4">
-                  <button class="btn btn-sm btn-success fw-semibold text-light fs-6" (click)="devolverLivro(emp)" [disabled]="enviandoDevolucao">
+                  <button
+                    class="btn btn-sm btn-success fw-semibold text-light fs-6"
+                    (click)="devolverLivro(emp)"
+                    [disabled]="enviandoDevolucao"
+                  >
                     <i class="bi bi-check2-square me-1"></i> Devolver
                   </button>
                 </td>
@@ -337,7 +396,8 @@
   @if (abaAtiva === 'historico') {
     <div class="container py-4">
       <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3"
+      >
         <div class="text-center text-md-start">
           <p class="text-secondary mb-0">
             Acompanhe o histórico de todos os exemplares que já foram devolvidos.
@@ -360,7 +420,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (emp of emprestimosHistorico; track emp.id) {
+            @for (emp of historicoPaginado; track emp.id) {
               <tr class="table-light">
                 <td class="ps-4">
                   <div class="fw-bold">{{ getNomeAluno(emp) }}</div>
@@ -370,10 +430,14 @@
                   <div class="fw-bold">{{ getTituloLivro(emp) }}</div>
                   <small class="text-secondary">Cód: {{ getCodigoExemplar(emp) }}</small>
                 </td>
-                <td>{{ emp.data_retirada | date:'dd/MM/yyyy' }}</td>
-                <td>{{ emp.data_devolucao_esperada | date:'dd/MM/yyyy' }}</td>
-                <td class="fw-medium" [class.text-danger]="estaAtrasadoHistorico(emp)" [class.text-success]="!estaAtrasadoHistorico(emp)">
-                  {{ emp.data_devolucao_efetiva | date:'dd/MM/yyyy' }}
+                <td>{{ emp.data_retirada | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ emp.data_devolucao_esperada | date: 'dd/MM/yyyy' }}</td>
+                <td
+                  class="fw-medium"
+                  [class.text-danger]="estaAtrasadoHistorico(emp)"
+                  [class.text-success]="!estaAtrasadoHistorico(emp)"
+                >
+                  {{ emp.data_devolucao_efetiva | date: 'dd/MM/yyyy' }}
                 </td>
                 <td class="pe-4">
                   @if (estaAtrasadoHistorico(emp)) {
@@ -387,6 +451,36 @@
           </tbody>
         </table>
       </div>
+      @if (historicoTotalPaginas > 1) {
+        <div class="d-flex justify-content-between align-items-center p-3">
+          <small class="text-secondary">
+            Página {{ paginaAtualHistorico }} de {{ historicoTotalPaginas }} ·
+            {{ emprestimosHistorico.length }} registros
+          </small>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="paginaAtualHistorico === 1">
+                <button class="page-link" (click)="irParaPaginaHistorico(paginaAtualHistorico - 1)">
+                  ‹
+                </button>
+              </li>
+              @for (p of historicoPaginas; track p) {
+                <li class="page-item" [class.active]="p === paginaAtualHistorico">
+                  <button class="page-link" (click)="irParaPaginaHistorico(p)">{{ p }}</button>
+                </li>
+              }
+              <li
+                class="page-item"
+                [class.disabled]="paginaAtualHistorico === historicoTotalPaginas"
+              >
+                <button class="page-link" (click)="irParaPaginaHistorico(paginaAtualHistorico + 1)">
+                  ›
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      }
 
       @if (emprestimosHistorico.length === 0) {
         <div class="text-center py-5 text-secondary">
