@@ -23,10 +23,9 @@ export default class ExemplarComponent implements OnInit, OnChanges{
 
   exemplares: Exemplar[] = [];
   mostrarForm = false;
-  
+
   exemplarForm: FormGroup = this.fb.group({
     codigo: ['', Validators.required],
-    status: ['disponivel', Validators.required]
   });
 
   ngOnInit() {
@@ -77,6 +76,9 @@ export default class ExemplarComponent implements OnInit, OnChanges{
     if(confirm('Tem certeza que deseja remover este exemplar?')) {
       this.exemplaresService.exemplarControllerRemove(id).subscribe({
         next: () => this.carregarExemplares(),
+        error: () => {
+          alert('Não foi possível remover este exemplar')
+        }
       });
     }
   }

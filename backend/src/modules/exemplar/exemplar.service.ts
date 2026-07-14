@@ -44,6 +44,7 @@ export class ExemplarService {
         livro: {
           instituicao: { id: instituicao_id },
         },
+        ativo: true,
       },
       relations: ['livro'],
     });
@@ -70,7 +71,7 @@ export class ExemplarService {
   }
 
   async remove(id: string): Promise<void> {
-    const exemplar = await this.findOne(id);
-    await this.exemplarRepository.remove(exemplar);
+    await this.findOne(id);
+    await this.exemplarRepository.update(id, { ativo: false });
   }
 }
