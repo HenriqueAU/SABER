@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { EmprestimosService } from '../../../../../../client/services';
 import { LivroGeneroService } from '../../../../../../client/services/livroGenero.service';
 import { ClubesService } from '../../../../../../client/services/clubes.service';
+import { PreferenciasGeneroService } from '../../../../../../client/services/preferenciasGenero.service';
 
 @Component({
   selector: 'app-home-aluno',
@@ -16,6 +17,7 @@ export default class HomeAlunoComponent implements OnInit {
   private emprestimosService = inject(EmprestimosService);
   private livroGeneroService = inject(LivroGeneroService);
   private clubesService = inject(ClubesService);
+  private preferenciasGeneroService = inject(PreferenciasGeneroService);
   private router = inject(Router);
 
   carregando = signal<boolean>(true);
@@ -144,40 +146,59 @@ export default class HomeAlunoComponent implements OnInit {
       const resPerfil = await firstValueFrom(this.emprestimosService.emprestimoControllerGetLeiturasPorGenero());
       const perfil = Array.isArray(resPerfil) ? resPerfil : [];
 
-      const recomendadosMap = new Map<string, any>();
+      const resPreferencias = await firstValueFrom(this.preferenciasGeneroService.preferenciaGeneroControllerFindAll());
+      const preferencias = Array.isArray(resPreferencias) ? resPreferencias : [];
+
+      const pontuacaoGeneros = new Map<string, number>();
+
+      for (const pref of preferencias) {
+        if (pref.genero?.nome) {
+          pontuacaoGeneros.set(pref.genero.nome.trim().toLowerCase(), 5);
+        }
+      }
+
+      if (perfil.length > 0) {
+        for (const itemPerfil of perfil) {
+          if (itemPerfil.genero) {
+            const genLower = itemPerfil.genero.trim().toLowerCase();
+            const pontosAtuais = pontuacaoGeneros.get(genLower) || 0;
+            pontuacaoGeneros.set(genLower, pontosAtuais + itemPerfil.quantidade);
+          }
+        }
+      }
+      const livrosMap = new Map<string, any>();
+      
       const livroIndisponivel = (livroId: string) => {
         const jaLeu = historico.some(h => h.exemplar?.livro?.id === livroId);
         const estaLendo = ativos.some(a => a.exemplar?.livro?.id === livroId);
         return jaLeu || estaLendo;
       };
 
-      if (perfil.length > 0) {
-        const sortedPerfil = [...perfil].sort((a, b) => b.quantidade - a.quantidade);
-        
-        for (const itemPerfil of sortedPerfil) {
-          const generoAtual = itemPerfil.genero?.trim().toLowerCase();
-          if (!generoAtual) continue;
+      for (const lg of livroGeneros) {
+        if (!lg.livro || !lg.genero || livroIndisponivel(lg.livro.id)) continue;
 
-          for (const lg of livroGeneros) {
-            const generoLivro = lg.genero?.nome?.trim().toLowerCase();
-            
-            if (generoLivro === generoAtual && lg.livro) {
-              if (!livroIndisponivel(lg.livro.id) && !recomendadosMap.has(lg.livro.id)) {
-                recomendadosMap.set(lg.livro.id, { ...lg.livro, generoNome: lg.genero.nome });
-              }
-            }
-          }
+        const livroId = lg.livro.id;
+        const generoNome = lg.genero.nome;
+        const generoLower = generoNome.trim().toLowerCase();
+
+        if (!livrosMap.has(livroId)) {
+          livrosMap.set(livroId, { ...lg.livro, generos: [], pontuacao: 0 });
+        }
+
+        const livroAgrupado = livrosMap.get(livroId);
+        livroAgrupado.generos.push(generoNome);
+
+        if (pontuacaoGeneros.has(generoLower)) {
+          livroAgrupado.pontuacao += pontuacaoGeneros.get(generoLower)!;
         }
       }
-      if (recomendadosMap.size === 0) {
-        for (const lg of livroGeneros) {
-          if (lg.livro && !livroIndisponivel(lg.livro.id) && !recomendadosMap.has(lg.livro.id)) {
-            recomendadosMap.set(lg.livro.id, { ...lg.livro, generoNome: lg.genero?.nome || 'Destaque' });
-          }
-        }
+      let recomendados = Array.from(livrosMap.values()).filter(l => l.pontuacao > 0);
+      recomendados.sort((a, b) => b.pontuacao - a.pontuacao);
+      if (recomendados.length === 0) {
+        recomendados = Array.from(livrosMap.values()).slice(0, 12);
       }
 
-      this.recomendacoes.set(Array.from(recomendadosMap.values()));
+      this.recomendacoes.set(recomendados);
 
     } catch (e) {
       this.erro.set('Não foi possível carregar os dados do painel. Verifique a sua conexão.');

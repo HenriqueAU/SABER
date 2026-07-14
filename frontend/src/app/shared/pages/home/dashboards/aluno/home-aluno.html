@@ -79,17 +79,30 @@
               }
             </div>
 
-            <div class="row g-2">
+            <div class="row g-3">
               @for (livro of recomendacoesPaginadas(); track livro.id) {
                 <div class="col-4 col-sm-3">
-                  <div class="card border border-light-subtle shadow-sm h-100" style="cursor: pointer; transition: transform 0.2s;" (click)="abrirRecomendacao(livro.id)" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <img [src]="livro.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" class="card-img-top object-fit-cover w-100 rounded-top" style="aspect-ratio: 2/3;" [alt]="livro.titulo">
-                    <div class="card-body p-2">
-                      <h6 class="fw-bold mb-1 text-truncate" style="font-size: 0.75rem;">{{ livro.titulo }}</h6>
-                      <small class="text-secondary d-block text-truncate" style="font-size: 0.65rem;">{{ livro.autor }}</small>
-                      <div class="mt-1">
-                        <span [class]="'badge rounded-pill text-truncate ' + getClassGenero(livro.generoNome)" style="font-size: 0.6rem;">{{ livro.generoNome }}</span>
+                  <div class="card border border-light-subtle shadow-sm h-100 transition-all" style="cursor: pointer;" (click)="abrirRecomendacao(livro.id)" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                    
+                    <img 
+                      [src]="livro.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" 
+                      class="card-img-top w-100 rounded-top" 
+                      style="aspect-ratio: 2/3; object-fit: cover;" 
+                      [alt]="livro.titulo"
+                    >
+                    
+                    <div class="card-body p-2 d-flex flex-column">
+                      <div>
+                         <h6 class="fw-bold mb-1 text-truncate small">{{ livro.titulo }}</h6>
+                         <small class="text-secondary d-block text-truncate" style="font-size: 0.75rem;">{{ livro.autor }}</small>
                       </div>
+                      
+                      <div class="mt-2 d-flex flex-wrap gap-1">
+                        @for (genero of livro.generos; track genero) {
+                          <span class="badge px-2 py-1 text-truncate" [ngClass]="getClassGenero(genero)">{{ genero }}</span>
+                        }
+                      </div>
+
                     </div>
                   </div>
                 </div>
