@@ -7,7 +7,7 @@ import { CoreAuthService } from '../../../core/auth/auth-session';
 
 @Component({selector: 'app-primeiro-acesso',
   templateUrl: './primeiro-acesso.html',
-  styleUrl: './primeiro-acesso.css',
+  styleUrl: './primeiro-acesso.scss',
 })
 export default class PrimeiroAcessoComponent implements OnInit{
 
