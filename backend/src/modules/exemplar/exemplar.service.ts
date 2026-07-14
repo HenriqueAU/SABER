@@ -2,10 +2,11 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Exemplar } from './exemplar.entity';
+import { Exemplar, StatusExemplar } from './exemplar.entity';
 import { CreateExemplarDto } from './dto/create-exemplar.dto';
 import { UpdateExemplarDto } from './dto/update-exemplar.dto';
 import { LivroService } from '../livro/livro.service';
@@ -71,7 +72,14 @@ export class ExemplarService {
   }
 
   async remove(id: string): Promise<void> {
-    await this.findOne(id);
+    const exemplar = await this.findOne(id);
+
+    if (exemplar.status === StatusExemplar.EMPRESTADO) {
+      throw new BadRequestException(
+        'Não é possível excluir um exemplar que está emprestado no momento.',
+      );
+    }
+
     await this.exemplarRepository.update(id, { ativo: false });
   }
 }
