@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, IsNull, LessThan, Not } from 'typeorm';
 import { Emprestimo } from './emprestimo.entity';
@@ -32,21 +36,27 @@ export class EmprestimoService {
 
     if (exemplarDisponivel.status !== StatusExemplar.DISPONIVEL) {
       throw new NotFoundException('Exemplar não está disponível');
-    } else {
-      const emprestimo = this.emprestimoRepository.create({
-        ...dadosEmprestimo,
-        exemplar: { id: exemplar_id },
-        usuario: { id: usuario_id },
-      });
-
-      await this.emprestimoRepository.save(emprestimo);
-
-      await this.exemplarService.update(exemplar_id, {
-        status: StatusExemplar.EMPRESTADO,
-      });
-
-      return emprestimo;
     }
+
+    await this.validarAlunoSemAtraso(usuario_id);
+    await this.validarAlunoSemMesmoLivro(
+      usuario_id,
+      exemplarDisponivel.livro.id,
+    );
+
+    const emprestimo = this.emprestimoRepository.create({
+      ...dadosEmprestimo,
+      exemplar: { id: exemplar_id },
+      usuario: { id: usuario_id },
+    });
+
+    await this.emprestimoRepository.save(emprestimo);
+
+    await this.exemplarService.update(exemplar_id, {
+      status: StatusExemplar.EMPRESTADO,
+    });
+
+    return emprestimo;
   }
 
   async findAll(
@@ -115,7 +125,40 @@ export class EmprestimoService {
     const emprestimo = await this.findOne(id);
     await this.emprestimoRepository.remove(emprestimo);
   }
+  private async validarAlunoSemAtraso(usuarioId: string): Promise<void> {
+    const atrasado = await this.emprestimoRepository.findOne({
+      where: {
+        usuario: { id: usuarioId },
+        data_devolucao_efetiva: IsNull(),
+        data_devolucao_esperada: LessThan(new Date()),
+      },
+    });
 
+    if (atrasado) {
+      throw new BadRequestException(
+        'Aluno possui empréstimo em atraso e não pode retirar outro livro',
+      );
+    }
+  }
+
+  private async validarAlunoSemMesmoLivro(
+    usuarioId: string,
+    livroId: string,
+  ): Promise<void> {
+    const jaEmprestado = await this.emprestimoRepository
+      .createQueryBuilder('emprestimo')
+      .innerJoin('emprestimo.exemplar', 'exemplar')
+      .where('emprestimo.usuario_id = :usuarioId', { usuarioId })
+      .andWhere('exemplar.livro_id = :livroId', { livroId })
+      .andWhere('emprestimo.data_devolucao_efetiva IS NULL')
+      .getOne();
+
+    if (jaEmprestado) {
+      throw new BadRequestException(
+        'Aluno já possui um exemplar deste livro emprestado',
+      );
+    }
+  }
   async getLeiturasPorGenero(usuarioId: string) {
     const result = await this.emprestimoRepository
       .createQueryBuilder('emprestimo')
