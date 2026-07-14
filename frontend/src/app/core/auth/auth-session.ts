@@ -32,6 +32,11 @@ export class CoreAuthService {
     if(!payload) return null;
     return payload.perfil;
   }
+  getFotoPerfil() {
+    const payload = this.decodeToken();
+    if(!payload) return null;
+    return payload.foto_perfil
+  }
   getId() {
     const payload = this.decodeToken();
     if(!payload) return null;
@@ -45,5 +50,6 @@ export class CoreAuthService {
   }
 
   perfil = signal<TipoPerfil | null>(this.getPerfil())
+  fotoPerfil = signal<string | null>(this.getFotoPerfil())
   estaLogado = signal(this.isLoggedIn())
 }

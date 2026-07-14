@@ -32,8 +32,8 @@ export class ClubeLivro {
   @Column({ type: 'timestamptz', nullable: true })
   data_inicio?: Date | null;
 
-  @Column({ type: 'timestamptz', nullable: true })
-  data_fim?: Date | null;
+  @Column({ type: 'timestamptz' })
+  data_fim!: Date | null;
 
   @Column({ nullable: true, type: 'text' })
   local_encontro?: string | null;

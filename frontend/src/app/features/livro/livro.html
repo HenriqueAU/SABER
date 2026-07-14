@@ -36,7 +36,7 @@
                 </div>
               }
               <div>
-                <span class="d-block text-secondary text-uppercase small">Faixa Etária</span>
+                <span class="d-block text-secondary text-uppercase small">Faixa etária</span>
                 <span class="badge bg-primary-subtle text-primary-emphasis mt-1">
                   {{
                     !livroDetalhes.faixa_etaria
@@ -71,7 +71,7 @@
     <div class="modal-content rounded-4 shadow-lg">
       <div class="modal-header bg-light">
         <h5 class="modal-title">
-          {{ livroSelecionado ? 'Editar Livro' : 'Novo Livro' }}
+          {{ livroSelecionado ? 'Editar livro' : 'Novo livro' }}
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
@@ -79,15 +79,21 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label fw-medium">ISBN</label>
-            <input type="text" formControlName="isbn" class="form-control" placeholder="Digite o ISBN-10 para preencher automaticamente">
+            <input type="text" formControlName="isbn" class="form-control" placeholder="Digite o ISBN para preencher automaticamente">
             @if (buscandoIsbn) {
               <div class="form-text text-primary d-flex align-items-center gap-2 mt-1">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 Buscando informações do livro, aguarde...
               </div>
             }
+            @if (erroIsbn) {
+              <div class="form-text text-danger d-flex align-items-center gap-2 mt-1">
+                <i class="bi bi-exclamation-circle"></i>
+                {{ erroIsbn }}
+              </div>
+            }
           </div>
-
+          
           <div class="mb-3">
             <label class="form-label fw-medium">Título *</label>
             <input type="text" formControlName="titulo" class="form-control" placeholder="Ex: O Pequeno Príncipe">
@@ -99,7 +105,7 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label fw-medium">URL da Capa (Imagem)</label>
+            <label class="form-label fw-medium">URL da capa (Imagem)</label>
             <input type="text" formControlName="capa_url" class="form-control" placeholder="https://exemplo.com/imagem.jpg">
           </div>
 
@@ -110,11 +116,11 @@
 
           <div class="row g-3 mb-3">
             <div class="col-6">
-              <label class="form-label fw-medium">Ano Publicação</label>
+              <label class="form-label fw-medium">Ano publicação</label>
               <input type="number" formControlName="ano_publicacao" class="form-control" placeholder="Opcional">
             </div>
             <div class="col-6">
-              <label class="form-label fw-medium">Faixa Etária</label>
+              <label class="form-label fw-medium">Faixa etária</label>
               <select formControlName="faixa_etaria" class="form-select">
                 <option value="livre">Livre</option>
                 <option value="10+">10+</option>
@@ -187,9 +193,9 @@
     class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
 
     <div class="text-center text-md-start">
-      <p class="text-secondary mb-0">
+      <h5 class="text-dark mb-0">
         Veja abaixo o acervo de livros disponíveis.
-      </p>
+      </h5>
     </div>
 
     @if (isBibliotecario) {
@@ -205,7 +211,7 @@
   </div>
 </div>
 
-<div class="container py-4">
+<div class="container">
   <div class="d-flex flex-column flex-md-row justify-content-center align-items-stretch align-items-md-center mb-4 gap-4">
 
     <div class="card shadow-sm border-0 w-100">
@@ -265,7 +271,7 @@
             @if (generosPorLivro[livro.id]?.length) {
               <div class="d-flex flex-wrap gap-1 mb-2">
                 @for (nome of generosPorLivro[livro.id]; track nome) {
-                  <span class="badge bg-secondary text-white rounded-pill text-truncate" style="font-size: 0.65rem; max-width: 100%;">
+                  <span [class]="'badge rounded-pill text-truncate ' + getClassGenero(nome)" style="font-size: 0.65rem; max-width: 100%;">
                     {{ nome }}
                   </span>
                 }
@@ -303,11 +309,16 @@
       </ul>
     </nav>
   }
-
-  @if (livros.length === 0) {
+  @if (carregando) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary"></div>
+      <p class="mt-3 text-secondary">Carregando o acervo...</p>
+    </div>
+  }
+  @if (!carregando && livros.length === 0) {
     <div class="card shadow-sm border-0 text-center p-5 mt-4">
       <i class="bi bi-book mb-2 opacity-25 fs-1"></i>
-      <h3 class="fs-5 fw-medium text-dark mb-1">Acervo Vazio</h3>
+      <h3 class="fs-5 fw-medium text-dark mb-1">Acervo vazio</h3>
       <p class="text-secondary mb-0">Nenhum livro foi cadastrado ainda.</p>
     </div>
   }

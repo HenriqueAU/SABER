@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, ChangeDetectorRef, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { LivrosService } from '../../../client/services/livros.service';
 import { ExemplaresService } from '../../../client/services/exemplares.service';
@@ -17,6 +17,18 @@ import Modal from 'bootstrap/js/dist/modal';
 interface Livro extends CreateLivroDto {
   id: string;
 }
+
+function isbnTemFormatoValido(control: AbstractControl): ValidationErrors | null {
+  const valor =  control.value;
+  if (!valor) return null;
+  return validarIsbnFormato(valor) ? null : { isbnInvalido: true }
+}
+
+function validarIsbnFormato(valor: string): boolean {
+  const isbnLimpo = valor.replace(/[-\s]/g, '');
+  return isbnLimpo.length === 10 || isbnLimpo.length === 13;
+}
+
 @Component({
   selector: 'app-livro',
   standalone: true,
@@ -36,7 +48,7 @@ export default class LivroComponent implements OnInit, AfterViewInit {
   livroForm: FormGroup = this.fb.group({
     titulo: ['', Validators.required],
     autor: ['', Validators.required],
-    isbn: [''],
+    isbn: ['', isbnTemFormatoValido],
     editora: [''],
     ano_publicacao: [null],
     faixa_etaria: ['livre'],
@@ -62,6 +74,7 @@ export default class LivroComponent implements OnInit, AfterViewInit {
   exemplares: any[] = [];
   generosPorLivro: Record<string, string[]> = {};
   buscandoIsbn = false;
+  erroIsbn = '';
   mensagemSucessoModal: string = 'Operação realizada com sucesso!';
   mensagemErroModal: string = 'Ocorreu um erro na operação.';
 
@@ -172,6 +185,43 @@ export default class LivroComponent implements OnInit, AfterViewInit {
     return 'bg-success-subtle text-success';
   }
 
+  getClassGenero(genero: string) {
+    switch (genero) {
+      case 'Poesia':
+        return 'genero-poesia';
+
+      case 'Romance':
+        return 'genero-romance';
+
+      case 'Tecnologia':
+        return 'genero-tecnologia';
+
+      case 'Aventura':
+        return 'genero-aventura';
+
+      case 'Ficção Científica':
+        return 'genero-ficcao-cientifica';
+
+      case 'Filosofia':
+        return 'genero-filosofia';
+
+      case 'História':
+        return 'genero-historia';
+
+      case 'Terror':
+        return 'genero-terror';
+
+      case 'Fantasia':
+        return 'genero-fantasia';
+
+      case 'Biografias':
+        return 'genero-biografias';
+
+      default:
+        return 'bg-secondary text-white';
+    }
+  }
+
   mudarPagina(pagina: number | string, event?: Event) {
     if (event) event.preventDefault();
     if (typeof pagina === 'number' && pagina >= 1 && pagina <= this.totalPaginas) {
@@ -187,25 +237,36 @@ export default class LivroComponent implements OnInit, AfterViewInit {
       distinctUntilChanged(),
       filter((isbn: string) => !!isbn && isbn.length >= 10),
       switchMap((isbn: string) => {
-      this.buscandoIsbn = true;
-      return this.livrosService.livroControllerBuscarPorIsbn(isbn).pipe(
-        catchError(() => of(null))
-    );
-  })
-    ).subscribe((dados: any) => {
-      this.buscandoIsbn = false;
-      if (!dados) return;
-      if (dados.titulo) this.livroForm.patchValue({ titulo: dados.titulo }, { emitEvent: false });
-      if (dados.autor) this.livroForm.patchValue({ autor: dados.autor }, { emitEvent: false });
-      if (dados.capa_url) this.livroForm.patchValue({ capa_url: dados.capa_url }, { emitEvent: false });
-      if (dados.editora) this.livroForm.patchValue({ editora: dados.editora }, { emitEvent: false });
-      if (dados.publicado_em){
-        const ano = new Date(dados.publicado_em).getFullYear();
-        if (!isNaN(ano)) this.livroForm.patchValue({ ano_publicacao: ano }, { emitEvent: false });
-      }
-      if (dados.sinopse) this.livroForm.patchValue({ sinopse: dados.sinopse }, { emitEvent: false });
-    });
-  }
+        if(!validarIsbnFormato(isbn)) {
+          this.erroIsbn = 'Formato inválido';
+          this.buscandoIsbn = false;
+          return of (null)
+        }
+        this.buscandoIsbn = true;
+        return this.livrosService.livroControllerBuscarPorIsbn(isbn).pipe(
+          catchError(() => of(null))
+      );
+      })
+      ).subscribe((dados: any) => {
+        this.buscandoIsbn = false;
+        if (!dados) {
+          if (!this.erroIsbn) {
+            this.erroIsbn = 'Não foi possível econtrar dados para esse ISBN'
+          }
+          return;
+        }
+        this.erroIsbn = '';
+        if (dados.titulo) this.livroForm.patchValue({ titulo: dados.titulo }, { emitEvent: false });
+        if (dados.autor) this.livroForm.patchValue({ autor: dados.autor }, { emitEvent: false });
+        if (dados.capa_url) this.livroForm.patchValue({ capa_url: dados.capa_url }, { emitEvent: false });
+        if (dados.editora) this.livroForm.patchValue({ editora: dados.editora }, { emitEvent: false });
+        if (dados.publicado_em){
+          const ano = new Date(dados.publicado_em).getFullYear();
+          if (!isNaN(ano)) this.livroForm.patchValue({ ano_publicacao: ano }, { emitEvent: false });
+        }
+        if (dados.sinopse) this.livroForm.patchValue({ sinopse: dados.sinopse }, { emitEvent: false });
+      });
+    }
 
   ngAfterViewInit(): void {
     this.livroFormModalRef.nativeElement.addEventListener(
@@ -213,16 +274,23 @@ export default class LivroComponent implements OnInit, AfterViewInit {
       () => {
         this.livroSelecionado = null;
         this.livroForm.reset({ faixa_etaria: 'livre'});
+        this.erroIsbn = '';
+        this.buscandoIsbn = false;
       }
     )
   }
 
+  carregando = false;
+
   carregarLivros() {
+    this.carregando = true;
     this.livrosService.livroControllerFindAll().subscribe({
       next: (dados) => {
         this.livros = dados;
         this.carregarGeneros();
         this.carregarExemplares();
+        this.carregando = false;
+        this.cdr.detectChanges();
 
         const livroIdModal = this.route.snapshot.queryParamMap.get('abrirModal');
         if (livroIdModal) {

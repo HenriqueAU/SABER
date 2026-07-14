@@ -160,7 +160,7 @@ export default class HomeBibliotecarioComponent implements OnInit {
         datasets: [
           {
             data: dados.map((g) => g.totalEmprestimos),
-            backgroundColor: ['#003A79', '#0EA5E9', '#EAB308', '#16A34A', '#DC2626', '#8696AC', '#F97316', '#0D9488'],
+            backgroundColor: ['--var()', '#003A79', '#0EA5E9', '#EAB308', '#16A34A', '#DC2626', '#8696AC', '#F97316', '#0D9488'],
             borderWidth: 0,
           },
         ],

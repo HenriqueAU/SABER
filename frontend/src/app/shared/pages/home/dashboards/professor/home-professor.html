@@ -2,14 +2,14 @@
 
   @if (modoListagem()) {
     <header class="mb-4">
-      <h2 class="fw-bold"><i class="bi bi-journal-bookmark-fill text-primary me-2"></i>Meus Clubes de Leitura</h2>
+      <h2 class="fw-bold"><i class="bi bi-journal-bookmark-fill text-primary me-2"></i>Meus clubes de leitura</h2>
       <p class="text-secondary">Gerencie os clubes de leitura em que você é o coordenador.</p>
     </header>
 
     @if (carregando()) {
       <div class="text-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-3 text-secondary">A carregar os seus clubes...</p>
+        <p class="mt-3 text-secondary">Carregando os seus clubes...</p>
       </div>
     }
 
@@ -35,7 +35,7 @@
                       {{ c.livro?.titulo || 'Título não informado' }}
                     </h6>
                     <p class="text-primary text-truncate mb-2 small fw-medium" title="{{ c.nome }}">
-                      <i class="bi bi-people me-1"></i>{{ c.nome || 'Clube de Leitura' }}
+                      <i class="bi bi-people me-1"></i>{{ c.nome || 'Clube de leitura' }}
                     </p>
                     <div class="mt-auto">
                       @if (getDiasParaInicio(c.data_inicio); as dias) {
@@ -84,9 +84,9 @@
                 <div>
                   <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-book me-2"></i>{{ detalhes.livro?.titulo || 'Título não informado' }}</h4>
                   <p class="text-secondary fw-medium mb-1">Por: {{ detalhes.livro?.autor || 'Autor Desconhecido' }}</p>
-                  <h5 class="text-primary mb-0 mt-2"><i class="bi bi-people me-2"></i>{{ detalhes.nome || 'Clube de Leitura' }}</h5>
+                  <h5 class="text-primary mb-0 mt-2"><i class="bi bi-people me-2"></i>{{ detalhes.nome || 'Clube de leitura' }}</h5>
                 </div>
-                <span class="badge bg-primary-subtle text-primary border flex-shrink-0" style="font-size: 0.85rem;">Clube de Leitura</span>
+                <span class="badge bg-primary-subtle text-primary border flex-shrink-0" style="font-size: 0.85rem;">Clube de leitura</span>
               </div>
               
               <p class="small text-secondary mb-3 text-justify">
@@ -105,7 +105,7 @@
 
           <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-3 p-md-4">
-              <h5 class="fw-bold mb-4"><i class="bi bi-info-circle text-primary me-2"></i>Informações do Encontro</h5>
+              <h5 class="fw-bold mb-4"><i class="bi bi-info-circle text-primary me-2"></i>Informações do encontro</h5>
               
               <div class="d-flex flex-nowrap gap-2 mb-2">
                 @if (detalhes.local_encontro) {
@@ -150,7 +150,7 @@
               @if (abaAtiva() === 'detalhes') {
                 @if (clubeEncerrado()) {
                   <button class="btn btn-primary w-100 py-2 fw-semibold" (click)="abrirFeedbacks()">
-                    <i class="bi bi-bar-chart-line me-2"></i>Ver Feedbacks dos Alunos
+                    <i class="bi bi-bar-chart-line me-2"></i>Ver Feedbacks dos alunos
                   </button>
                 } @else {
                   <div class="alert alert-warning border-0 d-flex align-items-center mb-0 shadow-sm">
@@ -166,14 +166,14 @@
             <div class="card border-0 shadow-sm">
               <div class="card-body p-4">
                 <h5 class="fw-bold mb-4 d-flex align-items-center">
-                  <i class="bi bi-people-fill text-primary me-2"></i> Alunos Inscritos 
+                  <i class="bi bi-people-fill text-primary me-2"></i> Alunos inscritos 
                   <span class="badge bg-primary rounded-pill ms-2">{{ membrosDoClube().length }}</span>
                 </h5>
 
                 @if (carregandoMembros()) {
                   <div class="text-center py-4">
                     <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-                    <span class="text-secondary small">A carregar a lista de alunos...</span>
+                    <span class="text-secondary small">Carregando lista de alunos...</span>
                   </div>
                 }
 
@@ -188,7 +188,7 @@
                   <ul class="list-group list-group-flush mb-3">
                     @for (membro of membrosPaginados; track membro.id) {
                       <li class="list-group-item d-flex align-items-center px-0 py-3 border-light">
-                        <img [src]="membro.usuario?.foto_perfil || 'assets/imgs/avatares/0.png'" alt="Foto do Aluno" class="rounded-circle shadow-sm object-fit-cover me-3" style="width: 48px; height: 48px;">
+                        <img [src]="membro.usuario?.foto_perfil || 'assets/imgs/avatares/0.png'" alt="Foto do aluno" class="rounded-circle shadow-sm object-fit-cover me-3" style="width: 48px; height: 48px;">
                         <div>
                           <strong class="d-block text-dark">{{ membro.usuario?.nome || 'Aluno Desconhecido' }}</strong>
                           <small class="text-secondary"><i class="bi bi-envelope me-1"></i>{{ membro.usuario?.email || 'Sem e-mail' }}</small>
@@ -228,10 +228,10 @@
             <div class="card border-0 shadow-sm">
               <div class="card-body p-4">
                 <button class="btn btn-sm btn-outline-secondary mb-4" (click)="voltarParaDetalhes()">
-                  <i class="bi bi-arrow-left me-1"></i> Voltar aos Alunos
+                  <i class="bi bi-arrow-left me-1"></i> Voltar aos alunos
                 </button>
 
-                <h5 class="fw-bold mb-2"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Resultados dos Feedbacks</h5>
+                <h5 class="fw-bold mb-2"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Resultados dos feedbacks</h5>
                 <p class="text-secondary small mb-4">Selecione uma pergunta abaixo para ver a votação dos alunos.</p>
 
                 @if (perguntas().length === 0) {

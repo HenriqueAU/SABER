@@ -1,6 +1,6 @@
-import { Component, ElementRef, OnInit, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Modal } from 'bootstrap';
+import { Component, ElementRef, OnInit, ViewChild, inject, ChangeDetectorRef} from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import Modal from 'bootstrap/js/dist/modal';
 import { EmprestimosService } from '../../../client/services/emprestimos.service';
 import { ExemplaresService } from '../../../client/services/exemplares.service';
 import { AsyncPipe, DatePipe } from '@angular/common';
@@ -29,11 +29,12 @@ export default class EmprestimoComponent implements OnInit {
     }),
 
     aluno_id: new FormControl('', {
-      validators: [],
+      validators: [Validators.required]
     }),
 
-    data_devolucao_esperada: new FormControl(this.getDataPadraoDevolucao(), {
-      validators: [],
+    data_devolucao_esperada: new FormControl(
+      this.getDataPadraoDevolucao(), {
+      validators: [Validators.required]
     }),
   });
 

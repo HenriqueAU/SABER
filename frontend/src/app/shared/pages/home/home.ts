@@ -12,6 +12,6 @@ import HomeAlunoComponent from './dashboards/aluno/home-aluno';
   styleUrl: './home.scss',
 })
 export default class HomeComponent {
- sessionService = inject(CoreAuthService);
- perfil = this.sessionService.perfil
+ coreAuthService = inject(CoreAuthService);
+ perfil = this.coreAuthService.perfil
 }

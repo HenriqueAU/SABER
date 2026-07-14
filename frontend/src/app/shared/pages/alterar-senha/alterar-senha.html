@@ -23,7 +23,7 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
     <div class="form-group mb-3">
-      <label for="senhaAtual" class="form-label fw-semibold">Senha Atual</label>
+      <label for="senhaAtual" class="form-label fw-semibold">Senha atual</label>
       <div class="position-relative">
         <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary fs-5"></i>
         <input 
@@ -33,7 +33,7 @@
           formControlName="senhaAtual" 
           placeholder="Digite sua senha atual"
         >
-       <button
+        <button
           id="visibilidade-senha-atual"
           type="button" 
           class="btn btn-icon btn-olho-senha position-absolute top-50 end-0 translate-middle-y me-3 text-secondary"
@@ -52,7 +52,7 @@
     </div>
 
     <div class="form-group mb-2">
-      <label for="novaSenha" class="form-label fw-semibold">Nova Senha</label>
+      <label for="novaSenha" class="form-label fw-semibold">Nova senha</label>
       <div class="position-relative">
         <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary fs-5"></i>
         <input 
@@ -62,18 +62,18 @@
           formControlName="novaSenha" 
           placeholder="Mínimo 8 caracteres"
         >
-       <button
+        <button
         id="visibilidade-nova-senha"
         type="button" 
         class="btn btn-icon btn-olho-senha position-absolute top-50 end-0 translate-middle-y me-3 text-secondary"
         (click)="toggleVisibilidadeNovaSenha()"
-      >
-        <i
-          class="bi fs-5"
-          [class.bi-eye]="!novaSenhaVisivel"
-          [class.bi-eye-slash]="novaSenhaVisivel"
-        ></i>
-      </button>
+        >
+          <i
+            class="bi fs-5"
+            [class.bi-eye]="!novaSenhaVisivel"
+            [class.bi-eye-slash]="novaSenhaVisivel"
+          ></i>
+        </button>
       </div>
       @if (form.get('novaSenha')?.errors?.['required'] && form.get('novaSenha')?.touched) {
         <small class="text-danger d-block mt-1"><i class="bi bi-info-circle me-1"></i>A nova senha é obrigatória.</small>
@@ -82,6 +82,38 @@
         <small class="text-danger d-block mt-1"><i class="bi bi-info-circle me-1"></i>A senha deve ter no mínimo 8 caracteres.</small>
       }
     </div>
+
+    <!-- <div class="form-group mb-2">
+      <label for="novaSenhaRepetida" class="form-label fw-semibold">Confirmar nova senha</label>
+      <div class="position-relative">
+        <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary fs-5"></i>
+        <input 
+          id="novaSenhaRepetida" 
+          [type]="novaSenhaRepetidaVisivel ? 'text' : 'password'" 
+          class="form-control ps-5 py-3"
+          formControlName="novaSenhaRepetida" 
+          placeholder="Digite a senha novamente"
+        >
+        <button
+        id="visibilidade-nova-senha-repetida"
+        type="button" 
+        class="btn btn-icon btn-olho-senha position-absolute top-50 end-0 translate-middle-y me-3 text-secondary"
+        (click)="toggleVisibilidadeNovaSenhaRepetida()"
+        >
+          <i
+            class="bi fs-5"
+            [class.bi-eye]="!novaSenhaRepetidaVisivel"
+            [class.bi-eye-slash]="novaSenhaRepetidaVisivel"
+          ></i>
+        </button>
+      </div>
+      @if (form.get('novaSenhaRepetida')?.errors?.['required'] && form.get('novaSenhaRepetida')?.touched) {
+        <small class="text-danger d-block mt-1"><i class="bi bi-info-circle me-1"></i>A nova senha é obrigatória.</small>
+      }
+      @if (form.get('novaSenhaRepetida')?.errors?.['minlength'] && form.get('novaSenhaRepetida')?.touched) {
+        <small class="text-danger d-block mt-1"><i class="bi bi-info-circle me-1"></i>A senha deve ter no mínimo 8 caracteres.</small>
+      }
+    </div> -->
 
     <div class="mb-4">
   <button type="button" class="btn btn-icon btn-sem-hover btn-sm text-secondary ps-0" (click)="toggleCriterios()">
