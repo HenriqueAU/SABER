@@ -9,7 +9,7 @@
       <div class="modal-body">
         @if (livroSelecionado) {
           <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-light border mb-3">
-            <img [src]="livroSelecionado.capa_url || 'assets/imgs/teste2.png'" class="rounded" width="56" [alt]="livroSelecionado.titulo" />
+            <img [src]="livroSelecionado.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" class="rounded" width="56" [alt]="livroSelecionado.titulo" />
             <div>
               <div class="text-uppercase text-secondary fw-bold" style="font-size: 10px; letter-spacing: 0.05em;">Livro selecionado</div>
               <div class="fw-semibold">{{ livroSelecionado.titulo }}</div>
@@ -49,7 +49,7 @@
       </div>
       <div class="modal-body">
         <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-light border mb-3">
-          <img [src]="livroSelecionado?.capa_url || 'assets/imgs/teste2.png'" class="rounded" width="56" [alt]="livroSelecionado?.titulo" />
+          <img [src]="livroSelecionado?.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" class="rounded" width="56" [alt]="livroSelecionado?.titulo" />
           <div>
             <div class="text-uppercase text-secondary fw-bold" style="font-size: 10px; letter-spacing: 0.05em;">Livro selecionado</div>
             <div class="fw-semibold">{{ livroSelecionado?.titulo }}</div>
@@ -164,7 +164,8 @@
   @if (abaAtiva === 'emprestimo') {
     <div class="container py-4">
       <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3"
+      >
         <div class="text-center text-md-start">
           <p class="text-secondary mb-0">
             Selecione o livro que deseja registrar para o empréstimo individual.
@@ -176,13 +177,16 @@
     <div class="card shadow-sm border-0 mb-4">
       <div class="card-body p-0">
         <div class="position-relative">
-          <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"></i>
+          <i
+            class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"
+          ></i>
           <input
             type="text"
             class="form-control border-0 ps-5 py-3"
             placeholder="Pesquise por título ou autor"
             [(ngModel)]="termoPesquisa"
-            maxlength="255">
+            maxlength="255"
+          />
         </div>
       </div>
     </div>
@@ -198,7 +202,10 @@
         <div class="text-center py-5 text-secondary">
           <i class="bi bi-book fs-1"></i>
           <h5 class="mt-3">Encontre um livro</h5>
-          <p>Digite o título ou o autor na barra de pesquisa acima para encontrar um livro para empréstimo.</p>
+          <p>
+            Digite o título ou o autor na barra de pesquisa acima para encontrar um livro para
+            empréstimo.
+          </p>
         </div>
       } @else if (filtrarLivros(livros).length === 0) {
         <div class="text-center py-5 text-secondary">
@@ -224,7 +231,11 @@
                           {{ getStatusExemplar(livro.id) }}
                         </span>
                       </p>
-                      <button type="button" class="btn btn-outline-primary btn-sm w-100" (click)="abrirModalExemplares(livro)">
+                      <button
+                        type="button"
+                        class="btn btn-outline-primary btn-sm w-100"
+                        (click)="abrirModalExemplares(livro)"
+                      >
                         <i class="bi bi-plus-circle me-1"></i> Selecionar
                       </button>
                     </div>
@@ -248,8 +259,8 @@
   @if (abaAtiva === 'devolucao') {
     <div class="container py-4">
       <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
-
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3"
+      >
         <div class="text-center text-md-start">
           <p class="text-secondary mb-0">
             Gerencie os empréstimos ativos e marque os livros que foram devolvidos à biblioteca.
@@ -281,17 +292,24 @@
                   <div class="fw-bold">{{ getTituloLivro(emp) }}</div>
                   <small class="text-secondary">Cód: {{ getCodigoExemplar(emp) }}</small>
                 </td>
-                <td>{{ emp.data_retirada | date:'dd/MM/yyyy' }}</td>
-                  <td>
-                    <span [class.text-danger]="estaAtrasado(emp.data_devolucao_esperada)" [class.fw-bold]="estaAtrasado(emp.data_devolucao_esperada)">
-                      {{ emp.data_devolucao_esperada | date:'dd/MM/yyyy' }}
-                      @if (estaAtrasado(emp.data_devolucao_esperada)) {
-                        <i class="bi bi-exclamation-circle text-danger ms-1" title="Em atraso"></i>
-                      }
-                    </span>
-                  </td>
+                <td>{{ emp.data_retirada | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <span
+                    [class.text-danger]="estaAtrasado(emp.data_devolucao_esperada)"
+                    [class.fw-bold]="estaAtrasado(emp.data_devolucao_esperada)"
+                  >
+                    {{ emp.data_devolucao_esperada | date: 'dd/MM/yyyy' }}
+                    @if (estaAtrasado(emp.data_devolucao_esperada)) {
+                      <i class="bi bi-exclamation-circle text-danger ms-1" title="Em atraso"></i>
+                    }
+                  </span>
+                </td>
                 <td class="text-end pe-4">
-                  <button class="btn btn-sm btn-success fw-semibold text-light fs-6" (click)="devolverLivro(emp)" [disabled]="enviandoDevolucao">
+                  <button
+                    class="btn btn-sm btn-success fw-semibold text-light fs-6"
+                    (click)="devolverLivro(emp)"
+                    [disabled]="enviandoDevolucao"
+                  >
                     <i class="bi bi-check2-square me-1"></i> Devolver
                   </button>
                 </td>
@@ -314,7 +332,8 @@
   @if (abaAtiva === 'historico') {
     <div class="container py-4">
       <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3"
+      >
         <div class="text-center text-md-start">
           <p class="text-secondary mb-0">
             Acompanhe o histórico de todos os exemplares que já foram devolvidos.
@@ -337,7 +356,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (emp of emprestimosHistorico; track emp.id) {
+            @for (emp of historicoPaginado; track emp.id) {
               <tr class="table-light">
                 <td class="ps-4">
                   <div class="fw-bold">{{ getNomeAluno(emp) }}</div>
@@ -347,10 +366,14 @@
                   <div class="fw-bold">{{ getTituloLivro(emp) }}</div>
                   <small class="text-secondary">Cód: {{ getCodigoExemplar(emp) }}</small>
                 </td>
-                <td>{{ emp.data_retirada | date:'dd/MM/yyyy' }}</td>
-                <td>{{ emp.data_devolucao_esperada | date:'dd/MM/yyyy' }}</td>
-                <td class="fw-medium" [class.text-danger]="estaAtrasadoHistorico(emp)" [class.text-success]="!estaAtrasadoHistorico(emp)">
-                  {{ emp.data_devolucao_efetiva | date:'dd/MM/yyyy' }}
+                <td>{{ emp.data_retirada | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ emp.data_devolucao_esperada | date: 'dd/MM/yyyy' }}</td>
+                <td
+                  class="fw-medium"
+                  [class.text-danger]="estaAtrasadoHistorico(emp)"
+                  [class.text-success]="!estaAtrasadoHistorico(emp)"
+                >
+                  {{ emp.data_devolucao_efetiva | date: 'dd/MM/yyyy' }}
                 </td>
                 <td class="pe-4">
                   @if (estaAtrasadoHistorico(emp)) {
@@ -364,6 +387,36 @@
           </tbody>
         </table>
       </div>
+      @if (historicoTotalPaginas > 1) {
+        <div class="d-flex justify-content-between align-items-center p-3">
+          <small class="text-secondary">
+            Página {{ paginaAtualHistorico }} de {{ historicoTotalPaginas }} ·
+            {{ emprestimosHistorico.length }} registros
+          </small>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="paginaAtualHistorico === 1">
+                <button class="page-link" (click)="irParaPaginaHistorico(paginaAtualHistorico - 1)">
+                  ‹
+                </button>
+              </li>
+              @for (p of historicoPaginas; track p) {
+                <li class="page-item" [class.active]="p === paginaAtualHistorico">
+                  <button class="page-link" (click)="irParaPaginaHistorico(p)">{{ p }}</button>
+                </li>
+              }
+              <li
+                class="page-item"
+                [class.disabled]="paginaAtualHistorico === historicoTotalPaginas"
+              >
+                <button class="page-link" (click)="irParaPaginaHistorico(paginaAtualHistorico + 1)">
+                  ›
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      }
 
       @if (emprestimosHistorico.length === 0) {
         <div class="text-center py-5 text-secondary">
