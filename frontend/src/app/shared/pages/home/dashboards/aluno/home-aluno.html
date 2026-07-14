@@ -21,33 +21,69 @@
         <div class="row g-4 mb-4">
           <div class="col-4">
             <div class="card border-0 shadow-sm h-100">
-              <div class="card-body p-2 p-md-3">
-                <p class="text-secondary mb-1 text-uppercase fw-semibold text-truncate" title="Livros lidos">
-                  <i class="bi bi-book-half me-1"></i><span class="d-none d-sm-inline">Livros lidos</span><span class="d-inline d-sm-none">Livros</span>
-                </p>
-                <h3 class="fw-bold mb-0">{{ totalLivrosLidos() }}</h3>
+              <div class="card-body p-2 p-md-5 text-center">
+
+                <div class="d-none d-sm-inline">
+                  <i class="bi bi-book text-primary opacity-25 position-absolute start-0 ms-3 top-0 fs-1"></i>
+                  <h2 class="fw-bold mb-2">{{ totalLivrosLidos() }}</h2>
+                  <h5 class="mb-0 fw-semibold">
+                    {{ totalLivrosLidos() === 1 ? 'Livro lido' : 'Livros lidos' }}
+                  </h5>
+                </div>
+                
+                <div class="d-block d-sm-none">
+                  <h2 class="fw-bold mb-1"><i class="bi bi-book text-primary fs-4 me-2"></i>{{ totalLivrosLidos() }}</h2>
+                  <h6 class="mb-0 fw-semibold">
+                    {{ totalLivrosLidos() === 1 ? 'Livro lido' : 'Livros lidos' }}
+                  </h6>
+                </div>
+
               </div>
             </div>
           </div>
 
           <div class="col-4">
             <div class="card border-0 shadow-sm h-100">
-              <div class="card-body p-2 p-md-3">
-                <p class="text-secondary mb-1 text-uppercase fw-semibold text-truncate" title="Páginas lidas">
-                  <i class="bi bi-file-earmark-text me-1"></i><span class="d-none d-sm-inline">Páginas lidas</span><span class="d-inline d-sm-none">Páginas</span>
-                </p>
-                <h3 class="fw-bold mb-0 text-primary">{{ totalPaginasLidas() > 0 ? totalPaginasLidas(): '-'}}</h3>
+              <div class="card-body p-2 p-md-5 text-center">
+
+                <div class="d-none d-sm-inline">
+                  <i class="bi bi-file-earmark-text text-primary opacity-25 position-absolute start-0 ms-3 top-0 fs-1"></i>
+                  <h2 class="fw-bold mb-2">{{ totalPaginasLidas() > 0 ? totalPaginasLidas(): '-'}}</h2>
+                  <h5 class="mb-0 fw-semibold">
+                    {{ totalPaginasLidas() === 1 ? 'Página lida' : 'Páginas lidas' }}
+                  </h5>
+                </div>
+                
+                <div class="d-block d-sm-none">
+                  <h2 class="fw-bold mb-1"><i class="bi bi-file-earmark-text text-primary fs-4 me-2"></i>{{ totalPaginasLidas() > 0 ? totalPaginasLidas(): '-'}}</h2>
+                  <h6 class="mb-0 fw-semibold">
+                    {{ totalPaginasLidas() === 1 ? 'Página lida' : 'Páginas lidas' }}
+                  </h6>
+                </div>
+
               </div>
             </div>
           </div>
 
           <div class="col-4">
             <div class="card border-0 shadow-sm h-100">
-              <div class="card-body p-2 p-md-3">
-                <p class="text-secondary mb-1 text-uppercase fw-semibold text-truncate" title="Clubes">
-                  <i class="bi bi-people-fill me-1"></i>Clubes
-                </p>
-                <h3 class="fw-bold mb-0">{{ totalClubes() }}</h3>
+              <div class="card-body p-2 p-md-5 text-center">
+
+                <div class="d-none d-sm-inline">
+                  <i class="bi bi-people text-primary opacity-25 position-absolute start-0 ms-3 top-0 fs-1"></i>
+                  <h2 class="fw-bold mb-2">{{ totalClubes() }}</h2>
+                  <h5 class="mb-0 fw-semibold">
+                    {{ totalClubes() === 1 ? 'Clube ativo' : 'Clubes ativos' }}
+                  </h5>
+                </div>
+                
+                <div class="d-block d-sm-none">
+                  <h2 class="fw-bold mb-1"><i class="bi bi-people text-primary fs-4 me-2"></i>{{ totalClubes() }}</h2>
+                  <h6 class="mb-0 fw-semibold">
+                    {{ totalClubes() === 1 ? 'Clube ativo' : 'Clubes ativos' }}
+                  </h6>
+                </div>
+
               </div>
             </div>
           </div>

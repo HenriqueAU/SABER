@@ -1,64 +1,114 @@
 <div class="container-fluid py-4 px-4">
   <div class="row g-4 mb-4">
     <div class="col-12 col-lg-6">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body d-flex flex-column justify-content-center gap-4">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <p class="text-secondary small mb-1 text-uppercase fw-semibold">Empréstimos ativos</p>
-              <h2 class="fw-bold mb-0">{{ emprestimosAtivos() }}</h2>
-            </div>
-            <div class="vr"></div>
-            <div>
-              <p class="text-secondary small mb-1 text-uppercase fw-semibold">
-                Exemplares no acervo
-              </p>
-              <h2 class="fw-bold mb-0">{{ totalExemplares() }}</h2>
-            </div>
-            <div class="vr"></div>
-            <div>
-              @if (mediaLeitura(); as media) {
-                <p class="text-secondary small mb-1 text-uppercase fw-semibold">Média de leitura</p>
-                <h2
-                  class="fw-bold mb-0"
-                  [class.text-success]="deltaPositivo"
-                  [class.text-danger]="!deltaPositivo"
-                >
-                  @if (media.variacaoPercent !== null) {
-                    {{ media.variacaoPercent >= 0 ? '+' : '' }}{{ media.variacaoPercent }}%
-                  } @else {
-                    —
-                  }
-                </h2>
-                <small class="text-secondary">{{ deltaLabel }}</small>
-              }
+      <div class="row g-3">
+        <div class="col-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-2 p-md-5 text-center">
+
+              <div class="d-none d-sm-inline">
+                <i class="bi bi-bookmarks text-primary opacity-25 position-absolute start-0 ms-3 top-0 fs-1"></i>
+                <h2 class="fw-bold mb-2">{{ emprestimosAtivos() }}</h2>
+                <h5 class="mb-0 fw-semibold">
+                  {{ emprestimosAtivos() === 1 ? 'Empréstimo ativo' : 'Empréstimos ativos' }}
+                </h5>
+              </div>
+              
+              <div class="d-block d-sm-none">
+                <h2 class="fw-bold mb-1"><i class="bi bi-bookmarks text-primary fs-4 me-1"></i>{{ emprestimosAtivos() }}</h2>
+                <h6 class="mb-0 fw-semibold" style="font-size: 0.82rem;">
+                  {{ emprestimosAtivos() === 1 ? 'Empréstimo ativo' : 'Empréstimos ativos' }}
+                </h6>
+              </div>
+
             </div>
           </div>
         </div>
+
+        <div class="col-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-2 p-md-5 text-center">
+
+              <div class="d-none d-sm-inline">
+                <i class="bi bi-bookshelf text-primary opacity-25 position-absolute start-0 ms-3 top-0 fs-1"></i>
+                <h2 class="fw-bold mb-2">{{ totalExemplares() }}</h2>
+                <h5 class="mb-0 fw-semibold">
+                  {{ totalExemplares() === 1 ? 'Exemplar no acervo' : 'Exemplares no acervo' }}
+                </h5>
+              </div>
+              
+              <div class="d-block d-sm-none">
+                <h2 class="fw-bold mb-1"><i class="bi bi-bookshelf text-primary fs-4 me-1"></i>{{ totalExemplares() }}</h2>
+                <h6 class="mb-0 fw-semibold" style="font-size: 0.82rem;">
+                  {{ totalExemplares() === 1 ? 'Exemplar no acervo' : 'Exemplares no acervo' }}
+                </h6>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        @if (mediaLeitura(); as media) {
+          <div class="col-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-2 p-md-5 text-center">
+
+                <div class="d-none d-sm-inline">
+                  <i class="bi bi-book text-primary opacity-25 position-absolute start-0 ms-3 top-0 fs-1"></i>
+                  <h2
+                    class="fw-bold mb-2"
+                    [class.text-success]="deltaPositivo"
+                    [class.text-danger]="!deltaPositivo"
+                  >
+                    @if (media.variacaoPercent !== null) {
+                        {{ media.variacaoPercent >= 0 ? '+' : '' }}{{ media.variacaoPercent }}%
+                      } @else {
+                        —
+                      }
+                  </h2>
+                  <h5 class="mb-1 fw-semibold">
+                    Média de leitura
+                  </h5>
+                  <small class="text-secondary">{{ deltaLabel }}</small>
+                </div>
+                
+                <div class="d-block d-sm-none">
+                  <h2
+                    class="fw-bold mb-1"
+                    [class.text-success]="deltaPositivo"
+                    [class.text-danger]="!deltaPositivo"
+                    >
+                    @if (media.variacaoPercent !== null) {
+                      {{ media.variacaoPercent >= 0 ? '+' : '' }}{{ media.variacaoPercent }}%
+                    } @else {
+                      —
+                    }
+                  </h2>
+                  <h6 class="mb-1 fw-semibold" style="font-size: 0.82rem;">
+                    Média de leitura
+                  </h6>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        }
       </div>
     </div>
-
     <div class="col-12 col-lg-6">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h6 class="fw-bold mb-0">Gêneros mais procurados</h6>
-            <select
-              class="form-select form-select-sm w-auto"
-              (change)="onFaixaChange($any($event.target).value)"
-            >
+            <select class="form-select form-select-sm w-auto"
+              (change)="onFaixaChange($any($event.target).value)">
               @for (f of faixas; track f.value) {
-                <option [value]="f.value" [selected]="f.value === faixaSelecionada()">
-                  {{ f.label }}
-                </option>
+                <option [value]="f.value" [selected]="f.value === faixaSelecionada()">{{ f.label }}</option>
               }
             </select>
           </div>
-          <div style="position: relative; height: 180px">
+          <div style="position: relative; height: 163.6px">
             @if (generos().length === 0) {
-              <p class="text-secondary text-center py-4 mb-0">
-                Nenhum dado para esta faixa etária.
-              </p>
+              <p class="text-secondary text-center py-4 mb-0">Nenhum dado para esta faixa etária.</p>
             } @else {
               <canvas id="genresChartBibliotecario"></canvas>
             }
@@ -67,8 +117,7 @@
       </div>
     </div>
   </div>
-
-  <div class="row g-4">
+  <div class="row g-4 mb-4">
     <div class="col-12 col-lg-6">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body">
@@ -88,9 +137,7 @@
                   <div class="fw-semibold text-truncate">{{ livro.titulo }}</div>
                   <small class="text-secondary">{{ livro.autor }}</small>
                 </div>
-                <span class="badge bg-primary-subtle text-primary rounded-pill">{{
-                  livro.totalEmprestimos
-                }}</span>
+                <span class="badge bg-primary-subtle text-primary rounded-pill">{{ livro.totalEmprestimos }}</span>
               </li>
             }
             @if (rankingLivros().length === 0) {
@@ -100,7 +147,6 @@
         </div>
       </div>
     </div>
-
     <div class="col-12 col-lg-6">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body d-flex flex-column justify-content-center">
@@ -114,19 +160,19 @@
                 <span class="text-success fw-semibold">No prazo</span>
                 <span class="text-danger fw-semibold">Atrasadas</span>
               </div>
-              <div class="progress" style="height: 28px; border-radius: 6px">
+              <div class="progress" style="height: 28px; border-radius: 6px;">
                 <div
                   class="progress-bar bg-success"
                   role="progressbar"
                   [style.width.%]="porcentagemNoPrazo()"
-                  style="border-radius: 6px 0 0 6px"
-                ></div>
+                  style="border-radius: 6px 0 0 6px;">
+                </div>
                 <div
                   class="progress-bar bg-danger"
                   role="progressbar"
                   [style.width.%]="porcentagemAtrasados()"
-                  style="border-radius: 0 6px 6px 0"
-                ></div>
+                  style="border-radius: 0 6px 6px 0;">
+                </div>
               </div>
               <div class="d-flex justify-content-between small mt-2">
                 <span class="fw-bold text-success">{{ porcentagemNoPrazo() }}%</span>
@@ -142,8 +188,7 @@
       </div>
     </div>
   </div>
-
-  <div class="row mt-4">
+  <div class="row">
     <div class="col-12">
       <div class="card border-0 shadow-sm">
         <div
@@ -154,7 +199,75 @@
         >
           <h6 class="fw-bold mb-3">Log de empréstimos</h6>
 
-          <div class="table-responsive">
+          @if (totalPaginas() > 1 && emprestimos().length > 0) {
+            <div
+              class="d-flex d-md-none mb-2"
+              (click)="$event.stopPropagation()"
+            >
+              <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" [class.disabled]="paginaAtual() === 1">
+                  <button
+                    class="page-link"
+                    (click)="irParaPagina(paginaAtual() - 1)"
+                  >
+                    ‹
+                  </button>
+                </li>
+
+                <li class="page-item disabled">
+                  <span class="page-link">
+                    {{ paginaAtual() }}/{{ totalPaginas() }}
+                  </span>
+                </li>
+
+                <li class="page-item" [class.disabled]="paginaAtual() === totalPaginas()">
+                  <button
+                    class="page-link"
+                    (click)="irParaPagina(paginaAtual() + 1)"
+                  >
+                    ›
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <div class="d-md-none mb-3">
+              <small class="text-secondary">
+                {{ emprestimos().length }} registros
+              </small>
+            </div>
+          }
+          <div class="d-md-none">
+            @for (log of emprestimosPaginados().slice(0, 3); track log.id) {
+              <div class="card border mb-3">
+                <div class="card-body">
+                  <h6 class="fw-semibold mb-2">{{ log.usuario?.nome ?? '—' }}</h6>
+
+                  <div class="small mb-1">
+                    <strong>Livro:</strong> {{ log.exemplar?.livro?.titulo ?? '—' }}
+                  </div>
+
+                  <div class="small mb-1">
+                    <strong>Retirada:</strong>
+                    {{ log.data_retirada | date:'dd/MM/yyyy' }}
+                  </div>
+
+                  <div class="small mb-2">
+                    <strong>Devolução prevista:</strong>
+                    {{ log.data_devolucao_esperada | date:'dd/MM/yyyy' }}
+                  </div>
+
+                  @if (!log.data_devolucao_efetiva) {
+                    <span class="badge bg-success-subtle text-success">Ativo</span>
+                  } @else {
+                    <span class="badge bg-secondary-subtle text-secondary">Devolvido</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="table-responsive d-none d-md-block">
             <table class="table table-hover align-middle mb-0">
               <thead class="table-light">
                 <tr>
@@ -170,12 +283,8 @@
                   <tr>
                     <td class="fw-semibold">{{ log.usuario?.nome ?? '—' }}</td>
                     <td>{{ log.exemplar?.livro?.titulo ?? '—' }}</td>
-                    <td class="text-secondary small">
-                      {{ log.data_retirada | date: 'dd/MM/yyyy' }}
-                    </td>
-                    <td class="text-secondary small">
-                      {{ log.data_devolucao_esperada | date: 'dd/MM/yyyy' }}
-                    </td>
+                    <td class="text-secondary small">{{ log.data_retirada | date:'dd/MM/yyyy' }}</td>
+                    <td class="text-secondary small">{{ log.data_devolucao_esperada | date:'dd/MM/yyyy' }}</td>
                     <td>
                       @if (!log.data_devolucao_efetiva) {
                         <span class="badge bg-success-subtle text-success">Ativo</span>
@@ -194,29 +303,27 @@
           }
 
           @if (totalPaginas() > 1 && emprestimos().length > 0) {
-            <div
-              class="d-flex justify-content-between align-items-center mt-3"
-              (click)="$event.stopPropagation()"
-            >
-              <small class="text-secondary">
-                Página {{ paginaAtual() }} de {{ totalPaginas() }} ·
-                {{ emprestimos().length }} registros
-              </small>
-              <nav>
-                <ul class="pagination pagination-sm mb-0">
-                  <li class="page-item" [class.disabled]="paginaAtual() === 1">
-                    <button class="page-link" (click)="irParaPagina(paginaAtual() - 1)">‹</button>
-                  </li>
-                  @for (p of paginas(); track p) {
-                    <li class="page-item" [class.active]="p === paginaAtual()">
-                      <button class="page-link" (click)="irParaPagina(p)">{{ p }}</button>
+            <div class="d-none d-md-block">
+              <div class="d-flex justify-content-between align-items-center mt-3" (click)="$event.stopPropagation()">
+                <small class="text-secondary">
+                  Página {{ paginaAtual() }} de {{ totalPaginas() }} · {{ emprestimos().length }} registros
+                </small>
+                <nav>
+                  <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item" [class.disabled]="paginaAtual() === 1">
+                      <button class="page-link" (click)="irParaPagina(paginaAtual() - 1)">‹</button>
                     </li>
-                  }
-                  <li class="page-item" [class.disabled]="paginaAtual() === totalPaginas()">
-                    <button class="page-link" (click)="irParaPagina(paginaAtual() + 1)">›</button>
-                  </li>
-                </ul>
-              </nav>
+                    @for (p of paginas(); track p) {
+                      <li class="page-item" [class.active]="p === paginaAtual()">
+                        <button class="page-link" (click)="irParaPagina(p)">{{ p }}</button>
+                      </li>
+                    }
+                    <li class="page-item" [class.disabled]="paginaAtual() === totalPaginas()">
+                      <button class="page-link" (click)="irParaPagina(paginaAtual() + 1)">›</button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
             </div>
           }
         </div>
