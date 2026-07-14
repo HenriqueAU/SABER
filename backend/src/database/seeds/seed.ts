@@ -32,13 +32,6 @@ function diasAfrente(dias: number): Date {
   return new Date(Date.now() + dias * 24 * 60 * 60 * 1000);
 }
 
-function nasc(idadeAnos: number, indice: number): Date {
-  const hoje = new Date();
-  const mes = indice % 12;
-  const dia = 3 + (indice % 25);
-  return new Date(hoje.getFullYear() - idadeAnos, mes, dia);
-}
-
 async function seed(): Promise<void> {
   await AppDataSource.initialize();
 
@@ -94,10 +87,10 @@ async function seed(): Promise<void> {
     }),
   );
 
-  const professor1 = await usuarioRepo.save(
+  const professor = await usuarioRepo.save(
     usuarioRepo.create({
       nome: 'Roberto Professor',
-      email: 'perfil.professor1@email.com',
+      email: 'perfil.professor@email.com',
       senha_hash: senhaHash,
       perfil: TipoPerfil.PROFESSOR,
       data_nasc: new Date('1982-11-05'),
@@ -106,94 +99,58 @@ async function seed(): Promise<void> {
     }),
   );
 
-  const professor2 = await usuarioRepo.save(
-    usuarioRepo.create({
-      nome: 'Marina Professora',
-      email: 'perfil.professor2@email.com',
-      senha_hash: senhaHash,
-      perfil: TipoPerfil.PROFESSOR,
-      data_nasc: new Date('1987-05-19'),
-      instituicao: { id: instituicao.id },
-      ativo: true,
-    }),
-  );
-
-  const faixas = [
-    { min: 1, max: 12 },
-    { min: 13, max: 17 },
-    { min: 18, max: 25 },
-    { min: 26, max: 40 },
-    { min: 41, max: 65 },
+  const alunosDados = [
+    {
+      nome: 'Ana Silva',
+      email: 'aluno1@email.com',
+      nasc: new Date('2013-04-10'),
+    },
+    {
+      nome: 'Bruno Costa',
+      email: 'aluno2@email.com',
+      nasc: new Date('2012-08-20'),
+    },
+    {
+      nome: 'Carla Mendes',
+      email: 'aluno3@email.com',
+      nasc: new Date('2009-01-15'),
+    },
+    {
+      nome: 'Diego Souza',
+      email: 'aluno4@email.com',
+      nasc: new Date('2008-06-30'),
+    },
+    {
+      nome: 'Eduarda Lima',
+      email: 'aluno5@email.com',
+      nasc: new Date('2007-09-12'),
+    },
+    {
+      nome: 'Felipe Rocha',
+      email: 'aluno6@email.com',
+      nasc: new Date('2003-02-28'),
+    },
+    {
+      nome: 'Gabriela Nunes',
+      email: 'aluno7@email.com',
+      nasc: new Date('2001-11-03'),
+    },
+    {
+      nome: 'Henrique Alves',
+      email: 'aluno8@email.com',
+      nasc: new Date('1998-07-17'),
+    },
+    {
+      nome: 'Isabela Ferreira',
+      email: 'aluno9@email.com',
+      nasc: new Date('1996-03-25'),
+    },
+    {
+      nome: 'João Martins',
+      email: 'aluno10@email.com',
+      nasc: new Date('1983-12-01'),
+    },
   ];
-
-  const primeirosNomes = [
-    'Ana',
-    'Bruno',
-    'Carla',
-    'Diego',
-    'Eduarda',
-    'Felipe',
-    'Gabriela',
-    'Henrique',
-    'Isabela',
-    'João',
-    'Karina',
-    'Lucas',
-    'Mariana',
-    'Nicolas',
-    'Olívia',
-    'Pedro',
-    'Quésia',
-    'Rafael',
-    'Sabrina',
-    'Thiago',
-    'Ursula',
-    'Vitor',
-    'Wesley',
-    'Yasmin',
-    'Zoe',
-    'Alice',
-    'Bernardo',
-    'Camila',
-    'Daniel',
-    'Elisa',
-  ];
-  const sobrenomes = [
-    'Silva',
-    'Costa',
-    'Mendes',
-    'Souza',
-    'Lima',
-    'Rocha',
-    'Nunes',
-    'Alves',
-    'Ferreira',
-    'Martins',
-    'Pereira',
-    'Carvalho',
-    'Gomes',
-    'Ribeiro',
-    'Barbosa',
-    'Cardoso',
-    'Teixeira',
-    'Correia',
-    'Dias',
-    'Moreira',
-  ];
-
-  const alunosDados: { nome: string; email: string; nasc: Date }[] = [];
-  for (let i = 0; i < 60; i++) {
-    const faixaIdx = Math.floor(i / 12);
-    const { min, max } = faixas[faixaIdx];
-    const localIdx = i % 12;
-    const idade = min + (localIdx % (max - min + 1));
-
-    alunosDados.push({
-      nome: `${primeirosNomes[i % primeirosNomes.length]} ${sobrenomes[(i * 7 + 3) % sobrenomes.length]}`,
-      email: `aluno${i + 1}@email.com`,
-      nasc: nasc(idade, i),
-    });
-  }
 
   const alunos = await usuarioRepo.save(
     alunosDados.map((a) =>
@@ -218,8 +175,6 @@ async function seed(): Promise<void> {
     'Fantasia',
     'Tecnologia',
     'Biografias',
-    'Terror',
-    'Poesia',
   ];
 
   const generos = await generoRepo.save(
@@ -235,235 +190,101 @@ async function seed(): Promise<void> {
     fantasia,
     tecnologia,
     biografias,
-    terror,
-    poesia,
   ] = generos;
 
+  const prefsData = [
+    { aluno: alunos[0], genero: fantasia },
+    { aluno: alunos[1], genero: aventura },
+    { aluno: alunos[2], genero: ficcao },
+    { aluno: alunos[3], genero: ficcao },
+    { aluno: alunos[4], genero: romance },
+    { aluno: alunos[5], genero: tecnologia },
+    { aluno: alunos[6], genero: ficcao },
+    { aluno: alunos[7], genero: historia },
+    { aluno: alunos[8], genero: romance },
+    { aluno: alunos[9], genero: biografias },
+  ];
+
   await preferenciaGeneroRepo.save(
-    alunos.map((aluno, i) =>
+    prefsData.map((p) =>
       preferenciaGeneroRepo.create({
-        usuario: { id: aluno.id },
-        genero: { id: generos[i % generos.length].id },
+        usuario: { id: p.aluno.id },
+        genero: { id: p.genero.id },
       }),
     ),
   );
 
-  const livrosDados: {
-    titulo: string;
-    autor: string;
-    paginas: number;
-    generos: Genero[];
-  }[] = [
+  const livrosDados = [
     {
       titulo: 'Duna',
       autor: 'Frank Herbert',
-      paginas: 688,
+      isbn: '9780441013593',
       generos: [ficcao, aventura],
     },
-    { titulo: '1984', autor: 'George Orwell', paginas: 328, generos: [ficcao] },
+    {
+      titulo: '1984',
+      autor: 'George Orwell',
+      isbn: '9780451524935',
+      generos: [ficcao],
+    },
     {
       titulo: 'Admirável Mundo Novo',
       autor: 'Aldous Huxley',
-      paginas: 312,
+      isbn: '9780060850524',
       generos: [ficcao],
     },
     {
       titulo: 'O Senhor dos Anéis',
       autor: 'J.R.R. Tolkien',
-      paginas: 1178,
+      isbn: '9780618640157',
       generos: [fantasia, aventura],
     },
     {
-      titulo: 'Harry Potter e a Pedra Filosofal',
+      titulo: 'Harry Potter',
       autor: 'J.K. Rowling',
-      paginas: 223,
+      isbn: '9780439708180',
       generos: [fantasia, aventura],
     },
     {
       titulo: 'Dom Casmurro',
       autor: 'Machado de Assis',
-      paginas: 256,
+      isbn: '9788535902778',
       generos: [romance],
     },
     {
       titulo: 'A Culpa é das Estrelas',
       autor: 'John Green',
-      paginas: 288,
+      isbn: '9788580577556',
       generos: [romance],
     },
     {
-      titulo: 'Sapiens: Uma Breve História da Humanidade',
+      titulo: 'Sapiens',
       autor: 'Yuval Noah Harari',
-      paginas: 464,
+      isbn: '9780062316097',
       generos: [historia, biografias],
     },
     {
       titulo: 'O Mundo de Sofia',
       autor: 'Jostein Gaarder',
-      paginas: 560,
+      isbn: '9788522500000',
       generos: [filosofia],
     },
     {
       titulo: 'A Rebelião das Massas',
       autor: 'José Ortega y Gasset',
-      paginas: 240,
+      isbn: null,
       generos: [filosofia],
     },
     {
       titulo: 'Fundação',
       autor: 'Isaac Asimov',
-      paginas: 296,
+      isbn: '9780553293357',
       generos: [ficcao, tecnologia],
     },
     {
-      titulo: 'O Guia do Mochileiro das Galáxias',
+      titulo: 'O Guia do Mochileiro',
       autor: 'Douglas Adams',
-      paginas: 224,
-      generos: [ficcao, aventura],
-    },
-
-    {
-      titulo: 'Neuromancer',
-      autor: 'William Gibson',
-      paginas: 312,
-      generos: [ficcao, tecnologia],
-    },
-    {
-      titulo: 'Frankenstein',
-      autor: 'Mary Shelley',
-      paginas: 280,
-      generos: [terror, ficcao],
-    },
-    {
-      titulo: 'Drácula',
-      autor: 'Bram Stoker',
-      paginas: 418,
-      generos: [terror],
-    },
-    {
-      titulo: 'O Iluminado',
-      autor: 'Stephen King',
-      paginas: 512,
-      generos: [terror],
-    },
-    {
-      titulo: 'It: A Coisa',
-      autor: 'Stephen King',
-      paginas: 1104,
-      generos: [terror],
-    },
-    {
-      titulo: 'Percy Jackson e o Ladrão de Raios',
-      autor: 'Rick Riordan',
-      paginas: 375,
-      generos: [fantasia, aventura],
-    },
-    {
-      titulo: 'As Crônicas de Nárnia: O Leão, a Feiticeira e o Guarda-Roupa',
-      autor: 'C.S. Lewis',
-      paginas: 206,
-      generos: [fantasia, aventura],
-    },
-    {
-      titulo: 'Orgulho e Preconceito',
-      autor: 'Jane Austen',
-      paginas: 352,
-      generos: [romance],
-    },
-    {
-      titulo: 'E o Vento Levou',
-      autor: 'Margaret Mitchell',
-      paginas: 1037,
-      generos: [romance, historia],
-    },
-    {
-      titulo: 'Como Água para Chocolate',
-      autor: 'Laura Esquivel',
-      paginas: 246,
-      generos: [romance],
-    },
-    {
-      titulo: 'Uma Breve História do Tempo',
-      autor: 'Stephen Hawking',
-      paginas: 256,
-      generos: [tecnologia, filosofia],
-    },
-    {
-      titulo: 'Cosmos',
-      autor: 'Carl Sagan',
-      paginas: 396,
-      generos: [tecnologia, historia],
-    },
-    {
-      titulo: 'A Origem das Espécies',
-      autor: 'Charles Darwin',
-      paginas: 528,
-      generos: [historia, tecnologia],
-    },
-    {
-      titulo: 'Steve Jobs',
-      autor: 'Walter Isaacson',
-      paginas: 656,
-      generos: [biografias],
-    },
-    {
-      titulo: 'Einstein: Sua Vida, Seu Universo',
-      autor: 'Walter Isaacson',
-      paginas: 704,
-      generos: [biografias],
-    },
-    {
-      titulo: 'O Diário de Anne Frank',
-      autor: 'Anne Frank',
-      paginas: 352,
-      generos: [biografias, historia],
-    },
-    {
-      titulo: 'O Príncipe',
-      autor: 'Nicolau Maquiavel',
-      paginas: 160,
-      generos: [filosofia, historia],
-    },
-    {
-      titulo: 'Assim Falou Zaratustra',
-      autor: 'Friedrich Nietzsche',
-      paginas: 352,
-      generos: [filosofia],
-    },
-    {
-      titulo: 'Meditações',
-      autor: 'Marco Aurélio',
-      paginas: 256,
-      generos: [filosofia],
-    },
-    {
-      titulo: 'Odisseia',
-      autor: 'Homero',
-      paginas: 544,
-      generos: [aventura, poesia],
-    },
-    {
-      titulo: 'A Divina Comédia',
-      autor: 'Dante Alighieri',
-      paginas: 480,
-      generos: [poesia],
-    },
-    {
-      titulo: 'Folhas de Relva',
-      autor: 'Walt Whitman',
-      paginas: 384,
-      generos: [poesia],
-    },
-    {
-      titulo: 'Os Lusíadas',
-      autor: 'Luís de Camões',
-      paginas: 328,
-      generos: [poesia, historia],
-    },
-    {
-      titulo: 'O Alquimista',
-      autor: 'Paulo Coelho',
-      paginas: 208,
+      isbn: '9780345391803',
       generos: [ficcao, aventura],
     },
   ];
@@ -473,7 +294,7 @@ async function seed(): Promise<void> {
       livroRepo.create({
         titulo: l.titulo,
         autor: l.autor,
-        paginas: l.paginas,
+        isbn: l.isbn ?? undefined,
         instituicao: { id: instituicao.id },
       }),
     ),
@@ -494,7 +315,7 @@ async function seed(): Promise<void> {
 
   const exemplaresEntries: Exemplar[] = [];
   for (let i = 0; i < livros.length; i++) {
-    const qtd = (i % 4) + 2; // 2 a 5 exemplares por livro
+    const qtd = i % 3 === 0 ? 3 : 2;
     for (let j = 1; j <= qtd; j++) {
       exemplaresEntries.push(
         exemplarRepo.create({
@@ -515,8 +336,8 @@ async function seed(): Promise<void> {
     devolvido: boolean,
     devolucaoEfetivaHa?: number,
   ) => {
-    const exemplar = exemplares[exemplarIdx % exemplares.length];
-    const usuario = alunos[alunoIdx % alunos.length];
+    const exemplar = exemplares[exemplarIdx];
+    const usuario = alunos[alunoIdx];
     const data_retirada = diasAtras(retiradaHa);
     const data_devolucao_esperada = diasAtras(retiradaHa - devolucaoEsperadaEm);
     const data_devolucao_efetiva = devolvido
@@ -540,172 +361,132 @@ async function seed(): Promise<void> {
     }
   };
 
-  const prazoPadrao = 14;
-  for (let i = 0; i < 90; i++) {
-    const retiradaHa = 95 - i;
-    const atrasado = i % 5 === 0;
-    const diasParaDevolver = atrasado
-      ? prazoPadrao + 3 + (i % 4)
-      : Math.max(1, prazoPadrao - (i % 10));
-    const devolucaoEfetivaHa = Math.max(0, retiradaHa - diasParaDevolver);
+  await empr(0, 0, 85, 14, true, 71);
+  await empr(2, 1, 80, 14, true, 66);
+  await empr(4, 2, 75, 14, true, 62);
+  await empr(6, 3, 70, 14, true, 57);
+  await empr(8, 4, 65, 14, true, 52);
+  await empr(10, 5, 60, 14, true, 47);
+  await empr(12, 6, 55, 14, true, 42);
+  await empr(14, 7, 50, 14, true, 37);
+  await empr(16, 8, 45, 14, true, 32);
+  await empr(18, 9, 40, 14, true, 27);
+  await empr(1, 0, 35, 14, true, 22);
+  await empr(3, 1, 30, 14, true, 17);
+  await empr(5, 2, 25, 14, true, 12);
+  await empr(7, 3, 20, 14, true, 7);
+  await empr(9, 4, 15, 14, true, 2);
 
-    await empr(i, i, retiradaHa, prazoPadrao, true, devolucaoEfetivaHa);
-  }
+  await empr(11, 5, 10, 14, false);
+  await empr(13, 6, 8, 14, false);
+  await empr(15, 7, 5, 14, false);
+  await empr(17, 8, 3, 14, false);
 
-  const qtdAtivos = 24;
-  for (let i = 0; i < qtdAtivos; i++) {
-    const exemplarIdx = exemplares.length - 1 - i;
-    const alunoIdx = (i * 3 + 7) % alunos.length;
-    const retiradaHa = 2 + (i % 18); // entre 2 e 19 dias atrás
+  await empr(19, 9, 20, 7, false);
+  await empr(20, 0, 18, 7, false);
+  await empr(21, 1, 16, 7, false);
 
-    await empr(exemplarIdx, alunoIdx, retiradaHa, prazoPadrao, false);
-  }
-
-  const clubesDados: {
-    nome: string;
-    professor: Usuario;
-    livroIdx: number;
-    ativo: boolean;
-    inicioHa: number;
-    fimEm: number;
-    local: string;
-  }[] = [
-    {
+  const clube1 = await clubeLivroRepo.save(
+    clubeLivroRepo.create({
       nome: 'Clube de Ficção Científica',
-      professor: professor1,
-      livroIdx: 0,
+      professor: { id: professor.id },
+      livro: { id: livros[0].id },
       ativo: true,
-      inicioHa: 30,
-      fimEm: 30,
-      local: 'Biblioteca Principal',
-    },
-    {
-      nome: 'Clube de Fantasia',
-      professor: professor1,
-      livroIdx: 3,
-      ativo: true,
-      inicioHa: 15,
-      fimEm: 45,
-      local: 'Sala de Leitura B',
-    },
-    {
-      nome: 'Clube de Terror',
-      professor: professor1,
-      livroIdx: 15,
-      ativo: true,
-      inicioHa: 5,
-      fimEm: 55,
-      local: 'Auditório',
-    },
-    {
-      nome: 'Clube de Filosofia',
-      professor: professor1,
-      livroIdx: 9,
-      ativo: false,
-      inicioHa: 90,
-      fimEm: -10,
-      local: 'Biblioteca Principal',
-    },
-    {
-      nome: 'Clube de Biografias',
-      professor: professor1,
-      livroIdx: 25,
-      ativo: false,
-      inicioHa: 120,
-      fimEm: -40,
-      local: 'Sala de Leitura A',
-    },
-
-    {
-      nome: 'Clube de Poesia',
-      professor: professor2,
-      livroIdx: 32,
-      ativo: true,
-      inicioHa: 10,
-      fimEm: 50,
-      local: 'Biblioteca Principal',
-    },
-    {
-      nome: 'Clube de Romance',
-      professor: professor2,
-      livroIdx: 6,
-      ativo: true,
-      inicioHa: 20,
-      fimEm: 40,
-      local: 'Sala de Leitura B',
-    },
-    {
-      nome: 'Clube de Tecnologia',
-      professor: professor2,
-      livroIdx: 22,
-      ativo: true,
-      inicioHa: 8,
-      fimEm: 52,
-      local: 'Laboratório',
-    },
-    {
-      nome: 'Clube de História',
-      professor: professor2,
-      livroIdx: 7,
-      ativo: false,
-      inicioHa: 100,
-      fimEm: -20,
-      local: 'Biblioteca Principal',
-    },
-    {
-      nome: 'Clube de Aventura',
-      professor: professor2,
-      livroIdx: 35,
-      ativo: false,
-      inicioHa: 60,
-      fimEm: -5,
-      local: 'Auditório',
-    },
-  ];
-
-  const clubes = await clubeLivroRepo.save(
-    clubesDados.map((c) =>
-      clubeLivroRepo.create({
-        nome: c.nome,
-        professor: { id: c.professor.id },
-        livro: { id: livros[c.livroIdx].id },
-        ativo: c.ativo,
-        data_inicio: diasAtras(c.inicioHa),
-        data_fim: c.ativo ? diasAfrente(c.fimEm) : diasAtras(-c.fimEm),
-        local_encontro: c.local,
-      }),
-    ),
+      data_inicio: diasAtras(30),
+      data_fim: diasAfrente(30),
+      local_encontro: 'Biblioteca Principal',
+    }),
   );
 
-  const membrosPorClube: MembroClube[][] = [];
-  let alunoPonteiro = 0;
-  for (let i = 0; i < clubes.length; i++) {
-    const qtdMembros = (clubesDados[i].livroIdx % 4) + 2;
-    const membrosDoClube: MembroClube[] = [];
-    for (let j = 0; j < qtdMembros; j++) {
-      const aluno = alunos[alunoPonteiro % alunos.length];
-      alunoPonteiro++;
-      membrosDoClube.push(
-        membroClubeRepo.create({
-          clube: { id: clubes[i].id },
-          usuario: { id: aluno.id },
-          status: StatusMembro.CONFIRMADO,
-        }),
-      );
-    }
-    membrosPorClube.push(await membroClubeRepo.save(membrosDoClube));
-  }
+  const clube2 = await clubeLivroRepo.save(
+    clubeLivroRepo.create({
+      nome: 'Clube de Fantasia',
+      professor: { id: professor.id },
+      livro: { id: livros[3].id },
+      ativo: true,
+      data_inicio: diasAtras(15),
+      data_fim: diasAfrente(45),
+      local_encontro: 'Sala de Leitura B',
+    }),
+  );
+
+  const clube3 = await clubeLivroRepo.save(
+    clubeLivroRepo.create({
+      nome: 'Clube de Filosofia',
+      professor: { id: professor.id },
+      livro: { id: livros[9].id },
+      ativo: false,
+      data_inicio: diasAtras(90),
+      data_fim: diasAtras(10),
+      local_encontro: 'Biblioteca Principal',
+    }),
+  );
+
+  const membrosClube1 = await membroClubeRepo.save([
+    membroClubeRepo.create({
+      clube: { id: clube1.id },
+      usuario: { id: alunos[2].id },
+      status: StatusMembro.CONFIRMADO,
+    }),
+    membroClubeRepo.create({
+      clube: { id: clube1.id },
+      usuario: { id: alunos[3].id },
+      status: StatusMembro.CONFIRMADO,
+    }),
+    membroClubeRepo.create({
+      clube: { id: clube1.id },
+      usuario: { id: alunos[5].id },
+      status: StatusMembro.CONFIRMADO,
+    }),
+    membroClubeRepo.create({
+      clube: { id: clube1.id },
+      usuario: { id: alunos[6].id },
+      status: StatusMembro.CONFIRMADO,
+    }),
+    membroClubeRepo.create({
+      clube: { id: clube1.id },
+      usuario: { id: alunos[7].id },
+      status: StatusMembro.CONFIRMADO,
+    }),
+  ]);
+
+  const membrosClube2 = await membroClubeRepo.save([
+    membroClubeRepo.create({
+      clube: { id: clube2.id },
+      usuario: { id: alunos[0].id },
+      status: StatusMembro.CONFIRMADO,
+    }),
+    membroClubeRepo.create({
+      clube: { id: clube2.id },
+      usuario: { id: alunos[1].id },
+      status: StatusMembro.CONFIRMADO,
+    }),
+    membroClubeRepo.create({
+      clube: { id: clube2.id },
+      usuario: { id: alunos[4].id },
+      status: StatusMembro.CONFIRMADO,
+    }),
+  ]);
+
+  const membrosClube3 = await membroClubeRepo.save([
+    membroClubeRepo.create({
+      clube: { id: clube3.id },
+      usuario: { id: alunos[8].id },
+      status: StatusMembro.CONFIRMADO,
+    }),
+    membroClubeRepo.create({
+      clube: { id: clube3.id },
+      usuario: { id: alunos[9].id },
+      status: StatusMembro.CONFIRMADO,
+    }),
+  ]);
 
   const pergunta1 = await perguntaRepo.save(
     perguntaRepo.create({ texto: 'Qual é o seu gênero literário favorito?' }),
   );
+
   const pergunta2 = await perguntaRepo.save(
     perguntaRepo.create({ texto: 'Como avalia a leitura do mês?' }),
-  );
-  const pergunta3 = await perguntaRepo.save(
-    perguntaRepo.create({
-      texto: 'Você recomendaria este livro para um colega?',
-    }),
   );
 
   const itensPergunta1 = await itemPerguntaRepo.save([
@@ -729,14 +510,6 @@ async function seed(): Promise<void> {
       pergunta: { id: pergunta1.id },
       texto: 'Aventura',
     }),
-    itemPerguntaRepo.create({
-      pergunta: { id: pergunta1.id },
-      texto: 'Terror',
-    }),
-    itemPerguntaRepo.create({
-      pergunta: { id: pergunta1.id },
-      texto: 'Poesia',
-    }),
   ]);
 
   const itensPergunta2 = await itemPerguntaRepo.save([
@@ -752,41 +525,94 @@ async function seed(): Promise<void> {
     itemPerguntaRepo.create({ pergunta: { id: pergunta2.id }, texto: 'Ruim' }),
   ]);
 
-  const itensPergunta3 = await itemPerguntaRepo.save([
-    itemPerguntaRepo.create({
-      pergunta: { id: pergunta3.id },
-      texto: 'Com certeza',
+  await respostaMembroRepo.save([
+    respostaMembroRepo.create({
+      membro: { id: membrosClube1[0].id },
+      itemPergunta: { id: itensPergunta1[0].id },
     }),
-    itemPerguntaRepo.create({
-      pergunta: { id: pergunta3.id },
-      texto: 'Talvez',
+    respostaMembroRepo.create({
+      membro: { id: membrosClube1[0].id },
+      itemPergunta: { id: itensPergunta2[0].id },
     }),
-    itemPerguntaRepo.create({
-      pergunta: { id: pergunta3.id },
-      texto: 'Não recomendaria',
+    respostaMembroRepo.create({
+      membro: { id: membrosClube1[1].id },
+      itemPergunta: { id: itensPergunta1[0].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube1[1].id },
+      itemPergunta: { id: itensPergunta2[1].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube1[2].id },
+      itemPergunta: { id: itensPergunta1[4].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube1[2].id },
+      itemPergunta: { id: itensPergunta2[0].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube1[3].id },
+      itemPergunta: { id: itensPergunta1[0].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube1[3].id },
+      itemPergunta: { id: itensPergunta2[2].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube1[4].id },
+      itemPergunta: { id: itensPergunta1[1].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube1[4].id },
+      itemPergunta: { id: itensPergunta2[1].id },
     }),
   ]);
 
-  const todosItens = [itensPergunta1, itensPergunta2, itensPergunta3];
+  await respostaMembroRepo.save([
+    respostaMembroRepo.create({
+      membro: { id: membrosClube2[0].id },
+      itemPergunta: { id: itensPergunta1[1].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube2[0].id },
+      itemPergunta: { id: itensPergunta2[0].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube2[1].id },
+      itemPergunta: { id: itensPergunta1[1].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube2[1].id },
+      itemPergunta: { id: itensPergunta2[1].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube2[2].id },
+      itemPergunta: { id: itensPergunta1[2].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube2[2].id },
+      itemPergunta: { id: itensPergunta2[0].id },
+    }),
+  ]);
 
-  const respostasEntries: RespostaMembro[] = [];
-  for (let i = 0; i < clubesDados.length; i++) {
-    if (clubesDados[i].ativo) continue; // pula clubes ativos
-
-    const membros = membrosPorClube[i];
-    membros.forEach((membro, mIdx) => {
-      todosItens.forEach((itens, perguntaIdx) => {
-        const item = itens[(mIdx + perguntaIdx) % itens.length];
-        respostasEntries.push(
-          respostaMembroRepo.create({
-            membro: { id: membro.id },
-            itemPergunta: { id: item.id },
-          }),
-        );
-      });
-    });
-  }
-  await respostaMembroRepo.save(respostasEntries);
+  await respostaMembroRepo.save([
+    respostaMembroRepo.create({
+      membro: { id: membrosClube3[0].id },
+      itemPergunta: { id: itensPergunta1[3].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube3[0].id },
+      itemPergunta: { id: itensPergunta2[1].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube3[1].id },
+      itemPergunta: { id: itensPergunta1[3].id },
+    }),
+    respostaMembroRepo.create({
+      membro: { id: membrosClube3[1].id },
+      itemPergunta: { id: itensPergunta2[2].id },
+    }),
+  ]);
 
   console.log('Seed concluído com sucesso.');
   await AppDataSource.destroy();

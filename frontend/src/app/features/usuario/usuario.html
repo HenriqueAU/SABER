@@ -31,6 +31,36 @@
           }
         </select>
       </div>
+      
+      <div class="col-12 col-md-4 col-lg-3">
+        <select class="form-select shadow-sm" [ngModel]="PerfilSelecionado()" (ngModelChange)="PerfilSelecionado.set($event); onFiltroChange()"
+                [ngModelOptions]="{standalone: true}">
+          <option class="dropdown-menu" value="">Todos os perfis</option>
+          @for (p of perfis; track p) {
+            <option class="dropdown-item dropdown-menu-end" [value]="p">{{ p }}</option>
+          }
+        </select>
+      </div>
+        <!-- <li class="nav-item dropdown flex-shrink-0">
+          <button class="nav-link p-1 d-flex align-items-center gap-1 border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img
+              [src]="fotoPerfil() || 'assets/imgs/avatares/0.png'"
+              alt="Foto de Perfil"
+              class="rounded-circle shadow-sm"
+              style="width: 36px; height: 36px; object-fit: cover;"
+            >
+            <i class="bi bi-chevron-down small"></i>
+          </button>
+
+          <ul class="dropdown-menu dropdown-menu-end position-absolute shadow border-0 mt-2">
+            <li><a class="dropdown-item" routerLink="/perfil">Configurações de usuário</a></li>
+            @if (perfil() === 'aluno') {
+              <li><a class="dropdown-item" routerLink="/perfil-leitura">Perfil de leitura</a></li>
+            }
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item" type="button" (click)="logOut()">Sair</button></li>
+          </ul>
+        </li> -->
     </div>
 
     @if (carregando()) {
@@ -74,7 +104,7 @@
                     </div>
                   </td>
                   <td class="py-3">
-                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">{{ usuario.perfil }}</span>
+                    <span class="badge rounded-pill bg-secondary-subtle text-secondary text-uppercase">{{ usuario.perfil }}</span>
                   </td>
                   <td class="pe-4 py-3 text-secondary">
                     <i class="bi bi-calendar me-2"></i>{{ usuario.data_nasc | date:'dd/MM/yyyy':'UTC' }}

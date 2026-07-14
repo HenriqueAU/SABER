@@ -5,7 +5,6 @@ import { DashboardService } from '../../../../../../client/services/dashboard.se
 import { EmprestimosService } from '../../../../../../client/services/emprestimos.service';
 import { ExemplaresService } from '../../../../../../client/services/exemplares.service';
 import { forkJoin } from 'rxjs';
-import { RouterLink } from '@angular/router';
 
 Chart.register(...registerables);
 
@@ -14,7 +13,7 @@ type FaixaEtaria = 'todas' | '0-12' | '13-17' | '18-25' | '26-40' | '40+';
 @Component({
   selector: 'app-home-gestor',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './home-gestor.html',
 })
 export default class HomeGestorComponent implements OnInit {

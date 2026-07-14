@@ -46,6 +46,7 @@ export default class AlterarSenhaComponent {
 
   senhaAtualVisivel = false;
   novaSenhaVisivel = false;
+  novaSenhaRepetidaVisivel = false;
   mostrarCriterios = signal<boolean>(false);
 
   private fb = inject(FormBuilder);
@@ -57,6 +58,7 @@ export default class AlterarSenhaComponent {
     this.form = this.fb.group({
       senhaAtual: ['', [Validators.required]],
       novaSenha: ['', [Validators.required, Validators.minLength(8), senhaForteValidator()]],
+      novaSenhaRepetida: ['', []],
     });
   }
 
@@ -66,6 +68,10 @@ export default class AlterarSenhaComponent {
 
   toggleVisibilidadeNovaSenha(): void {
     this.novaSenhaVisivel = !this.novaSenhaVisivel;
+  }
+
+  toggleVisibilidadeNovaSenhaRepetida(): void {
+    this.novaSenhaRepetidaVisivel = !this.novaSenhaRepetidaVisivel;
   }
 
   toggleCriterios() {

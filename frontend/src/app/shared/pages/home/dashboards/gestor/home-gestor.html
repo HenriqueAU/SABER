@@ -62,7 +62,14 @@
           <ol class="list-unstyled mb-0">
             @for (livro of rankingLivros(); track livro.livroId; let i = $index) {
               <li class="d-flex align-items-center gap-3 py-2" [class.border-top]="i > 0">
-                <span class="fw-bold text-secondary" style="width: 1.5rem;">{{ i + 1 }}</span>
+                <span class="fw-bold text-secondary">{{ i + 1 }}</span>
+                <img
+                  [src]="livro.capa_url || 'assets/imgs/livros/livro-sem-capa.png'"
+                  [alt]="'Capa ' + livro.titulo"
+                  class="rounded"
+                  style="aspect-ratio: 2/3;"
+                  width="35"
+                >
                 <div class="flex-grow-1 overflow-hidden">
                   <div class="fw-semibold text-truncate">{{ livro.titulo }}</div>
                   <small class="text-secondary">{{ livro.autor }}</small>
@@ -121,7 +128,7 @@
   <div class="row">
     <div class="col-12">
       <div class="card border-0 shadow-sm">
-        <div class="card-body" [routerLink]="['/emprestimos']" [queryParams]="{tab: 'historico'}" style="cursor:pointer">
+        <div class="card-body">
           <h6 class="fw-bold mb-3">Log de empréstimos</h6>
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">

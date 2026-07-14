@@ -12,7 +12,7 @@ import NotificacoesBibliotecarioComponent from './bibliotecario/notificacoes-bib
   styleUrls: ['./notificacoes.scss']
 })
 export default class NotificacoesComponent {
-  sessionService = inject(CoreAuthService);
-  perfil = this.sessionService.perfil;
+  coreAuthService = inject(CoreAuthService);
+  perfil = this.coreAuthService.perfil;
   TipoPerfil = TipoPerfil;
 }

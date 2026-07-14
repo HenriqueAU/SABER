@@ -13,7 +13,7 @@ import { PreferenciasGeneroService } from '../../../../client/services/preferenc
   styleUrl: './login.scss',
 })
 export default class LoginComponent  {
-  sessionService = inject(CoreAuthService);
+  coreAuthService = inject(CoreAuthService);
   authHttpService = inject(AuthService);
   router = inject(Router);
   preferenciaGeneroService = inject(PreferenciasGeneroService);
@@ -39,9 +39,10 @@ export default class LoginComponent  {
   this.authHttpService.authControllerLogin(credenciais)
   .subscribe({
     next: (res) => {
-      this.sessionService.setToken(res.access_token);
-      this.sessionService.perfil.set(this.sessionService.getPerfil());
-      this.sessionService.estaLogado.set(true);
+      this.coreAuthService.setToken(res.access_token);
+      this.coreAuthService.perfil.set(this.coreAuthService.getPerfil());
+      this.coreAuthService.fotoPerfil.set(this.coreAuthService.getFotoPerfil());
+      this.coreAuthService.estaLogado.set(true);
       this.redirecionarAposLogin();
     },
     error: (err) => {
@@ -50,7 +51,7 @@ export default class LoginComponent  {
   });
  };
   private redirecionarAposLogin() {
-    if (this.sessionService.getPerfil() !== TipoPerfil.ALUNO) {
+    if (this.coreAuthService.getPerfil() !== TipoPerfil.ALUNO) {
       this.router.navigate(['/home']);
       return;
     }

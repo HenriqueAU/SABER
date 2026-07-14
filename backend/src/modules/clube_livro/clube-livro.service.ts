@@ -27,6 +27,16 @@ export class ClubeService {
   async create(createClubeDto: CreateClubeLivroDto): Promise<ClubeLivro> {
     const { professor_id, livro_id, ...dadosClube } = createClubeDto;
 
+    const quantidadeClubesAtivosDoProfessor =  await this.clubeLivroRepository.count({
+      where: { professor: {id: professor_id}, ativo: true, data_fim: MoreThan(new Date()) }
+    })
+
+    if ( quantidadeClubesAtivosDoProfessor >= 6) {
+      throw new BadRequestException (
+        'Você já atingiu o limite de 6 clubes de leitura'
+      )
+    }
+
     const professor = await this.validarProfessor(professor_id);
     const livro = await this.livroService.findOne(livro_id);
     this.validarInstituicaoLivro(livro, professor);

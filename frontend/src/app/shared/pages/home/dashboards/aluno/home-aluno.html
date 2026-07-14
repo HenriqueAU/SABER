@@ -18,11 +18,11 @@
 
       <div class="col-12 col-lg-8 d-flex flex-column">
 
-        <div class="row g-2 mb-4">
+        <div class="row g-4 mb-4">
           <div class="col-4">
             <div class="card border-0 shadow-sm h-100">
               <div class="card-body p-2 p-md-3">
-                <p class="text-secondary mb-1 text-uppercase fw-semibold text-truncate" style="font-size: 0.65rem;" title="Livros lidos">
+                <p class="text-secondary mb-1 text-uppercase fw-semibold text-truncate" title="Livros lidos">
                   <i class="bi bi-book-half me-1"></i><span class="d-none d-sm-inline">Livros lidos</span><span class="d-inline d-sm-none">Livros</span>
                 </p>
                 <h3 class="fw-bold mb-0">{{ totalLivrosLidos() }}</h3>
@@ -33,7 +33,7 @@
           <div class="col-4">
             <div class="card border-0 shadow-sm h-100">
               <div class="card-body p-2 p-md-3">
-                <p class="text-secondary mb-1 text-uppercase fw-semibold text-truncate" style="font-size: 0.65rem;" title="Páginas lidas">
+                <p class="text-secondary mb-1 text-uppercase fw-semibold text-truncate" title="Páginas lidas">
                   <i class="bi bi-file-earmark-text me-1"></i><span class="d-none d-sm-inline">Páginas lidas</span><span class="d-inline d-sm-none">Páginas</span>
                 </p>
                 <h3 class="fw-bold mb-0 text-primary">{{ totalPaginasLidas() > 0 ? totalPaginasLidas(): '-'}}</h3>
@@ -44,7 +44,7 @@
           <div class="col-4">
             <div class="card border-0 shadow-sm h-100">
               <div class="card-body p-2 p-md-3">
-                <p class="text-secondary mb-1 text-uppercase fw-semibold text-truncate" style="font-size: 0.65rem;" title="Clubes">
+                <p class="text-secondary mb-1 text-uppercase fw-semibold text-truncate" title="Clubes">
                   <i class="bi bi-people-fill me-1"></i>Clubes
                 </p>
                 <h3 class="fw-bold mb-0">{{ totalClubes() }}</h3>
@@ -88,7 +88,7 @@
                       <h6 class="fw-bold mb-1 text-truncate" style="font-size: 0.75rem;">{{ livro.titulo }}</h6>
                       <small class="text-secondary d-block text-truncate" style="font-size: 0.65rem;">{{ livro.autor }}</small>
                       <div class="mt-1">
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-1 py-1 text-truncate w-100" style="font-size: 0.6rem;">{{ livro.generoNome }}</span>
+                        <span [class]="'badge rounded-pill text-truncate ' + getClassGenero(livro.generoNome)" style="font-size: 0.6rem;">{{ livro.generoNome }}</span>
                       </div>
                     </div>
                   </div>

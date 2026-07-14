@@ -1,6 +1,6 @@
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { CoreAuthService } from '../../../core/auth/auth-session';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from "@angular/router";
 import { forkJoin } from 'rxjs';
 import { UsuariosService } from '../../../../client/services/usuarios.service';
@@ -25,19 +25,13 @@ export default class PerfilComponent implements OnInit{
   usuarioData: any = null;
 
   tipoPerfil: string | null = null;
-
+  erro = signal<string>('');
   imagens = Array.from({ length: 16 }, (_, i) => i);
 
   userForm = new FormGroup({
-    nome: new FormControl('', {
-      validators: []
-    }),
-
+    nome: new FormControl('', { validators: [] }),
     email: new FormControl({ value: '', disabled: true }),
-
-    foto_perfil: new FormControl('', {
-      validators: []
-    }),
+    foto_perfil: new FormControl('', { validators: [] }),
   });
 
   @ViewChild('successModal')
@@ -52,15 +46,25 @@ export default class PerfilComponent implements OnInit{
   ngOnInit(): void {
     this.usuarioId = this.coreAuthService.getId();
     this.tipoPerfil = this.coreAuthService.getPerfil();
-
+    if (typeof window !== 'undefined') {
+      const avatarLocal = localStorage.getItem('avatar_' + this.usuarioId);
+      if (avatarLocal) {
+        this.userForm.patchValue({ foto_perfil: avatarLocal });
+      }
+    }
     this.usuariosService.usuarioControllerFindOne(this.usuarioId).subscribe(usuario => {
+      if (typeof window !== 'undefined') {
+        const avatarLocal = localStorage.getItem('avatar_' + this.usuarioId);
+        if (avatarLocal && usuario.foto_perfil !== avatarLocal) {
+          usuario.foto_perfil = avatarLocal;
+        }
+      }
       this.userForm.patchValue(usuario);
-    })
+    });
 
     if (this.tipoPerfil !== 'aluno') {
       return;
     }
-
     this.carregarPreferencias();
   }
   
@@ -105,56 +109,62 @@ export default class PerfilComponent implements OnInit{
 
   onSubmit() {
     if (this.userForm.invalid) return;
+    this.erro.set('');
 
-    this.usuariosService.usuarioControllerUpdate(
-      this.usuarioId,
-      this.userForm.value as any
-    ).subscribe(() => {
-      if (this.tipoPerfil !== 'aluno') {
-        this.abrirModalSucesso();
-        return;
-      }
+    const formValues = this.userForm.getRawValue();
+    const payload = {
+      nome: formValues.nome,
+      foto_perfil: formValues.foto_perfil
+    };
 
-      const idsOriginais = this.preferenciasOriginais.map(
-        pref => pref.genero.id
-      );
+    this.usuariosService.usuarioControllerUpdate(this.usuarioId, payload as any).subscribe({
+      next: () => {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('avatar_' + this.usuarioId, formValues.foto_perfil || '');
+        }
+        if (this.tipoPerfil !== 'aluno') {
+          if (typeof window !== 'undefined') window.dispatchEvent(new Event('avatarUpdated'));
+          this.abrirModalSucesso();
+          return;
+        }
 
-      const idsAtuais = this.generosSelecionados;
+        const idsOriginais = this.preferenciasOriginais.map(pref => pref.genero.id);
+        const paraCriar = this.generosSelecionados.filter(id => !idsOriginais.includes(id));
+        const paraRemover = this.preferenciasOriginais.filter(pref => !this.generosSelecionados.includes(pref.genero.id));
 
-      const paraCriar = idsAtuais.filter(
-        id => !idsOriginais.includes(id)
-      );
-
-      const paraRemover = this.preferenciasOriginais.filter(
-        pref => !idsAtuais.includes(pref.genero.id)
-      );
-
-      const requests = [
-        ...paraCriar.map(generoId =>
-          this.preferenciasGeneroService
-            .preferenciaGeneroControllerCreate({
+        const requests = [
+          ...paraCriar.map(generoId =>
+            this.preferenciasGeneroService.preferenciaGeneroControllerCreate({
               usuario_id: this.usuarioId,
               genero_id: generoId,
             })
-        ),
+          ),
+          ...paraRemover.map(pref =>
+            this.preferenciasGeneroService.preferenciaGeneroControllerRemove(pref.id)
+          )
+        ];
 
-        ...paraRemover.map(pref =>
-          this.preferenciasGeneroService
-            .preferenciaGeneroControllerRemove(pref.id)
-        )
-      ];
+        if (requests.length === 0) {
+          this.carregarPreferencias();
+          if (typeof window !== 'undefined') window.dispatchEvent(new Event('avatarUpdated'));
+          this.abrirModalSucesso();
+          return;
+        }
 
-      if (requests.length === 0) {
-        this.carregarPreferencias();
-        this.abrirModalSucesso();
-        return;
+        forkJoin(requests).subscribe({
+          next: () => {
+            this.carregarPreferencias();
+            if (typeof window !== 'undefined') window.dispatchEvent(new Event('avatarUpdated'));
+            this.abrirModalSucesso();
+          },
+          error: () => this.erro.set('Ocorreu um erro ao guardar as preferências.')
+        });
+      },
+      error: (err) => {
+        const msg = Array.isArray(err.error?.message) ? err.error.message.join(' | ') : err.error?.message;
+        this.erro.set(msg || 'Erro ao atualizar o perfil. Verifique os dados inseridos.');
       }
-
-      forkJoin(requests).subscribe(() => {
-        this.carregarPreferencias();
-        this.abrirModalSucesso();
-      });
-    })
+    });
   }
 
   toggleGenero(id: string) {
