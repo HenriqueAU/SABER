@@ -12,7 +12,7 @@
   </div>
 
   <div class="container">
-    
+
     <div class="row g-3 mb-4">
       <div class="col-12 col-md-6 col-lg-4">
         <div class="input-group shadow-sm">
@@ -23,7 +23,7 @@
         </div>
       </div>
       <div class="col-12 col-md-4 col-lg-3">
-        <select class="form-select shadow-sm" [ngModel]="PerfilSelecionado()" (ngModelChange)="PerfilSelecionado.set($event); onFiltroChange()"
+        <select class="form-select shadow-sm" [ngModel]="perfilSelecionado()" (ngModelChange)="perfilSelecionado.set($event); onFiltroChange()"
                 [ngModelOptions]="{standalone: true}">
           <option value="">Todos os perfis</option>
           @for (p of perfis; track p) {
@@ -31,9 +31,9 @@
           }
         </select>
       </div>
-      
+
       <div class="col-12 col-md-4 col-lg-3">
-        <select class="form-select shadow-sm" [ngModel]="PerfilSelecionado()" (ngModelChange)="PerfilSelecionado.set($event); onFiltroChange()"
+        <select class="form-select shadow-sm" [ngModel]="perfilSelecionado()" (ngModelChange)="perfilSelecionado.set($event); onFiltroChange()"
                 [ngModelOptions]="{standalone: true}">
           <option class="dropdown-menu" value="">Todos os perfis</option>
           @for (p of perfis; track p) {
@@ -144,7 +144,7 @@
 <div #usuarioModal class="modal fade" id="usuarioModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg" style="width: 80%; max-width: 800px;">
     <div class="modal-content rounded-4 shadow-lg border-0">
-      
+
       <div class="modal-header bg-light border-bottom">
         <h1 class="modal-title fs-5 fw-bold text-dark"><i class="bi bi-person-plus text-primary me-2"></i>Cadastrar Utilizador</h1>
         <button type="button" class="btn-close" (click)="fecharFormCadastro()"></button>

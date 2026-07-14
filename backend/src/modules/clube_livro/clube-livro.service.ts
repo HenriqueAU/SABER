@@ -4,7 +4,7 @@ import {
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { ClubeLivro } from './clube-livro.entity';
 import { CreateClubeLivroDto } from './dto/create-clube-livro.dto';
 import { UpdateClubeLivroDto } from './dto/update-clube-livro.dto';
@@ -27,14 +27,19 @@ export class ClubeService {
   async create(createClubeDto: CreateClubeLivroDto): Promise<ClubeLivro> {
     const { professor_id, livro_id, ...dadosClube } = createClubeDto;
 
-    const quantidadeClubesAtivosDoProfessor =  await this.clubeLivroRepository.count({
-      where: { professor: {id: professor_id}, ativo: true, data_fim: MoreThan(new Date()) }
-    })
+    const quantidadeClubesAtivosDoProfessor =
+      await this.clubeLivroRepository.count({
+        where: {
+          professor: { id: professor_id },
+          ativo: true,
+          data_fim: MoreThan(new Date()),
+        },
+      });
 
-    if ( quantidadeClubesAtivosDoProfessor >= 6) {
-      throw new BadRequestException (
-        'Você já atingiu o limite de 6 clubes de leitura'
-      )
+    if (quantidadeClubesAtivosDoProfessor >= 6) {
+      throw new BadRequestException(
+        'Você já atingiu o limite de 6 clubes de leitura',
+      );
     }
 
     const professor = await this.validarProfessor(professor_id);
