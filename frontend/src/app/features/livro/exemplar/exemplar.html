@@ -2,27 +2,18 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="fs-6 fw-medium text-dark d-flex align-items-center gap-2 mb-0">
       <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-secondary"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-      Gerenciamento de Exemplares
+      Gerenciamento de exemplares
     </h4>
     <button (click)="abrirForm()" class="btn btn-sm btn-light text-primary fw-medium shadow-sm">
-      + Adicionar Exemplar
+      + Adicionar exemplar
     </button>
   </div>
   @if (mostrarForm) {
         <form [formGroup]="exemplarForm" (ngSubmit)="salvarExemplar()" class="bg-primary-subtle border border-primary-subtle p-3 rounded-3 mb-3">
           <div class="row g-3 align-items-end">
             <div class="col">
-              <label class="form-label small fw-medium">Código Identificador *</label>
+              <label class="form-label small fw-medium">Código identificador *</label>
               <input type="text" formControlName="codigo" class="form-control form-control-sm" placeholder="Ex: EXE-001">
-            </div>
-            <div class="col">
-              <label class="form-label small fw-medium">Status Atual *</label>
-              <select formControlName="status" class="form-select form-select-sm">
-                <option value="disponivel">Disponível para Empréstimo</option>
-                <option value="emprestado">Emprestado</option>
-                <option value="danificado">Danificado</option>
-                <option value="perdido">Perdido</option>
-              </select>
             </div>
             <div class="col-auto d-flex gap-2">
               <button type="button" (click)="fecharForm()" class="btn btn-sm btn-outline-secondary">
@@ -35,7 +26,7 @@
           </div>
         </form>
   }
-  
+
 
   <div class="bg-light rounded-3 border overflow-hidden">
     <ul class="list-group list-group-flush">
@@ -48,7 +39,6 @@
           </div>
           <div>
             <div class="small fw-medium text-dark">Código: {{ exemplar.codigo }}</div>
-            <div class="text-secondary mt-1" style="font-size: 0.75rem;">ID Sistema: {{ exemplar.id.split('-')[0] }}...</div>
           </div>
         </div>
         <div class="d-flex align-items-center gap-3">
@@ -73,7 +63,7 @@
         <p class="text-secondary mb-0" style="font-size: 0.75rem;">Adicione o primeiro exemplar deste livro.</p>
       </li>
       }
-      
+
     </ul>
   </div>
 </div>

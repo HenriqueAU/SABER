@@ -27,6 +27,7 @@ export class Exemplar {
   @Column({
     type: 'enum',
     enum: StatusExemplar,
+    default: StatusExemplar.DISPONIVEL,
   })
   status!: StatusExemplar;
 
@@ -39,4 +40,7 @@ export class Exemplar {
   @ManyToOne(() => Livro)
   @JoinColumn({ name: 'livro_id' })
   livro!: Livro;
+
+  @Column({ default: true })
+  ativo!: boolean;
 }

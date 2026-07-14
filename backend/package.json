@@ -22,7 +22,7 @@
     "migration:generate": "npm run typeorm -- migration:generate -d src/config/database.config.ts src/database/migrations/migration-inicial",
     "migration:run": "npm run typeorm -- migration:run -d src/config/database.config.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/config/database.config.ts",
-    "seed": "ts-node -r tsconfig-paths/register src/database/seeds/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register src/database/seed/seed.ts"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
