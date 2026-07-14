@@ -27,7 +27,7 @@ export default class UsuarioComponent implements OnInit {
   perfis = Object.values(TipoPerfil);
 
   termoBusca = signal('');
-  PerfilSelecionado = signal('');
+  perfilSelecionado = signal('');
 
   readonly ITENS_POR_PAGINA = 30;
   paginaAtual = signal(1);
@@ -41,10 +41,10 @@ export default class UsuarioComponent implements OnInit {
       const nomeOk =
         !this.termoBusca() ||
         usuario.nome.toLowerCase().includes(this.termoBusca().toLowerCase()) ||
-        usuario.email.toLowerCase().includes(this.termoBusca().toLocaleLowerCase());
+        usuario.email.toLowerCase().includes(this.termoBusca().toLowerCase());
       const perfilOk =
-        !this.PerfilSelecionado() ||
-        usuario.perfil === this.PerfilSelecionado();
+        !this.perfilSelecionado() ||
+        usuario.perfil === this.perfilSelecionado();
       return nomeOk && perfilOk;
     })
   );
