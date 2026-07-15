@@ -2,7 +2,8 @@ import { Component, Input, OnInit, OnChanges, SimpleChanges, inject, ChangeDetec
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GenerosService } from '../../../../client/services/generos.service';
-import { LivroGeneroService } from './livro-genero.service';
+import { LivroGeneroService } from '../../../../client';
+
 
 interface Genero {
   id: string;
@@ -49,14 +50,14 @@ export default class GenerosComponent implements OnInit, OnChanges {
   carregarVinculos() {
     if (!this.livroId) return;
 
-    this.livroGeneroService.listar().subscribe({
+    this.livroGeneroService.livroGeneroControllerFindAll().subscribe({
      next: (relacoes) => {
   const relacoesDesteLivro = relacoes.filter(
-    r => r.livro.id === this.livroId
+    (r: any) => r.livro.id === this.livroId
   );
 
   this.generosVinculados = relacoesDesteLivro
-    .map(r => {
+    .map((r: any) => {
       const genero = this.todosGeneros.find(
         g => g.id === r.genero.id
       );
@@ -66,7 +67,7 @@ export default class GenerosComponent implements OnInit, OnChanges {
         genero: genero!
       };
     })
-    .filter(item => item.genero !== undefined);
+    .filter((item: { relacaoId: string; genero: Genero | undefined }) => item.genero !== undefined);
 
   this.cdr.detectChanges();
 },
@@ -80,7 +81,7 @@ export default class GenerosComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.livroGeneroService.vincular(this.livroId, this.generoSelecionadoId).subscribe({
+    this.livroGeneroService.livroGeneroControllerCreate({livro_id: this.livroId, genero_id: this.generoSelecionadoId}).subscribe({
       next: () => {
         this.generoSelecionadoId = '';
         this.carregarVinculos();
@@ -89,7 +90,7 @@ export default class GenerosComponent implements OnInit, OnChanges {
   }
 
   desvincular(relacaoId: string) {
-    this.livroGeneroService.desvincular(relacaoId).subscribe({
+    this.livroGeneroService.livroGeneroControllerRemove(relacaoId).subscribe({
       next: () => this.carregarVinculos(),
     });
   }

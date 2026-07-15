@@ -270,16 +270,10 @@
 
             @if (generosPorLivro[livro.id]?.length) {
               <div class="d-flex flex-wrap gap-1 mb-2">
-                @for (nome of generosPorLivro[livro.id] | slice:0:3; track nome) {
+                @for (nome of generosPorLivro[livro.id]; track nome) {
                   <span [class]="'badge rounded-pill text-truncate ' + getClassGenero(nome)" style="font-size: 0.65rem; max-width: 100%;">
                     {{ nome }}
                   </span>
-                }
-                @if (generosPorLivro[livro.id].length > 3) {
-                  <span class="badge bg-light text-secondary border rounded-pill"
-                  style="font-size: 0.65rem;"
-                  [title]="generosPorLivro[livro.id].slice(3).join(', ')">
-                  +{{ generosPorLivro[livro.id].length - 3}}</span>
                 }
               </div>
             }
