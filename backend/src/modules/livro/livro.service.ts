@@ -8,6 +8,19 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 
+interface OpenLibraryLivro {
+  title?: string;
+  authors?: { name: string }[];
+  cover?: { small?: string; medium?: string; large?: string };
+  publishers?: { name: string }[];
+  publish_date?: string;
+  number_of_pages?: number;
+}
+
+interface OpenLibraryResponse {
+  [key: string]: OpenLibraryLivro;
+}
+
 @Injectable()
 export class LivroService {
   constructor(
@@ -61,7 +74,9 @@ export class LivroService {
     const baseUrl = this.configService.get<string>('OPEN_LIBRARY_BASE_URL');
     const url = `${baseUrl}/api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`;
 
-    const { data } = await firstValueFrom(this.httpService.get(url));
+    const { data } = await firstValueFrom(
+      this.httpService.get<OpenLibraryResponse>(url),
+    );
 
     const chave = `ISBN:${isbn}`;
     const livroEncontrado = data[chave];
@@ -74,9 +89,7 @@ export class LivroService {
       titulo: livroEncontrado.title ?? null,
       autor: livroEncontrado.authors?.[0]?.name ?? null,
       capa_url:
-        livroEncontrado.cover?.large ??
-        livroEncontrado.cover?.medium ??
-        null,
+        livroEncontrado.cover?.large ?? livroEncontrado.cover?.medium ?? null,
       editora: livroEncontrado.publishers?.[0]?.name ?? null,
       publicado_em: livroEncontrado.publish_date ?? null,
       paginas: livroEncontrado.number_of_pages ?? null,
