@@ -210,7 +210,7 @@ export default class HomeProfessorComponent implements OnInit {
 
     const membrosIds = this.membrosDoClube().map((m: any) => m.id);
     const respostas = this.respostasMembros().filter(r => {
-      const membroId = r.membro_clube?.id || r.membro_clube_id || r.membroClube?.id || r.membroClube;
+      const membroId = r.membro_clube?.id || r.membro_clube_id || r.membroClube?.id || r.membroClube || r.membro?.id;
       return membrosIds.includes(membroId);
     });
 
