@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-dialog-centered modal-xl" (click)="$event.stopPropagation()">
     <div class="modal-content rounded-4 shadow-lg flex-row overflow-hidden" style="max-height: 92vh; min-height: 70vh;">
       @if(livroDetalhes) {
-        <div class="col-md-4 bg-light flex-shrink-0 position-relative d-none d-sm-block border-end">
+        <div class="col-md-4 bg-light flex-shrink-0 position-relative d-none d-md-block border-end">
           <img [src]="livroDetalhes.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" [alt]="livroDetalhes.titulo" class="w-100 h-100" style="object-fit: cover;">
         </div>
 
@@ -93,7 +93,7 @@
               </div>
             }
           </div>
-          
+
           <div class="mb-3">
             <label class="form-label fw-medium">Título *</label>
             <input type="text" formControlName="titulo" class="form-control" placeholder="Ex: O Pequeno Príncipe">

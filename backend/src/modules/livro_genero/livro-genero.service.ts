@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LivroGenero } from './livro-genero.entity';
@@ -14,6 +18,23 @@ export class LivroGeneroService {
   async create(
     createLivroGeneroDto: CreateLivroGeneroDto,
   ): Promise<LivroGenero> {
+    const assossiacoesExistentes = await this.livroGeneroRepository.find({
+      where: { livro: { id: createLivroGeneroDto.livro_id } },
+      relations: ['genero'],
+    });
+    if (assossiacoesExistentes.length >= 4) {
+      throw new BadRequestException(
+        'Este livro já atingiu o limite de 4 gêneros',
+      );
+    }
+    const jaVinculadoAoGeneroSelecionado = assossiacoesExistentes.some(
+      (ag) => ag.genero.id === createLivroGeneroDto.genero_id,
+    );
+    if (jaVinculadoAoGeneroSelecionado) {
+      throw new BadRequestException(
+        'Este gênero já está associado a este livro',
+      );
+    }
     const livroGenero = this.livroGeneroRepository.create({
       livro: { id: createLivroGeneroDto.livro_id },
       genero: { id: createLivroGeneroDto.genero_id },

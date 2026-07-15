@@ -11,12 +11,17 @@
       @for (g of todosGeneros; track g.id) {
         <option  [value]="g.id">{{ g.nome }}</option>
       }
-      
+
     </select>
-    <button type="button" (click)="vincular()" [disabled]="!generoSelecionadoId" class="btn btn-sm btn-primary text-nowrap">
+    <button type="button" (click)="vincular()" [disabled]="!generoSelecionadoId" class="btn btn-sm btn-primary text-nowrap px-4 d-flex align-items-center justify-content-center">
       Vincular
     </button>
   </div>
+  @if (erroVinculo) {
+    <div class="alert alert-danger py-2 px-3 small mb-3" role="alert">
+      {{ erroVinculo }}
+    </div>
+  }
 
   <div class="d-flex flex-wrap gap-2">
 
