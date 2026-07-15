@@ -82,4 +82,7 @@ export class ExemplarService {
 
     await this.exemplarRepository.update(id, { ativo: false });
   }
+  async desativar(id: string): Promise<void> {
+    await this.exemplarRepository.update(id, { ativo: false });
+  }
 }
