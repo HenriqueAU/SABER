@@ -9,7 +9,7 @@ import { TipoPerfil } from '../../core/auth/tipo-perfil.enum';
 import { CreateLivroDto } from '../../../client/models/index';
 import ExemplarComponent from './exemplar/exemplar';
 import GenerosComponent from './generos/generos';
-import { catchError, debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, switchMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import Modal from 'bootstrap/js/dist/modal';
 import { LivroGeneroService } from "../../../client";
@@ -235,8 +235,15 @@ export default class LivroComponent implements OnInit, AfterViewInit {
     this.livroForm.get('isbn')?.valueChanges.pipe(
       debounceTime(600),
       distinctUntilChanged(),
+      tap((isbn: string) => {
+        if (!isbn || isbn.length < 10) {
+          this.erroIsbn = '';
+          this.buscandoIsbn = false;
+        }
+      }),
       filter((isbn: string) => !!isbn && isbn.length >= 10),
       switchMap((isbn: string) => {
+        this.erroIsbn = '';
         if(!validarIsbnFormato(isbn)) {
           this.erroIsbn = 'Formato inválido';
           this.buscandoIsbn = false;
