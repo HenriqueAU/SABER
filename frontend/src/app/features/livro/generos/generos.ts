@@ -26,6 +26,7 @@ export default class GenerosComponent implements OnInit, OnChanges {
   todosGeneros: Genero[] = [];
   generosVinculados: { relacaoId: string, genero: Genero }[] = [];
   generoSelecionadoId: string = '';
+  erroVinculo = '';
 
   ngOnInit() {
     this.carregarDados();
@@ -77,15 +78,15 @@ export default class GenerosComponent implements OnInit, OnChanges {
   vincular() {
     if (!this.generoSelecionadoId) return;
 
-    if (this.generosVinculados.some(g => g.genero.id === this.generoSelecionadoId)) {
-      return;
-    }
-
     this.livroGeneroService.livroGeneroControllerCreate({livro_id: this.livroId, genero_id: this.generoSelecionadoId}).subscribe({
       next: () => {
         this.generoSelecionadoId = '';
         this.carregarVinculos();
       },
+      error: (err) => {
+        this.erroVinculo = err.error?.message ?? 'Não foi possível associar o gênero.';
+        this.cdr.detectChanges();
+      }
     });
   }
 
