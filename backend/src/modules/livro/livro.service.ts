@@ -57,7 +57,7 @@ export class LivroService {
     await this.livroRepository.remove(livro);
   }
 
-   async buscarPorIsbn(isbn: string) {
+  async buscarPorIsbn(isbn: string) {
     const baseUrl = this.configService.get<string>('OPEN_LIBRARY_BASE_URL');
     const url = `${baseUrl}/api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`;
 
@@ -79,6 +79,7 @@ export class LivroService {
         null,
       editora: livroEncontrado.publishers?.[0]?.name ?? null,
       publicado_em: livroEncontrado.publish_date ?? null,
+      paginas: livroEncontrado.number_of_pages ?? null,
     };
   }
 }

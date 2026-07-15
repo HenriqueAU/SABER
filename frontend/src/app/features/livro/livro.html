@@ -29,6 +29,12 @@
                   <span class="fw-semibold text-dark">{{ livroDetalhes.editora }}</span>
                 </div>
               }
+              @if (livroDetalhes.paginas) {
+                <div>
+                  <span class="d-block text-secondary text-uppercase small">Páginas</span>
+                  <span class="fw-semibold text-dark">{{ livroDetalhes.paginas }}</span>
+                </div>
+              }
               @if (livroDetalhes.isbn) {
                 <div>
                   <span class="d-block text-secondary text-uppercase small">ISBN</span>
@@ -116,8 +122,12 @@
 
           <div class="row g-3 mb-3">
             <div class="col-6">
-              <label class="form-label fw-medium">Ano publicação</label>
+              <label class="form-label fw-medium">Ano de publicação</label>
               <input type="number" formControlName="ano_publicacao" class="form-control" placeholder="Opcional">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-medium">Páginas</label>
+              <input type="number" formControlName="paginas" class="form-control" placeholder="Opcional">
             </div>
             <div class="col-6">
               <label class="form-label fw-medium">Faixa etária</label>
@@ -141,9 +151,32 @@
             @if (livroSelecionado) {
               <app-generos [livroId]="livroSelecionado.id"></app-generos>
             } @else {
-              <div class="alert alert-info d-flex align-items-start gap-2 small">
-                <i class="bi bi-info-circle me-1"></i>
-                <span>Salve o livro primeiro para poder associar gêneros literários a ele.</span>
+              <div class="mb-3">
+                <label class="form-label fw-medium">Gêneros (máximo 4)</label>
+                <div class="d-flex gap-2 mb-2 align-items-center">
+                  <select [(ngModel)]="generoSelecionadoNaCriacaoId" [ngModelOptions]="{standalone: true}" class="form-select form-select-sm flex-grow-1">
+                    <option value="" disabled selected>Selecione um gênero...</option>
+                    @for (g of todosOsGenerosParaSelecao; track g.id) {
+                      <option [value]="g.id">{{ g.nome }}</option>
+                    }
+                  </select>
+                  <button type="button" (click)="adicionarGeneroNaCriacao()" [disabled]="!generoSelecionadoNaCriacaoId" class="btn btn-sm btn-primary d-flex align-items-center justify-content-center px-4">
+                    Adicionar
+                  </button>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                  @for (generoId of generosSelecionadosNaCriacao; track generoId) {
+                    <div class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle d-inline-flex align-items-center gap-1 fw-medium py-2 px-3">
+                      {{ getNomeGenero(generoId) }}
+                      <button (click)="removerGeneroNaCriacao(generoId)" type="button" class="btn btn-sm p-0 border-0 d-flex align-items-center text-primary-emphasis" style="line-height: 0;" title="Remover">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                      </button>
+                    </div>
+                  }
+                </div>
+                @if (erroVinculoNaCriacao) {
+                  <small class="text-danger d-block mt-2">{{ erroVinculoNaCriacao }}</small>
+                }
               </div>
             }
           }
