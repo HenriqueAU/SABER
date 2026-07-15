@@ -131,6 +131,11 @@ export default class HomeAlunoComponent implements OnInit {
       this.emprestimosAtivos.set(ativos);
       this.totalLivrosLidos.set(historico.length);
 
+      const paginasLidas = historico.reduce((acc, emp) => {
+        return acc + (emp.exemplar?.livro?.paginas || 0);
+      }, 0);
+      this.totalPaginasLidas.set(paginasLidas);
+
       const resClubes = await firstValueFrom(this.clubesService.clubeControllerFindMeusClubes());
       const todosClubes = Array.isArray(resClubes) ? resClubes : [];
 
