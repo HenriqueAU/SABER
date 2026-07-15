@@ -10,7 +10,7 @@ import { CreateLivroDto } from '../../../client/models/index';
 import ExemplarComponent from './exemplar/exemplar';
 import GenerosComponent from './generos/generos';
 import { LivroGeneroService } from './generos/livro-genero.service';
-import { catchError, debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, switchMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import Modal from 'bootstrap/js/dist/modal';
 
@@ -81,10 +81,10 @@ export default class LivroComponent implements OnInit, AfterViewInit {
   termoPesquisa ='';
   generoSelecionado = '';
   generosDisponiveis: string[] = [];
-  
+
   paginaAtual = 1;
   itensPorPagina = 12;
-  
+
   trackById(index: number, livro: Livro): string {
     return livro.id;
   }
@@ -95,15 +95,15 @@ export default class LivroComponent implements OnInit, AfterViewInit {
 
   get livrosFiltrados(): Livro[] {
     return this.livros.filter((livro)=>{
-      const textoOk = 
+      const textoOk =
         !this.termoPesquisa ||
         livro.titulo.toLowerCase().includes(this.termoPesquisa.toLowerCase()) ||
         livro.autor.toLowerCase().includes(this.termoPesquisa.toLowerCase());
-      
+
       const generoDoLivro = this.generosPorLivro[livro.id] ?? [];
       const generoOk = !this.generoSelecionado || generoDoLivro.includes(this.generoSelecionado);
       return textoOk && generoOk;
-      
+
     })
   }
 
@@ -235,8 +235,15 @@ export default class LivroComponent implements OnInit, AfterViewInit {
     this.livroForm.get('isbn')?.valueChanges.pipe(
       debounceTime(600),
       distinctUntilChanged(),
+      tap((isbn: string) => {
+        if (!isbn || isbn.length < 10) {
+          this.erroIsbn = '';
+          this.buscandoIsbn = false;
+        }
+      }),
       filter((isbn: string) => !!isbn && isbn.length >= 10),
       switchMap((isbn: string) => {
+        this.erroIsbn = '';
         if(!validarIsbnFormato(isbn)) {
           this.erroIsbn = 'Formato inválido';
           this.buscandoIsbn = false;
@@ -345,7 +352,7 @@ export default class LivroComponent implements OnInit, AfterViewInit {
     const modal = new Modal(
       this.livroDetalhesModalRef.nativeElement
     );
-    
+
     modal.show();
   }
 
@@ -362,7 +369,7 @@ export default class LivroComponent implements OnInit, AfterViewInit {
     const modal = new Modal(
       this.livroFormModalRef.nativeElement
     );
-    
+
     modal.show();
   }
 
@@ -407,7 +414,7 @@ export default class LivroComponent implements OnInit, AfterViewInit {
 
           this.mensagemSucessoModal = `Livro "${tituloLivro}" editado com sucesso!`;
           this.abrirModalSucesso();
-          
+
           this.carregarLivros();
           this.cdr.detectChanges();
         },
@@ -416,7 +423,7 @@ export default class LivroComponent implements OnInit, AfterViewInit {
             Modal.getInstance(
               this.livroFormModalRef.nativeElement
             );
-          
+
           const tituloLivro = this.livroForm.get('titulo')?.value;
 
           livroFormModal?.hide();
@@ -440,7 +447,7 @@ export default class LivroComponent implements OnInit, AfterViewInit {
 
           this.mensagemSucessoModal = `Livro "${tituloLivro}" cadastrado com sucesso!`;
           this.abrirModalSucesso();
-          
+
           this.carregarLivros();
           this.cdr.detectChanges();
         },
