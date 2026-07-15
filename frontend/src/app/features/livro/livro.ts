@@ -9,10 +9,10 @@ import { TipoPerfil } from '../../core/auth/tipo-perfil.enum';
 import { CreateLivroDto } from '../../../client/models/index';
 import ExemplarComponent from './exemplar/exemplar';
 import GenerosComponent from './generos/generos';
-import { LivroGeneroService } from './generos/livro-genero.service';
 import { catchError, debounceTime, distinctUntilChanged, filter, switchMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import Modal from 'bootstrap/js/dist/modal';
+import { LivroGeneroService } from "../../../client";
 
 interface Livro extends CreateLivroDto {
   id: string;
@@ -322,7 +322,7 @@ export default class LivroComponent implements OnInit, AfterViewInit {
   }
 
   carregarGeneros() {
-    this.livroGeneroService.listar().subscribe({
+    this.livroGeneroService.livroGeneroControllerFindAll().subscribe({
       next: (relacoes) => {
         this.generosPorLivro = {};
         const generosSet = new Set<string>();
