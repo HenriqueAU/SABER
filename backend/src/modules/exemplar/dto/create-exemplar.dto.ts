@@ -1,5 +1,4 @@
-import { IsEnum, IsString, IsUUID } from 'class-validator';
-import { StatusExemplar } from '../exemplar.entity';
+import { IsString, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateExemplarDto {
@@ -10,8 +9,4 @@ export class CreateExemplarDto {
   @ApiProperty({ description: 'Código do exemplar', example: 'EX-001' })
   @IsString()
   codigo!: string;
-
-  @ApiProperty({ enum: StatusExemplar, example: StatusExemplar.DISPONIVEL })
-  @IsEnum(StatusExemplar)
-  status!: StatusExemplar;
 }
