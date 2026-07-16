@@ -155,7 +155,7 @@ export class EmprestimoService {
 
     if (jaEmprestado) {
       throw new BadRequestException(
-        'Aluno já possui um exemplar deste livro emprestado',
+        'Aluno já possui um exemplar deste livro emprestado.',
       );
     }
   }

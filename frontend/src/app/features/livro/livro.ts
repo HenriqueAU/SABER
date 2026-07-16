@@ -13,6 +13,8 @@ import { catchError, debounceTime, distinctUntilChanged, filter, switchMap, tap 
 import { forkJoin, of } from 'rxjs';
 import Modal from 'bootstrap/js/dist/modal';
 import { GenerosService, LivroGeneroService } from "../../../client";
+import { SuccessModal } from "../../shared/components/success-modal/success-modal";
+import { ErrorModal } from "../../shared/components/error-modal/error-modal";
 
 interface Livro extends CreateLivroDto {
   id: string;
@@ -32,7 +34,15 @@ function validarIsbnFormato(valor: string): boolean {
 @Component({
   selector: 'app-livro',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ExemplarComponent, GenerosComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    ExemplarComponent,
+    GenerosComponent,
+    SuccessModal,
+    ErrorModal,
+  ],
   templateUrl: './livro.html',
   styleUrl: './livro.scss',
 })

@@ -7,10 +7,12 @@ import { UsuariosService } from '../../../../client/services/usuarios.service';
 import { CommonModule, Location } from '@angular/common';
 import Modal from 'bootstrap/js/dist/modal';
 import { GenerosService, PreferenciasGeneroService } from '../../../../client';
+import { SuccessModal } from '../../components/success-modal/success-modal';
+import { ErrorModal } from '../../components/error-modal/error-modal';
 
 @Component({
   selector: 'app-perfil',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, SuccessModal, ErrorModal],
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss',
 })
@@ -36,6 +38,12 @@ export default class PerfilComponent implements OnInit{
 
   @ViewChild('successModal')
   successModalRef!: ElementRef;
+
+  @ViewChild('errorModal')
+  errorModalRef!: ElementRef;
+
+  mensagemSucessoModal: string = 'Dados de perfil atualizados com sucesso!';
+  mensagemErroModal: string = 'Erro ao atualizar o perfil. Verifique os dados inseridos.';
 
   generos$? = this.generosService.generoControllerFindAll();
 
@@ -76,6 +84,17 @@ export default class PerfilComponent implements OnInit{
     }
 
     const modal = new Modal(successModalElement);
+    modal.show();
+  }
+
+  abrirModalErro() {
+    const errorModalElement = this.errorModalRef.nativeElement;
+
+    if (!errorModalElement) {
+      return;
+    }
+
+    const modal = new Modal(errorModalElement);
     modal.show();
   }
 
@@ -162,7 +181,8 @@ export default class PerfilComponent implements OnInit{
       },
       error: (err) => {
         const msg = Array.isArray(err.error?.message) ? err.error.message.join(' | ') : err.error?.message;
-        this.erro.set(msg || 'Erro ao atualizar o perfil. Verifique os dados inseridos.');
+        this.erro.set(msg || 'Verifique os dados inseridos.');
+        this.abrirModalErro();
       }
     });
   }
