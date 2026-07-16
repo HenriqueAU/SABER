@@ -91,7 +91,7 @@ export class NotificacaoService {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_1AM)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async notificarGestorAtrasos(): Promise<void> {
     const emprestimosAtrasados =
       await this.emprestimoService.findAllAtrasados();
