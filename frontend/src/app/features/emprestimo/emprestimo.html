@@ -176,38 +176,16 @@
   </div>
 </div>
 
-<div #successModal class="modal fade" id="success-modal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow modal-sucesso">
-      <div class="modal-body text-center p-4">
-        <div class="icone-sucesso mx-auto mb-3">
-          <i class="bi bi-check-lg"></i>
-        </div>
-        <h5 class="fw-bold mb-1">Sucesso!</h5>
-        <p class="text-secondary mb-4" style="font-size: 14px; color: black">
-          {{ mensagemSucessoModal }}
-        </p>
-        <button class="btn btn-confirmar w-100 mb-2" data-bs-dismiss="modal">
-          Ir para empréstimos
-        </button>
-      </div>
-    </div>
-  </div>
+<div #successModal class="modal fade" id="successModal" tabindex="-1">
+  <app-success-modal
+    [mensagem]="mensagemSucessoModal">
+  </app-success-modal>
 </div>
 
 <div #errorModal class="modal fade" id="errorModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header bg-danger text-white border-0">
-        <h5 class="modal-title fw-semibold">Erro</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" style="font-size: 14px">{{ mensagemErroModal }}</div>
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">OK</button>
-      </div>
-    </div>
-  </div>
+  <app-error-modal
+    [mensagem]="mensagemErroModal">
+  </app-error-modal>
 </div>
 
 <div class="container py-4">

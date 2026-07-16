@@ -192,33 +192,15 @@
 </div>
 
 <div #successModal class="modal fade" id="successModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content bg-success-subtle">
-      <div class="modal-header bg-success text-white">
-        <h1 class="modal-title fs-5">Sucesso!</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">{{ mensagemSucessoModal }}</div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-      </div>
-    </div>
-  </div>
+  <app-success-modal
+    [mensagem]="mensagemSucessoModal">
+  </app-success-modal>
 </div>
 
 <div #errorModal class="modal fade" id="errorModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content bg-danger-subtle">
-      <div class="modal-header bg-danger text-white">
-        <h1 class="modal-title fs-5">Erro</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">{{ mensagemErroModal }}</div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-      </div>
-    </div>
-  </div>
+  <app-error-modal
+    [mensagem]="mensagemErroModal">
+  </app-error-modal>
 </div>
 
 <div class="container py-4">
