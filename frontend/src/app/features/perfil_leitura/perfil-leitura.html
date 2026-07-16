@@ -2,12 +2,14 @@
   <div class="mb-4">
     <p class="text-secondary small mb-0">Veja seu histórico e distribuição de leituras por gênero.</p>
   </div>
+  
   @if (erro()) {
     <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center mb-4">
       <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
       <div>{{ erro() }}</div>
     </div>
   }
+  
   @if (carregando()) {
     <div class="text-center py-5">
       <div class="spinner-border text-primary" role="status"></div>
@@ -83,6 +85,7 @@
         </div>
       </div>
     </div>
+
     <div class="row g-4 mb-4">
       <div class="col-12">
         <div class="card border-0 shadow-sm">
@@ -119,48 +122,75 @@
         </div>
       </div>
     </div>
-    <div class="row g-3">
-      <div class="col-12 d-flex justify-content-between align-items-center flex-wrap">
-        <h6 class="fw-bold mb-0"><i class="bi bi-star-fill text-primary me-2"></i>Recomendados</h6>
-        @if (totalPaginasRecomendacoes() > 1) {
-          <div class="d-flex align-items-center gap-2">
-            <button class="btn btn-sm btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center"
-                    [disabled]="paginaSegura() === 1"
-                    (click)="mudarPaginaRecomendacoes(paginaSegura() - 1)"
-                    style="width: 32px; height: 32px; padding: 0;">
-              <i class="bi bi-chevron-left"></i>
-            </button>
-            <span class="small text-secondary fw-medium mx-1">{{ paginaSegura() }} / {{ totalPaginasRecomendacoes() }}</span>
-            <button class="btn btn-sm btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center"
-                    [disabled]="paginaSegura() === totalPaginasRecomendacoes()"
-                    (click)="mudarPaginaRecomendacoes(paginaSegura() + 1)"
-                    style="width: 32px; height: 32px; padding: 0;">
-              <i class="bi bi-chevron-right"></i>
-            </button>
-          </div>
-        }
-      </div>
-      @for (livro of recomendacoesPaginadas(); track livro.id) {
-        <div class="col-6 col-md-3 col-lg-2">
-          <div class="card border-0 shadow-sm h-100" style="cursor: pointer; transition: transform 0.2s;" (click)="abrirRecomendacao(livro.id)" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-            <img [src]="livro.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" class="card-img-top object-fit-cover w-100" style="aspect-ratio: 2/3;" [alt]="livro.titulo">
-            <div class="card-body p-3">
-              <h6 class="fw-bold mb-1 text-truncate" style="font-size: 0.9rem;">{{ livro.titulo }}</h6>
-              <small class="text-secondary d-block text-truncate" style="font-size: 0.75rem;">{{ livro.autor }}</small>
-              <div class="mt-2">
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1" style="font-size: 0.7rem;">{{ livro.generoNome }}</span>
-              </div>
+
+    <div class="row g-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-3 p-md-4">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+              <h6 class="fw-bold mb-0 text-truncate me-2 section-title">
+                <i class="bi bi-star-fill text-primary me-2"></i>Recomendados
+              </h6>
+              @if (totalPaginasRecomendacoes() > 1) {
+                <div class="d-flex align-items-center gap-1 gap-md-2">
+                  <button class="btn btn-sm btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center btn-pagination"
+                          [disabled]="paginaSegura() === 1"
+                          (click)="mudarPaginaRecomendacoes(paginaSegura() - 1)">
+                    <i class="bi bi-chevron-left pagination-icon"></i>
+                  </button>
+                  <span class="small text-secondary fw-medium mx-1 pagination-label">{{ paginaSegura() }} / {{ totalPaginasRecomendacoes() }}</span>
+                  <button class="btn btn-sm btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center btn-pagination"
+                          [disabled]="paginaSegura() === totalPaginasRecomendacoes()"
+                          (click)="mudarPaginaRecomendacoes(paginaSegura() + 1)">
+                    <i class="bi bi-chevron-right pagination-icon"></i>
+                  </button>
+                </div>
+              }
             </div>
+
+            <div class="row g-3">
+              @for (livro of recomendacoesPaginadas(); track livro.id) {
+                
+                <div class="col-4 col-sm-3 col-lg-2">
+                  <div class="card border border-light-subtle shadow-sm h-100 recommendation-card" (click)="abrirRecomendacao(livro.id)">
+                    
+                    <img 
+                      [src]="livro.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" 
+                      class="card-img-top w-100 rounded-top book-cover" 
+                      [alt]="livro.titulo"
+                    >
+                    
+                    <div class="card-body p-2 d-flex flex-column">
+                      <div>
+                        <h6 class="fw-bold mb-1 text-truncate small">{{ livro.titulo }}</h6>
+                        <small class="text-secondary d-block text-truncate book-author">{{ livro.autor }}</small>
+                      </div>
+                      
+                      <div class="mt-2 d-flex flex-wrap gap-1">
+                        @for (genero of livro.generos; track genero) {
+                          <span class="badge px-2 py-1 text-truncate" [ngClass]="getClassGenero(genero)">{{ genero }}</span>
+                        }
+                      </div>
+                    </div>
+                    
+                  </div>
+                </div>
+
+              } @empty {
+                <div class="col-12">
+                  <div class="text-center py-5 text-secondary">
+                    <i class="bi bi-stars fs-1 text-warning opacity-50 mb-3 d-block"></i>
+                    <p class="small mb-0">Continue a ler para receber recomendações com base no seu gosto!</p>
+                  </div>
+                </div>
+              }
+            </div>
+            
           </div>
         </div>
-      } @empty {
-        <div class="col-12">
-          <div class="text-center py-4 text-secondary bg-white rounded-3 shadow-sm border border-light">
-            <i class="bi bi-stars fs-1 text-warning opacity-50 mb-2 d-block"></i>
-            <p class="small mb-0">Continue lendo para receber recomendações com base no seu gosto!</p>
-          </div>
-        </div>
-      }
+      </div>
     </div>
+
   }
 </div>
