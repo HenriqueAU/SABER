@@ -38,6 +38,8 @@ export default class NotificacoesBibliotecarioComponent implements OnInit {
         const atrasados = dados
           .filter((e: any) =>
             !e.data_devolucao_efetiva &&
+            e.status !== 'perdido' &&
+            e.status !== 'danificado' &&
             new Date(e.data_devolucao_esperada) < hoje
           )
           .map((e: any) => ({

@@ -18,8 +18,12 @@ export class Navbar {
   private notificacoesService = inject(NotificacoesService);
   private emprestimosService = inject(EmprestimosService);
 
-  get isLoginPage(): boolean { return this.router.url === '/login'; }
-  get isOnboardingPage(): boolean { return this.router.url === '/onboarding'; }
+  get isLoginPage(): boolean {
+    return this.router.url === '/login';
+  }
+  get isOnboardingPage(): boolean {
+    return this.router.url === '/onboarding';
+  }
 
   perfil = this.coreAuthService.perfil;
   estaLogado = this.coreAuthService.estaLogado;
@@ -32,17 +36,19 @@ export class Navbar {
     if (typeof window !== 'undefined') {
       window.addEventListener('avatarUpdated', () => {
         if (this.estaLogado()) {
-          this.usuariosService.usuarioControllerFindOne(this.coreAuthService.getId()).subscribe(usuario => {
-            this.fotoPerfil.set(usuario.foto_perfil || null);
-          });
+          this.usuariosService
+            .usuarioControllerFindOne(this.coreAuthService.getId())
+            .subscribe((usuario) => {
+              this.fotoPerfil.set(usuario.foto_perfil || null);
+            });
         }
       });
     }
     effect(() => {
       if (this.estaLogado()) {
         this.usuarioId = this.coreAuthService.getId();
-        
-        this.usuariosService.usuarioControllerFindOne(this.usuarioId).subscribe(usuario => {
+
+        this.usuariosService.usuarioControllerFindOne(this.usuarioId).subscribe((usuario) => {
           this.fotoPerfil.set(usuario.foto_perfil || null);
         });
 
@@ -50,19 +56,22 @@ export class Navbar {
           this.emprestimosService.emprestimoControllerFindAll().subscribe({
             next: (dados: any[]) => {
               const hoje = new Date();
-              const atrasados = dados.filter((e: any) =>
-                !e.data_devolucao_efetiva &&
-                new Date(e.data_devolucao_esperada) < hoje
+              const atrasados = dados.filter(
+                (e: any) =>
+                  !e.data_devolucao_efetiva &&
+                  e.status !== 'perdido' &&
+                  e.status !== 'danificado' &&
+                  new Date(e.data_devolucao_esperada) < hoje,
               ).length;
               this.notificacoesNaoLidas.set(atrasados);
-            }
+            },
           });
         } else {
           this.notificacoesService.notificacaoControllerFindAll().subscribe({
             next: (notificacoes: any[]) => {
-              const naoLidas = notificacoes.filter(n => !n.lida).length;
+              const naoLidas = notificacoes.filter((n) => !n.lida).length;
               this.notificacoesNaoLidas.set(naoLidas);
-            }
+            },
           });
         }
       } else {
@@ -74,13 +83,13 @@ export class Navbar {
 
   navbarHidden = false;
   private lastScrollTop = 0;
-  
+
   scrollToTop(event: Event) {
     event.preventDefault();
 
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: 'smooth',
     });
   }
 
@@ -89,22 +98,21 @@ export class Navbar {
 
     window.scrollTo({
       top: document.body.scrollHeight,
-      behavior: 'smooth'
+      behavior: 'smooth',
     });
   }
 
   @HostListener('window:scroll', [])
   onWindowScroll() {
-    const currentScroll =
-      window.pageYOffset || document.documentElement.scrollTop;
+    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
 
-      if (currentScroll > this.lastScrollTop && currentScroll > 80) {
-        this.navbarHidden = true;
-      } else {
-        this.navbarHidden = false;
-      }
+    if (currentScroll > this.lastScrollTop && currentScroll > 80) {
+      this.navbarHidden = true;
+    } else {
+      this.navbarHidden = false;
+    }
 
-      this.lastScrollTop = Math.max(currentScroll, 0);
+    this.lastScrollTop = Math.max(currentScroll, 0);
   }
 
   logOut() {
@@ -114,7 +122,7 @@ export class Navbar {
 
     this.router.navigate(['/onboarding']);
   }
-  
+
   getLoginOrHomeRoute(): string {
     return this.estaLogado() ? '/home' : '/login';
   }
