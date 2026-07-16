@@ -54,12 +54,12 @@
             <div class="d-flex align-items-center gap-2">
               @if (notif.clubeId) {
                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1 flex-shrink-0 extra-small-text">
-                  <i class="bi bi-box-arrow-up-right me-1"></i>Ver Clube
+                  <i class="bi bi-box-arrow-up-right me-1"></i>ver clube
                 </span>
               }
               @if (!notif.lida) {
                 <button class="btn btn-sm btn-outline-primary py-1 px-2 extra-small-text flex-shrink-0 rounded-pill" (click)="marcarComoLida(notif, $event)">
-                  <i class="bi bi-check2-all me-1"></i>Lida
+                  <i class="bi bi-check2-all me-1"></i>lida
                 </button>
               }
             </div>
