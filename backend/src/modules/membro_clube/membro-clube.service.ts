@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MembroClube } from './membro-clube.entity';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { CreateMembroClubeDto } from './dto/create-membro-clube.dto';
 import { UpdateMembroClubeDto } from './dto/update-membro-clube.dto';
 import { ClubeService } from '../clube_livro/clube-livro.service';
@@ -46,6 +46,18 @@ export class MembroClubeService {
     if (!clube.ativo) {
       throw new BadRequestException(
         'Não é possível adicionar membros a um clube inativo',
+      );
+    }
+
+    const clubesAtivosDoAluno = await this.membroClubeRepository.count({
+      where: {
+        usuario: { id: usuario_id },
+        clube: { ativo: true, data_fim: MoreThan(new Date()) },
+      },
+    });
+    if (clubesAtivosDoAluno >= 6) {
+      throw new BadRequestException(
+        'Você já atingiu o limite de 6 clubes de leitura ativos.',
       );
     }
 

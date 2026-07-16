@@ -16,7 +16,7 @@ import { ItemPerguntaService } from '../../../client/services/itemPergunta.servi
 import { RespostaMembroService } from '../../../client/services/respostaMembro.service';
 import { CoreAuthService } from '../../core/auth/auth-session';
 import { TipoPerfil } from '../../core/auth/tipo-perfil.enum';
-import { LivroGeneroService } from '../livro/generos/livro-genero.service';
+import { LivroGeneroService } from '../../../client';
 
 @Component({
   selector: 'app-clube-livro',
@@ -231,7 +231,7 @@ export default class ClubeLivroComponent implements OnInit {
   }
 
   carregarGeneros(): void {
-    this.livroGeneroService.listar().subscribe({
+    this.livroGeneroService.livroGeneroControllerFindAll().subscribe({
       next: (relacoes) => {
         const mapa: Record<string, string[]> = {};
         relacoes.forEach((relacao: any) => {

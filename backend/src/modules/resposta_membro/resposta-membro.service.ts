@@ -98,7 +98,6 @@ export class RespostaMembroService {
         const diferencaEmSegundos = Math.abs(
           (tempoReferencia - dataNotificacao) / 1000,
         );
-
         return diferencaEmSegundos < 60;
       });
 
