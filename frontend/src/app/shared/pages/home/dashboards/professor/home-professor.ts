@@ -9,16 +9,28 @@ import { RespostaMembroService } from '../../../../../../client/services/respost
 import { CoreAuthService } from '../../../../../core/auth/auth-session';
 import { Router, ActivatedRoute } from '@angular/router';
 import Modal from 'bootstrap/js/dist/modal';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { LivrosService } from '../../../../../../client';
 
 @Component({
   selector: 'app-home-professor',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './home-professor.html',
   styleUrls: ['../../../../../features/clube_livro/clube-livro.scss']
 })
 export default class HomeProfessorComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private clubesService = inject(ClubesService);
+  private membroClubeService = inject(MembroClubeService);
+  private perguntasService = inject(PerguntasService);
+  private itemPerguntaService = inject(ItemPerguntaService);
+  private respostasService = inject(RespostaMembroService);
+  private authService = inject(CoreAuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private livroService = inject(LivrosService);
+
   modoListagem = signal<boolean>(true);
   abaAtiva = signal<'detalhes' | 'feedbacks'>('detalhes');
 
@@ -44,8 +56,25 @@ export default class HomeProfessorComponent implements OnInit {
   termoBusca = signal('');
   filtroStatus = signal<'TODOS' | 'ATIVOS' | 'ENCERRADOS'>('TODOS');
 
+  livros = signal<any[]>([]);
+  enviandoClube = signal(false);
+  erroClube = signal('');
+  livrosFiltrados = signal<any[]>([]);
+
   @ViewChild('feedbackModal')
     feedbackModalRef!: ElementRef;
+
+  @ViewChild('clubeFormModal')
+    clubeFormModalRef!: ElementRef;
+
+  clubeForm: FormGroup = this.fb.group({
+    livro_busca: [''],
+    livro_id: ['', Validators.required],
+    nome: ['', Validators.required],
+    data_inicio: [''],
+    data_fim: ['', Validators.required],
+    local_encontro: [''],
+  });
 
   get membrosPaginados(): any[] {
     const inicio = (this.paginaAtualAlunos() - 1) * this.itensPorPaginaAlunos;
@@ -85,21 +114,76 @@ export default class HomeProfessorComponent implements OnInit {
     }
   }
 
-  private clubesService = inject(ClubesService);
-  private membroClubeService = inject(MembroClubeService);
-  private perguntasService = inject(PerguntasService);
-  private itemPerguntaService = inject(ItemPerguntaService);
-  private respostasService = inject(RespostaMembroService);
-  private authService = inject(CoreAuthService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-
   ngOnInit(): void {
     this.carregarMeusClubes();
   }
 
+  carregarLivrosParaSelecaoDeClube() {
+    this.livroService.livroControllerFindAll().subscribe({
+      next: (dados) => this.livros.set(dados),
+    });
+  }
+
+  filtrarLivrosParaSelecao() {
+    const termo = (this.clubeForm.get('livro_busca')?.value || '').toLowerCase();
+
+    if (!termo) {
+      this.livrosFiltrados.set([]);
+      return;
+    }
+
+    this.livrosFiltrados.set(
+      this.livros().filter((l) => l.titulo.toLowerCase().includes(termo))
+    );
+  }
+
+  selecionarLivro(livro: any) {
+    this.clubeForm.patchValue({
+      livro_id: livro.id,
+      livro_busca: livro.titulo,
+    });
+    this.livrosFiltrados.set([]);
+  }
+
   abrirClubeFormModal() {
-    // TO DO (MODAL DE CRIAÇÃO)
+    this.clubeForm.reset();
+    this.livrosFiltrados.set([]);
+    this.erroClube.set('');
+    if (this.livros().length === 0) {
+      this.carregarLivrosParaSelecaoDeClube();
+    }
+    const modal = new Modal(this.clubeFormModalRef.nativeElement);
+    modal.show();
+  }
+
+  criarClube() {
+    if (this.clubeForm.invalid) {
+      this.clubeForm.markAllAsTouched();
+      return;
+    }
+    this.enviandoClube.set(true);
+    this.erroClube.set('');
+    const valores = this.clubeForm.value;
+    const payload = {
+      professor_id: this.authService.getId(),
+      nome: valores.nome,
+      livro_id: valores.livro_id,
+      data_inicio: valores.data_inicio || undefined,
+      data_fim: valores.data_fim,
+      local_encontro: valores.local_encontro || undefined,
+    };
+    this.clubesService.clubeControllerCreate(payload as any).subscribe({
+      next: () => {
+        this.enviandoClube.set(false);
+        const modal = Modal.getInstance(this.clubeFormModalRef.nativeElement);
+        modal?.hide();
+        this.carregarMeusClubes();
+      },
+      error: (err) => {
+        this.enviandoClube.set(false);
+        this.erroClube.set(err.error?.message ?? 'Não foi possível criar o clube')
+      }
+    });
   }
 
   getDiasParaInicio(dataInicio: string | Date): number | null {
