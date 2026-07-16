@@ -30,7 +30,7 @@
           </select>
           <button type="button" class="btn btn-primary text-nowrap flex-shrink-0 px-4" (click)="abrirClubeFormModal()">
             <i class="bi bi-plus-circle me-1"></i>
-            Criar Clube
+            Criar clube
           </button>
         </div>
       </div>
@@ -128,6 +128,9 @@
                 @if (detalhes.livro?.editora) { <div><strong class="text-dark d-block text-uppercase" style="font-size: 0.75rem;">Editora</strong> {{ detalhes.livro.editora }}</div> }
                 @if (detalhes.livro?.ano_publicacao || detalhes.livro?.ano) {
                   <div><strong class="text-dark d-block text-uppercase" style="font-size: 0.75rem;">Ano</strong> {{ detalhes.livro.ano_publicacao || detalhes.livro.ano }}</div>
+                }
+                @if(detalhes.livro?.paginas) {
+                  <div><strong class="text-dark d-block text-uppercase" style="font-size: 0.75rem;">Páginas</strong> {{ detalhes.livro.paginas }}</div>
                 }
               </div>
             </div>
@@ -301,5 +304,70 @@
       </div>
     }
   }
+  <div #clubeFormModal class="modal fade" id="clubeFormModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 shadow-lg">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title">Criar clube de leitura</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form [formGroup]="clubeForm" (ngSubmit)="criarClube()">
+          <div class="modal-body">
+            @if (erroClube()) {
+              <div class="alert alert-danger py-2 px-3 small">{{ erroClube() }}</div>
+            }
 
+            <div class="mb-3">
+              <label class="form-label fw-medium">Livro *</label>
+              <div class="position-relative">
+                <input
+                  type="text"
+                  formControlName="livro_busca"
+                  (input)="filtrarLivrosParaSelecao()"
+                  class="form-control"
+                  placeholder="Buscar por título do livro"
+                  autocomplete="off">
+
+                @if (livrosFiltrados().length > 0) {
+                  <div class="list-group position-absolute w-100 shadow z-3">
+                    @for (livro of livrosFiltrados(); track livro.id) {
+                      <button type="button" class="list-group-item list-group-item-action" (click)="selecionarLivro(livro)">
+                        {{ livro.titulo }}
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-medium">Nome do clube *</label>
+              <input type="text" formControlName="nome" class="form-control" placeholder="Ex: Clube da meia noite">
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label fw-medium">Data de início</label>
+                <input type="date" formControlName="data_inicio" class="form-control">
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-medium">Data de término *</label>
+                <input type="date" formControlName="data_fim" class="form-control">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-medium">Local ou link de encontro</label>
+              <input type="text" formControlName="local_encontro" class="form-control" placeholder="Ex: link do Meet">
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" [disabled]="clubeForm.invalid || enviandoClube()" class="btn btn-primary btn-sm">
+              {{ enviandoClube() ? 'Criando...' : 'Criar clube' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
