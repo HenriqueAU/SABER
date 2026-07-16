@@ -47,7 +47,6 @@ export class CreateClubeLivroDto {
     required: false,
   })
   @IsDateString()
-  @IsOptional()
   data_fim?: Date | null;
 
   @ApiProperty({
