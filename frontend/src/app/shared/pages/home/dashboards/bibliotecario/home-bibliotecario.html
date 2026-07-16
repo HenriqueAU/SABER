@@ -31,14 +31,14 @@
 
               <div class="d-none d-sm-inline">
                 <i class="bi bi-bookshelf text-primary opacity-25 position-absolute start-0 ms-3 top-0 fs-1"></i>
-                <h2 class="fw-bold mb-2">{{ totalExemplares() }}</h2>
+                <h2 class="fw-bold mb-2">{{ totalExemplares() > 0 ? totalExemplaresAnimado() : '-' }}</h2>
                 <h5 class="mb-0 fw-semibold">
                   {{ totalExemplares() === 1 ? 'Exemplar no acervo' : 'Exemplares no acervo' }}
                 </h5>
               </div>
               
               <div class="d-block d-sm-none">
-                <h2 class="fw-bold mb-1"><i class="bi bi-bookshelf text-primary fs-4 me-1"></i>{{ totalExemplares() }}</h2>
+                <h2 class="fw-bold mb-1"><i class="bi bi-bookshelf text-primary fs-4 me-1"></i>{{ totalExemplares() > 0 ? totalExemplaresAnimado() : '-' }}</h2>
                 <h6 class="mb-0 fw-semibold" style="font-size: 0.82rem;">
                   {{ totalExemplares() === 1 ? 'Exemplar no acervo' : 'Exemplares no acervo' }}
                 </h6>
