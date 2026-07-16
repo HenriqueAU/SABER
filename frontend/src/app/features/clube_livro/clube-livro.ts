@@ -1,6 +1,12 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  FormsModule,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { MembroClubeService } from '../../../client/services/membroClube.service';
@@ -17,13 +23,13 @@ import { LivroGeneroService } from '../../../client';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './clube-livro.html',
-  styleUrls: ['./clube-livro.scss']
+  styleUrls: ['./clube-livro.scss'],
 })
 export default class ClubeLivroComponent implements OnInit {
   modoListagem = signal(true);
   abaAtiva = signal<'detalhes' | 'feedbacks'>('detalhes');
   paginaAtual = signal(1);
-  readonly itensPorPagina = 12;
+  readonly itensPorPagina = 6;
   termoBusca = signal('');
   generoFiltro = signal('');
 
@@ -51,6 +57,8 @@ export default class ClubeLivroComponent implements OnInit {
 
   generosPorLivro = signal<Record<string, string[]>>({});
 
+  jaAvaliado = signal(false);
+
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -66,18 +74,18 @@ export default class ClubeLivroComponent implements OnInit {
     Object.values(this.generosPorLivro())
       .flat()
       .filter((v, i, arr) => arr.indexOf(v) === i)
-      .sort()
+      .sort(),
   );
 
   eMembroDoClube = computed(() =>
-    this.meusClubes().some(mc => mc.id === this.clubeDetalhes()?.id)
+    this.meusClubes().some((mc) => mc.id === this.clubeDetalhes()?.id),
   );
 
   clubesFiltrados = computed(() => {
     const usuarioId = this.authService.getId();
     const filtroAbasAtual = this.filtroAbas();
 
-    return this.clubes().filter(c => {
+    return this.clubes().filter((c) => {
       const tituloLivro = c.livro?.titulo?.toLowerCase() || '';
       const nomeClube = c.nome?.toLowerCase() || '';
       const termo = this.termoBusca().toLowerCase();
@@ -88,8 +96,9 @@ export default class ClubeLivroComponent implements OnInit {
 
       if (!(matchNome && matchGenero)) return false;
 
-      const souMembro = this.meusClubes().some(mc => mc.id === c.id) ||
-                        c.membros?.some((m: any) => String(m.usuario_id) === String(usuarioId));
+      const souMembro =
+        this.meusClubes().some((mc) => mc.id === c.id) ||
+        c.membros?.some((m: any) => String(m.usuario_id) === String(usuarioId));
 
       const statusClube = this.obterStatusClube(c);
       if (statusClube === 'Encerrado' && !souMembro) return false;
@@ -100,8 +109,8 @@ export default class ClubeLivroComponent implements OnInit {
     });
   });
 
-  totalPaginas = computed(() =>
-    Math.ceil(this.clubesFiltrados().length / this.itensPorPagina) || 1
+  totalPaginas = computed(
+    () => Math.ceil(this.clubesFiltrados().length / this.itensPorPagina) || 1,
   );
 
   clubesPaginados = computed(() => {
@@ -110,7 +119,7 @@ export default class ClubeLivroComponent implements OnInit {
   });
 
   fimDaPagina = computed(() =>
-    Math.min(this.paginaAtual() * this.itensPorPagina, this.clubesFiltrados().length)
+    Math.min(this.paginaAtual() * this.itensPorPagina, this.clubesFiltrados().length),
   );
 
   mudarPagina(pagina: number): void {
@@ -124,13 +133,10 @@ export default class ClubeLivroComponent implements OnInit {
     this.paginaAtual.set(1);
   }
 
-
-
   alterarFiltroAbas(tipo: 'TODOS' | 'MEUS' | 'OUTROS'): void {
     this.filtroAbas.set(tipo);
     this.paginaAtual.set(1);
   }
-
 
   obterStatusClube(clube: any): 'Ativo' | 'Encerrado' {
     if (!clube || !clube.ativo) return 'Encerrado';
@@ -158,8 +164,8 @@ export default class ClubeLivroComponent implements OnInit {
         this.membroClubeService.membroClubeControllerCreate({
           clube_id: clubeId,
           usuario_id: usuarioId,
-          status: 'confirmado'
-        } as any)
+          status: 'confirmado',
+        } as any),
       );
       this.mensagemSucesso.set('Inscrição realizada com sucesso!');
       await this.carregarMeusClubes();
@@ -174,7 +180,7 @@ export default class ClubeLivroComponent implements OnInit {
     this.perfilUsuario = this.authService.getPerfil();
     this.form = this.fb.group({});
 
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       this.clubeId = params.get('id');
       if (this.clubeId) {
         this.modoListagem.set(false);
@@ -195,18 +201,15 @@ export default class ClubeLivroComponent implements OnInit {
       this.perfilUsuario === TipoPerfil.ALUNO || this.perfilUsuario === TipoPerfil.PROFESSOR;
 
     const requisicaoMeusClubes = precisaMeusClubes
-      ? (this.perfilUsuario === TipoPerfil.PROFESSOR
-          ? this.clubesService.clubeControllerFindClubesDoProfessor()
-          : this.clubesService.clubeControllerFindMeusClubes())
+      ? this.perfilUsuario === TipoPerfil.PROFESSOR
+        ? this.clubesService.clubeControllerFindClubesDoProfessor()
+        : this.clubesService.clubeControllerFindMeusClubes()
       : null;
 
     try {
       if (requisicaoMeusClubes) {
         const [clubesRes, meusClubesRes] = await firstValueFrom(
-          forkJoin([
-            this.clubesService.clubeControllerFindAll(),
-            requisicaoMeusClubes
-          ])
+          forkJoin([this.clubesService.clubeControllerFindAll(), requisicaoMeusClubes]),
         );
 
         this.clubes.set(Array.isArray(clubesRes) ? clubesRes : []);
@@ -243,18 +246,20 @@ export default class ClubeLivroComponent implements OnInit {
       },
       error: () => {
         this.generosPorLivro.set({});
-      }
+      },
     });
   }
 
   async carregarMeusClubes(): Promise<void> {
-    if (this.perfilUsuario !== TipoPerfil.ALUNO && this.perfilUsuario !== TipoPerfil.PROFESSOR) return;
+    if (this.perfilUsuario !== TipoPerfil.ALUNO && this.perfilUsuario !== TipoPerfil.PROFESSOR)
+      return;
 
     this.carregandoMeusClubes.set(true);
     try {
-      const requisicao = this.perfilUsuario === TipoPerfil.PROFESSOR
-        ? this.clubesService.clubeControllerFindClubesDoProfessor()
-        : this.clubesService.clubeControllerFindMeusClubes();
+      const requisicao =
+        this.perfilUsuario === TipoPerfil.PROFESSOR
+          ? this.clubesService.clubeControllerFindClubesDoProfessor()
+          : this.clubesService.clubeControllerFindMeusClubes();
 
       const res = await firstValueFrom(requisicao);
       this.meusClubes.set(Array.isArray(res) ? res : []);
@@ -278,18 +283,24 @@ export default class ClubeLivroComponent implements OnInit {
     this.mensagemSucesso.set('');
 
     try {
-      this.clubeDetalhes.set(await firstValueFrom(this.clubesService.clubeControllerFindOne(this.clubeId!)));
+      this.clubeDetalhes.set(
+        await firstValueFrom(this.clubesService.clubeControllerFindOne(this.clubeId!)),
+      );
 
       const detalhes = this.clubeDetalhes();
       this.clubeEncerrado.set(this.obterStatusClube(detalhes) === 'Encerrado');
 
-      this.perguntas.set(await firstValueFrom(this.perguntasService.perguntaControllerFindAll()) || []);
-      this.itensPergunta.set(await firstValueFrom(this.itemPerguntaService.itemPerguntaControllerFindAll()) || []);
+      this.perguntas.set(
+        (await firstValueFrom(this.perguntasService.perguntaControllerFindAll())) || [],
+      );
+      this.itensPergunta.set(
+        (await firstValueFrom(this.itemPerguntaService.itemPerguntaControllerFindAll())) || [],
+      );
 
       this.montarFormAvaliacao();
 
       await this.carregarMeusClubes();
-
+      await this.verificarSeJaAvaliou();
     } catch (error) {
       this.mensagemErro.set('Não foi possível carregar os detalhes deste clube.');
     } finally {
@@ -297,18 +308,40 @@ export default class ClubeLivroComponent implements OnInit {
     }
   }
 
+  async verificarSeJaAvaliou(): Promise<void> {
+    if (this.perfilUsuario !== TipoPerfil.ALUNO) return;
+
+    try {
+      const minhaInscricao = await firstValueFrom(
+        this.membroClubeService.membroClubeControllerFindMinhaInscricao(this.clubeId!),
+      );
+
+      const respostas = await firstValueFrom(
+        this.respostasService.respostaMembroControllerFindAll(),
+      );
+      const jaRespondeu = (Array.isArray(respostas) ? respostas : []).some((r: any) => {
+        const membroId = r.membro?.id || r.membro_id;
+        return membroId === minhaInscricao.id;
+      });
+
+      this.jaAvaliado.set(jaRespondeu);
+    } catch {
+      this.jaAvaliado.set(false);
+    }
+  }
+
   getItensDaPergunta(perguntaId: string): any[] {
-    return this.itensPergunta().filter(item => {
+    return this.itensPergunta().filter((item) => {
       const relacaoId = item.pergunta?.id || item.pergunta_id || item.pergunta;
       return relacaoId === perguntaId;
     });
   }
 
   montarFormAvaliacao(): void {
-    Object.keys(this.form.controls).forEach(key => this.form.removeControl(key));
-    this.perguntas().forEach(pergunta => {
-      this.form.addControl(pergunta.id, this.fb.control('', Validators.required))
-    })
+    Object.keys(this.form.controls).forEach((key) => this.form.removeControl(key));
+    this.perguntas().forEach((pergunta) => {
+      this.form.addControl(pergunta.id, this.fb.control('', Validators.required));
+    });
   }
 
   abrirAvaliacao() {
@@ -330,7 +363,7 @@ export default class ClubeLivroComponent implements OnInit {
     let idDaInscricao = '';
     try {
       const minhaInscricao = await firstValueFrom(
-        this.membroClubeService.membroClubeControllerFindMinhaInscricao(this.clubeId!)
+        this.membroClubeService.membroClubeControllerFindMinhaInscricao(this.clubeId!),
       );
       idDaInscricao = minhaInscricao.id;
     } catch (error) {
@@ -343,11 +376,13 @@ export default class ClubeLivroComponent implements OnInit {
       const respostasFormulario = this.form.value;
       const requisicoes: any[] = [];
 
-      Object.keys(respostasFormulario).forEach(perguntaId => {
-        requisicoes.push(this.respostasService.respostaMembroControllerCreate({
-          membro_id: idDaInscricao,
-          item_pergunta_id: respostasFormulario[perguntaId]
-        } as any));
+      Object.keys(respostasFormulario).forEach((perguntaId) => {
+        requisicoes.push(
+          this.respostasService.respostaMembroControllerCreate({
+            membro_id: idDaInscricao,
+            item_pergunta_id: respostasFormulario[perguntaId],
+          } as any),
+        );
       });
 
       if (requisicoes.length > 0) {
@@ -360,7 +395,7 @@ export default class ClubeLivroComponent implements OnInit {
           error: () => {
             this.mensagemErro.set('Ocorreu um erro ao enviar a avaliação.');
             this.enviando.set(false);
-          }
+          },
         });
       } else {
         this.enviando.set(false);
@@ -370,6 +405,7 @@ export default class ClubeLivroComponent implements OnInit {
       this.enviando.set(false);
     }
   }
+  
 
   async abrirFeedbacks() {
     this.abaAtiva.set('feedbacks');
@@ -395,17 +431,51 @@ export default class ClubeLivroComponent implements OnInit {
     this.perguntaSelecionadaId.set(perguntaId);
     const itensDestaPergunta = this.getItensDaPergunta(perguntaId);
 
-    this.estatisticas.set(itensDestaPergunta.map(item => {
-      const votos = this.respostasMembros().filter(resposta => {
-        const respostaItemId = resposta.itemPergunta?.id
-                            || resposta.item_pergunta?.id
-                            || resposta.item_pergunta_id
-                            || resposta.item_pergunta;
+    this.estatisticas.set(
+      itensDestaPergunta.map((item) => {
+        const votos = this.respostasMembros().filter((resposta) => {
+          const respostaItemId =
+            resposta.itemPergunta?.id ||
+            resposta.item_pergunta?.id ||
+            resposta.item_pergunta_id ||
+            resposta.item_pergunta;
 
-        return respostaItemId === item.id;
-      }).length;
+          return respostaItemId === item.id;
+        }).length;
 
-      return { texto: item.texto, quantidade: votos };
-    }));
+        return { texto: item.texto, quantidade: votos };
+      }),
+    );
+  }
+  obterGeneroClube(c: any): string {
+    const generos = c.livro?.id ? (this.generosPorLivro()[c.livro.id] ?? []) : [];
+    return generos[0] ?? '';
+  }
+
+  getClasseGenero(genero: string): string {
+    switch (genero) {
+      case 'Poesia':
+        return 'genero-poesia';
+      case 'Romance':
+        return 'genero-romance';
+      case 'Tecnologia':
+        return 'genero-tecnologia';
+      case 'Aventura':
+        return 'genero-aventura';
+      case 'Ficção Científica':
+        return 'genero-ficcao-cientifica';
+      case 'Filosofia':
+        return 'genero-filosofia';
+      case 'História':
+        return 'genero-historia';
+      case 'Terror':
+        return 'genero-terror';
+      case 'Fantasia':
+        return 'genero-fantasia';
+      case 'Biografias':
+        return 'genero-biografias';
+      default:
+        return 'bg-secondary text-white';
+    }
   }
 }

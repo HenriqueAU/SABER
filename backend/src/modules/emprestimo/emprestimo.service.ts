@@ -4,7 +4,14 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, IsNull, LessThan, Not } from 'typeorm';
+import {
+  Repository,
+  FindOptionsWhere,
+  IsNull,
+  LessThan,
+  Not,
+  In,
+} from 'typeorm';
 import { Emprestimo } from './emprestimo.entity';
 import { CreateEmprestimoDto } from './dto/create-emprestimo.dto';
 import { UpdateEmprestimoDto } from './dto/update-emprestimo.dto';
@@ -14,6 +21,7 @@ import { TipoPerfil } from '../usuario/usuario.entity';
 import { LivroGenero } from '../livro_genero/livro-genero.entity';
 import { Genero } from '../genero/genero.entity';
 import { UsuarioService } from '../usuario/usuario.service';
+import { StatusEmprestimo } from './emprestimo.entity';
 
 interface GeneroQuantidade {
   genero: string;
@@ -131,6 +139,7 @@ export class EmprestimoService {
         usuario: { id: usuarioId },
         data_devolucao_efetiva: IsNull(),
         data_devolucao_esperada: LessThan(new Date()),
+        status: StatusEmprestimo.ATIVO,
       },
     });
 
@@ -187,6 +196,7 @@ export class EmprestimoService {
       where: {
         data_devolucao_efetiva: IsNull(),
         data_devolucao_esperada: LessThan(new Date()),
+        status: Not(In(['danificado', 'perdido'])),
       },
       relations: [
         'exemplar',
@@ -206,5 +216,24 @@ export class EmprestimoService {
       order: { data_devolucao_efetiva: 'DESC' },
       relations: ['usuario', 'usuario.instituicao'],
     });
+  }
+  async marcarPerdido(id: string): Promise<Emprestimo> {
+    const emprestimo = await this.findOne(id);
+    await this.exemplarService.desativar(emprestimo.exemplar.id);
+    await this.emprestimoRepository.update(id, {
+      status: StatusEmprestimo.PERDIDO,
+    });
+    return await this.findOne(id);
+  }
+
+  async marcarDanificado(id: string): Promise<Emprestimo> {
+    const emprestimo = await this.findOne(id);
+    await this.exemplarService.update(emprestimo.exemplar.id, {
+      status: StatusExemplar.DANIFICADO,
+    });
+    await this.emprestimoRepository.update(id, {
+      status: StatusEmprestimo.DANIFICADO,
+    });
+    return await this.findOne(id);
   }
 }

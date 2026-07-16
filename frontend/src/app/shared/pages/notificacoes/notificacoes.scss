@@ -1,48 +1,50 @@
-.notificacoes-container {
-  max-width: 850px;
-  margin: 0 auto;
+:host ::ng-deep {
+  .notificacoes-container {
+    max-width: 850px;
+    margin: 0 auto;
 
-  .titulo-pagina {
-    font-size: 1.5rem;
-    color: var(--bs-heading-color);
-  }
-
-  .custom-card {
-    background-color: #f8f9fa;
-  }
-
-  .notificacao-card {
-    border-radius: 0.5rem;
-    
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+    .titulo-pagina {
+      font-size: 1.5rem;
+      color: var(--bs-heading-color);
     }
-  }
 
-  .bg-card-lida {
-    background-color: #f8f9fa !important;
-    border-color: var(--bs-border-color) !important;
-  }
+    .custom-card {
+      background-color: #f8f9fa;
+    }
 
-  .transition-all {
-    transition: all 0.2s ease-in-out;
-  }
+    .notificacao-card {
+      border-radius: 0.5rem;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+      }
+    }
 
-  .icon-wrapper {
-    margin-top: 0.125rem;
-  }
+    .bg-card-lida {
+      background-color: #f8f9fa !important;
+      border-color: var(--bs-border-color) !important;
+    }
 
-  .small-title {
-    font-size: 1rem;
-    color: var(--bs-heading-color);
-  }
+    .transition-all {
+      transition: all 0.2s ease-in-out;
+    }
 
-  .small-text {
-    font-size: 0.875rem;
-  }
+    .icon-wrapper {
+      margin-top: 0.125rem;
+    }
 
-  .extra-small-text {
-    font-size: 0.75rem;
+    .small-title {
+      font-size: 1rem;
+      color: var(--bs-heading-color);
+    }
+
+    .small-text {
+      font-size: 0.875rem;
+    }
+
+    .extra-small-text {
+      font-size: 0.75rem;
+    }
   }
 }

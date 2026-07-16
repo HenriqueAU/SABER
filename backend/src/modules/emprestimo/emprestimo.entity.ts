@@ -11,6 +11,13 @@ import {
 import { Exemplar } from '../exemplar/exemplar.entity';
 import { Usuario } from '../usuario/usuario.entity';
 
+export enum StatusEmprestimo {
+  ATIVO = 'ativo',
+  DEVOLVIDO = 'devolvido',
+  PERDIDO = 'perdido',
+  DANIFICADO = 'danificado',
+}
+
 @Entity()
 export class Emprestimo {
   @PrimaryGeneratedColumn('uuid')
@@ -32,6 +39,13 @@ export class Emprestimo {
 
   @Column({ type: 'timestamptz', nullable: true })
   data_devolucao_efetiva?: Date;
+
+  @Column({
+    type: 'enum',
+    enum: StatusEmprestimo,
+    default: StatusEmprestimo.ATIVO,
+  })
+  status!: StatusEmprestimo;
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at!: Date;

@@ -60,6 +60,17 @@ export class EmprestimoController {
       request.user.id,
     );
   }
+  @Patch(':id/perdido')
+  @Roles(TipoPerfil.BIBLIOTECARIO)
+  marcarPerdido(@Param('id') id: string) {
+    return this.emprestimoService.marcarPerdido(id);
+  }
+
+  @Patch(':id/danificado')
+  @Roles(TipoPerfil.BIBLIOTECARIO)
+  marcarDanificado(@Param('id') id: string) {
+    return this.emprestimoService.marcarDanificado(id);
+  }
 
   @Patch(':id')
   @Roles(TipoPerfil.BIBLIOTECARIO)

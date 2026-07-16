@@ -9,25 +9,57 @@
       <div class="modal-body">
         @if (livroSelecionado) {
           <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-light border mb-3">
-            <img [src]="livroSelecionado.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" class="rounded" width="56" [alt]="livroSelecionado.titulo" />
+            <img
+              [src]="livroSelecionado.capa_url || 'assets/imgs/livros/livro-sem-capa.png'"
+              class="rounded"
+              width="56"
+              [alt]="livroSelecionado.titulo"
+            />
             <div>
-              <div class="text-uppercase text-secondary fw-bold" style="font-size: 10px; letter-spacing: 0.05em;">Livro selecionado</div>
+              <div
+                class="text-uppercase text-secondary fw-bold"
+                style="font-size: 10px; letter-spacing: 0.05em"
+              >
+                Livro selecionado
+              </div>
               <div class="fw-semibold">{{ livroSelecionado.titulo }}</div>
-              <div class="text-secondary" style="font-size: 12px;">{{ livroSelecionado.autor }} · ISBN {{ livroSelecionado?.isbn || 'não informado' }}</div>
+              <div class="text-secondary" style="font-size: 12px">
+                {{ livroSelecionado.autor }} · ISBN {{ livroSelecionado?.isbn || 'não informado' }}
+              </div>
             </div>
           </div>
           @for (exemplar of getExemplaresLivro(livroSelecionado.id); track exemplar.id) {
-            <div class="d-flex justify-content-between align-items-center px-3 py-2 border rounded-3 mb-2">
+            <div
+              class="d-flex justify-content-between align-items-center px-3 py-2 border rounded-3 mb-2"
+            >
               <div class="d-flex align-items-center gap-2">
                 <span class="fw-medium">{{ exemplar.codigo }}</span>
                 @if (exemplar.status === 'disponivel') {
-                  <span class="badge rounded-pill" style="background: var(--bs-success-bg-subtle); color: var(--bs-success-text-emphasis); font-size: 11px;">Disponível</span>
+                  <span
+                    class="badge rounded-pill"
+                    style="
+                      background: var(--bs-success-bg-subtle);
+                      color: var(--bs-success-text-emphasis);
+                      font-size: 11px;
+                    "
+                    >Disponível</span
+                  >
                 } @else {
-                  <span class="badge rounded-pill" style="background: var(--bs-danger-bg-subtle); color: var(--bs-danger-text-emphasis); font-size: 11px;">Emprestado</span>
+                  <span
+                    class="badge rounded-pill"
+                    style="
+                      background: var(--bs-danger-bg-subtle);
+                      color: var(--bs-danger-text-emphasis);
+                      font-size: 11px;
+                    "
+                    >Emprestado</span
+                  >
                 }
               </div>
               @if (exemplar.status === 'disponivel') {
-                <button class="btn btn-primary btn-sm" (click)="selecionarExemplar(exemplar)">Selecionar</button>
+                <button class="btn btn-primary btn-sm" (click)="selecionarExemplar(exemplar)">
+                  Selecionar
+                </button>
               }
             </div>
           }
@@ -49,27 +81,52 @@
       </div>
       <div class="modal-body">
         <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-light border mb-3">
-          <img [src]="livroSelecionado?.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" class="rounded" width="56" [alt]="livroSelecionado?.titulo" />
+          <img
+            [src]="livroSelecionado?.capa_url || 'assets/imgs/livros/livro-sem-capa.png'"
+            class="rounded"
+            width="56"
+            [alt]="livroSelecionado?.titulo"
+          />
           <div>
-            <div class="text-uppercase text-secondary fw-bold" style="font-size: 10px; letter-spacing: 0.05em;">Livro selecionado</div>
+            <div
+              class="text-uppercase text-secondary fw-bold"
+              style="font-size: 10px; letter-spacing: 0.05em"
+            >
+              Livro selecionado
+            </div>
             <div class="fw-semibold">{{ livroSelecionado?.titulo }}</div>
-            <div class="text-secondary" style="font-size: 12px;">{{ livroSelecionado?.autor }} · ISBN {{ livroSelecionado?.isbn || 'não informado' }}</div>
+            <div class="text-secondary" style="font-size: 12px">
+              {{ livroSelecionado?.autor }} · ISBN {{ livroSelecionado?.isbn || 'não informado' }}
+            </div>
           </div>
         </div>
 
         <form [formGroup]="emprestimoForm" (ngSubmit)="onSubmit()" id="emprestimoForm">
           <div class="mb-3">
-            <label class="form-label fw-semibold" style="font-size: 13px;">Selecionar aluno</label>
+            <label class="form-label fw-semibold" style="font-size: 13px">Selecionar aluno</label>
             <div class="position-relative">
-              <i class="bi bi-person-plus position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="text" class="form-control ps-5" placeholder="Nome do aluno" formControlName="nome_aluno" (input)="filtrarAlunos()" maxlength="255" />
+              <i
+                class="bi bi-person-plus position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"
+              ></i>
+              <input
+                type="text"
+                class="form-control ps-5"
+                placeholder="Nome do aluno"
+                formControlName="nome_aluno"
+                (input)="filtrarAlunos()"
+                maxlength="255"
+              />
             </div>
             @if (alunosFiltrados.length > 0) {
               <div class="list-group position-absolute w-100 shadow z-3">
                 @for (aluno of alunosFiltrados; track aluno.id) {
-                  <button type="button" class="list-group-item list-group-item-action" (click)="selecionarAluno(aluno)">
-                    <div class="fw-semibold" style="font-size: 13px;">{{ aluno.nome }}</div>
-                    <div class="text-secondary" style="font-size: 12px;">{{ aluno.email }}</div>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    (click)="selecionarAluno(aluno)"
+                  >
+                    <div class="fw-semibold" style="font-size: 13px">{{ aluno.nome }}</div>
+                    <div class="text-secondary" style="font-size: 12px">{{ aluno.email }}</div>
                   </button>
                 }
               </div>
@@ -77,22 +134,43 @@
             <div class="form-text">Pesquise por nome completo ou número de registro acadêmico.</div>
           </div>
           <div class="mb-3">
-            <label class="form-label fw-semibold" style="font-size: 13px;">Data de devolução</label>
+            <label class="form-label fw-semibold" style="font-size: 13px">Data de devolução</label>
             <div class="position-relative">
-              <i class="bi bi-calendar4-week position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="date" class="form-control ps-5" formControlName="data_devolucao_esperada" />
+              <i
+                class="bi bi-calendar4-week position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"
+              ></i>
+              <input
+                type="date"
+                class="form-control ps-5"
+                formControlName="data_devolucao_esperada"
+              />
             </div>
           </div>
         </form>
 
-        <div class="alert alert-info d-flex align-items-start gap-2 mt-3 mb-0 py-2" style="font-size: 13px;">
+        <div
+          class="alert alert-info d-flex align-items-start gap-2 mt-3 mb-0 py-2"
+          style="font-size: 13px"
+        >
           <i class="bi bi-info-circle mt-1 flex-shrink-0"></i>
-          <span>O prazo padrão de empréstimo é de 14 dias. A data de devolução foi preenchida automaticamente com base na política da biblioteca.</span>
+          <span
+            >O prazo padrão de empréstimo é de 14 dias. A data de devolução foi preenchida
+            automaticamente com base na política da biblioteca.</span
+          >
         </div>
       </div>
       <div class="modal-footer border-top">
-        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" form="emprestimoForm" class="btn btn-primary btn-sm" [disabled]="emprestimoForm.invalid">Confirmar empréstimo</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          form="emprestimoForm"
+          class="btn btn-primary btn-sm"
+          [disabled]="emprestimoForm.invalid"
+        >
+          Confirmar empréstimo
+        </button>
       </div>
     </div>
   </div>
@@ -111,31 +189,39 @@
 </div>
 
 <div class="container py-4">
-   <ul class="nav nav-tabs mb-3">
+  <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
-      <a class="nav-link fw-medium d-flex align-items-center gap-2"
+      <a
+        class="nav-link fw-medium d-flex align-items-center gap-2"
         [class.active]="abaAtiva === 'emprestimo'"
         (click)="abaAtiva = 'emprestimo'"
-        style="cursor: pointer; font-size: 13px;">
+        style="cursor: pointer; font-size: 13px"
+      >
         <i class="bi bi-book-half"></i> Registrar empréstimo
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link fw-medium d-flex align-items-center gap-2"
+      <a
+        class="nav-link fw-medium d-flex align-items-center gap-2"
         [class.active]="abaAtiva === 'devolucao'"
         (click)="abaAtiva = 'devolucao'"
-        style="cursor: pointer; font-size: 13px;">
+        style="cursor: pointer; font-size: 13px"
+      >
         <i class="bi bi-arrow-return-left"></i> Devoluções ativas
         @if (emprestimosAtivos.length > 0) {
-          <span class="badge rounded-pill bg-primary" style="font-size: 10px;">{{ emprestimosAtivos.length }}</span>
+          <span class="badge rounded-pill bg-primary" style="font-size: 10px">{{
+            emprestimosAtivos.length
+          }}</span>
         }
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link fw-medium d-flex align-items-center gap-2"
+      <a
+        class="nav-link fw-medium d-flex align-items-center gap-2"
         [class.active]="abaAtiva === 'historico'"
         (click)="abaAtiva = 'historico'"
-        style="cursor: pointer; font-size: 13px;">
+        style="cursor: pointer; font-size: 13px"
+      >
         <i class="bi bi-clock-history"></i> Histórico
       </a>
     </li>
@@ -199,8 +285,15 @@
             <div class="col">
               <div class="card h-100 shadow-sm border-0">
                 <div class="row g-0 h-100">
-                  <div class="col-4 position-relative bg-light border-end" style="aspect-ratio: 2/3;">
-                    <img [src]="livro.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" [alt]="'Capa ' + livro.titulo" class="w-100 h-100 object-fit-cover position-absolute top-0 start-0">
+                  <div
+                    class="col-4 position-relative bg-light border-end"
+                    style="aspect-ratio: 2/3"
+                  >
+                    <img
+                      [src]="livro.capa_url || 'assets/imgs/livros/livro-sem-capa.png'"
+                      [alt]="'Capa ' + livro.titulo"
+                      class="w-100 h-100 object-fit-cover position-absolute top-0 start-0"
+                    />
                   </div>
                   <div class="col-8">
                     <div class="card-body d-flex flex-column h-100">
@@ -237,14 +330,55 @@
   }
 
   @if (abaAtiva === 'devolucao') {
-    <div class="container py-4">
-      <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3"
-      >
-        <div class="text-center text-md-start">
-          <p class="text-secondary mb-0">
-            Gerencie os empréstimos ativos e marque os livros que foram devolvidos à biblioteca.
-          </p>
+    <div class="d-flex align-items-center mb-3">
+      <div class="btn-group" role="group">
+        <button
+          type="button"
+          class="btn btn-sm fw-medium"
+          [style.background-color]="filtroAtivo === 'todos' ? '#003A79' : 'transparent'"
+          [style.border-color]="'#003A79'"
+          [style.color]="filtroAtivo === 'todos' ? '#fff' : '#003A79'"
+          (click)="filtroAtivo = 'todos'; paginaAtualDevolucao = 1"
+        >
+          Todos
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm fw-medium"
+          [style.background-color]="filtroAtivo === 'atrasados' ? '#003A79' : 'transparent'"
+          [style.border-color]="'#003A79'"
+          [style.color]="filtroAtivo === 'atrasados' ? '#fff' : '#003A79'"
+          (click)="filtroAtivo = 'atrasados'; paginaAtualDevolucao = 1"
+        >
+          Atrasados
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm fw-medium"
+          [style.background-color]="filtroAtivo === 'hoje' ? '#003A79' : 'transparent'"
+          [style.border-color]="'#003A79'"
+          [style.color]="filtroAtivo === 'hoje' ? '#fff' : '#003A79'"
+          (click)="filtroAtivo = 'hoje'; paginaAtualDevolucao = 1"
+        >
+          Hoje
+        </button>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-0">
+        <div class="position-relative">
+          <i
+            class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"
+          ></i>
+          <input
+            type="text"
+            class="form-control border-0 ps-5 py-3"
+            placeholder="Pesquise pelo nome do aluno..."
+            [(ngModel)]="termoPesquisaDevolucao"
+            (input)="paginaAtualDevolucao = 1"
+            maxlength="255"
+          />
         </div>
       </div>
     </div>
@@ -252,45 +386,95 @@
     <div class="card shadow-sm border-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-primary">
-            <tr>
-              <th class="ps-4">Aluno</th>
-              <th>Livro / Exemplar</th>
-              <th>Data Retirada</th>
-              <th>Data Limite</th>
-              <th class="text-end pe-4">Ação</th>
+          <thead style="background-color: #003a79 !important; color: #ffffff !important">
+            <tr style="background-color: #003a79 !important">
+              <th
+                class="ps-4 py-3"
+                style="background-color: #003a79 !important; color: #ffffff !important"
+              >
+                Aluno
+              </th>
+              <th
+                class="py-3"
+                style="background-color: #003a79 !important; color: #ffffff !important"
+              >
+                Livro / Exemplar
+              </th>
+              <th
+                class="py-3"
+                style="background-color: #003a79 !important; color: #ffffff !important"
+              >
+                Data retirada
+              </th>
+              <th
+                class="py-3"
+                style="background-color: #003a79 !important; color: #ffffff !important"
+              >
+                Data limite
+              </th>
+              <th
+                class="text-end pe-4 py-3"
+                style="background-color: #003a79 !important; color: #ffffff !important"
+              >
+                Ação
+              </th>
             </tr>
           </thead>
           <tbody>
-            @for (emp of emprestimosAtivos; track emp.id) {
-              <tr class="table-light">
-                <td class="ps-4">
-                  <div class="fw-bold">{{ getNomeAluno(emp) }}</div>
-                  <small class="text-secondary">{{ getEmailAluno(emp) }}</small>
+            @for (emp of devolucaoPaginada; track emp.id) {
+              <tr>
+                <td class="ps-4 py-3">
+                  <div class="d-flex align-items-center gap-2">
+                    <div
+                      class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white flex-shrink-0"
+                      style="width: 36px; height: 36px; background-color: #112d4e; font-size: 12px"
+                    >
+                      {{ getIniciais(emp) }}
+                    </div>
+                    <div>
+                      <div class="fw-semibold text-dark">{{ getNomeAluno(emp) }}</div>
+                      <small class="text-muted" style="font-size: 12px">{{
+                        getEmailAluno(emp)
+                      }}</small>
+                    </div>
+                  </div>
                 </td>
-                <td>
-                  <div class="fw-bold">{{ getTituloLivro(emp) }}</div>
-                  <small class="text-secondary">Cód: {{ getCodigoExemplar(emp) }}</small>
+                <td class="py-3">
+                  <div class="fw-semibold text-dark">{{ getTituloLivro(emp) }}</div>
+                  <small class="text-muted" style="font-size: 12px"
+                    >COD: {{ getCodigoExemplar(emp) }}</small
+                  >
                 </td>
-                <td>{{ emp.data_retirada | date: 'dd/MM/yyyy' }}</td>
-                <td>
+                <td class="text-secondary py-3">{{ emp.data_retirada | date: 'dd/MM/yyyy' }}</td>
+                <td class="py-3">
                   <span
                     [class.text-danger]="estaAtrasado(emp.data_devolucao_esperada)"
                     [class.fw-bold]="estaAtrasado(emp.data_devolucao_esperada)"
+                    class="d-inline-flex align-items-center gap-1"
                   >
                     {{ emp.data_devolucao_esperada | date: 'dd/MM/yyyy' }}
                     @if (estaAtrasado(emp.data_devolucao_esperada)) {
-                      <i class="bi bi-exclamation-circle text-danger ms-1" title="Em atraso"></i>
+                      <i
+                        class="bi bi-exclamation-circle-fill text-danger"
+                        style="font-size: 14px"
+                      ></i>
                     }
                   </span>
                 </td>
-                <td class="text-end pe-4">
+                <td class="text-end pe-4 py-3">
                   <button
-                    class="btn btn-sm btn-success fw-semibold text-light fs-6"
-                    (click)="devolverLivro(emp)"
-                    [disabled]="enviandoDevolucao"
+                    type="button"
+                    class="btn btn-sm px-3 fw-semibold"
+                    style="
+                      border: 2px solid #112d4e;
+                      color: #112d4e;
+                      background: transparent;
+                      border-radius: 6px;
+                      font-size: 12.5px;
+                    "
+                    (click)="abrirModalDevolucao(emp); $event.stopPropagation()"
                   >
-                    <i class="bi bi-check2-square me-1"></i> Devolver
+                    Devolver
                   </button>
                 </td>
               </tr>
@@ -299,11 +483,52 @@
         </table>
       </div>
 
-      @if (emprestimosAtivos.length === 0) {
+      <div
+        class="d-flex justify-content-between align-items-center px-4 py-3 border-top bg-white flex-wrap gap-2"
+      >
+        <small class="text-secondary">
+          Mostrando {{ (paginaAtualDevolucao - 1) * itensPorPaginaDevolucao + 1 }}-{{
+            getFimPagina()
+          }}
+          de {{ devolucoesFiltradas.length }} empréstimos ativos
+        </small>
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="paginaAtualDevolucao === 1">
+              <button
+                class="page-link"
+                (click)="irParaPaginaDevolucao(paginaAtualDevolucao - 1); $event.stopPropagation()"
+              >
+                ‹
+              </button>
+            </li>
+            @for (p of devolucaoPaginas; track p) {
+              <li class="page-item" [class.active]="p === paginaAtualDevolucao">
+                <button
+                  class="page-link"
+                  (click)="irParaPaginaDevolucao(p); $event.stopPropagation()"
+                >
+                  {{ p }}
+                </button>
+              </li>
+            }
+            <li class="page-item" [class.disabled]="paginaAtualDevolucao === devolucaoTotalPaginas">
+              <button
+                class="page-link"
+                (click)="irParaPaginaDevolucao(paginaAtualDevolucao + 1); $event.stopPropagation()"
+              >
+                ›
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      @if (devolucoesFiltradas.length === 0) {
         <div class="text-center py-5 text-secondary">
           <i class="bi bi-inbox fs-1"></i>
-          <h5 class="mt-3">Não há empréstimos pendentes.</h5>
-          <p>Todos os exemplares já foram devolvidos à biblioteca.</p>
+          <h5 class="mt-3">Nenhum empréstimo pendente encontrado.</h5>
+          <p>Verifique o termo digitado ou aguarde novos registros.</p>
         </div>
       }
     </div>
@@ -311,13 +536,27 @@
 
   @if (abaAtiva === 'historico') {
     <div class="container py-4">
-      <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3"
-      >
-        <div class="text-center text-md-start">
-          <p class="text-secondary mb-0">
-            Acompanhe o histórico de todos os exemplares que já foram devolvidos.
-          </p>
+      <div class="text-center text-md-start">
+        <p class="text-secondary mb-0">
+          Acompanhe o histórico de todos os exemplares que já foram devolvidos.
+        </p>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-0">
+        <div class="position-relative">
+          <i
+            class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"
+          ></i>
+          <input
+            type="text"
+            class="form-control border-0 ps-5 py-3"
+            placeholder="Pesquise pelo nome do aluno..."
+            [(ngModel)]="termoPesquisaHistorico"
+            (input)="paginaAtualHistorico = 1"
+            maxlength="255"
+          />
         </div>
       </div>
     </div>
@@ -325,38 +564,93 @@
     <div class="card shadow-sm border-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-primary">
-            <tr>
-              <th class="ps-4">Aluno</th>
-              <th>Livro / Exemplar</th>
-              <th>Data Retirada</th>
-              <th>Data Limite</th>
-              <th>Data Devolução</th>
-              <th class="pe-4">Status</th>
+          <thead style="background-color: #003a79 !important; color: #ffffff !important">
+            <tr style="background-color: #003a79 !important">
+              <th
+                class="ps-4 py-3"
+                style="background-color: #003a79 !important; color: #ffffff !important"
+              >
+                Aluno
+              </th>
+              <th
+                class="py-3"
+                style="background-color: #003a79 !important; color: #ffffff !important"
+              >
+                Livro / Exemplar
+              </th>
+              <th
+                class="py-3"
+                style="background-color: #003a79 !important; color: #ffffff !important"
+              >
+                Data retirada
+              </th>
+              <th
+                class="py-3"
+                style="background-color: #003a79 !important; color: #ffffff !important"
+              >
+                Data limite
+              </th>
+              <th
+                class="py-3"
+                style="background-color: #003a79 !important; color: #ffffff !important"
+              >
+                Data devolução
+              </th>
+              <th
+                class="pe-4 py-3"
+                style="background-color: #003a79 !important; color: #ffffff !important"
+              >
+                Status
+              </th>
             </tr>
           </thead>
           <tbody>
             @for (emp of historicoPaginado; track emp.id) {
-              <tr class="table-light">
-                <td class="ps-4">
-                  <div class="fw-bold">{{ getNomeAluno(emp) }}</div>
-                  <small class="text-secondary">{{ getEmailAluno(emp) }}</small>
+              <tr>
+                <td class="ps-4 py-3">
+                  <div class="d-flex align-items-center gap-2">
+                    <div
+                      class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white flex-shrink-0"
+                      style="width: 36px; height: 36px; background-color: #003a79; font-size: 12px"
+                    >
+                      {{ getIniciais(emp) }}
+                    </div>
+                    <div>
+                      <div class="fw-semibold text-dark">{{ getNomeAluno(emp) }}</div>
+                      <small class="text-muted" style="font-size: 12px">{{
+                        getEmailAluno(emp)
+                      }}</small>
+                    </div>
+                  </div>
                 </td>
-                <td>
-                  <div class="fw-bold">{{ getTituloLivro(emp) }}</div>
-                  <small class="text-secondary">Cód: {{ getCodigoExemplar(emp) }}</small>
+                <td class="py-3">
+                  <div class="fw-semibold text-dark">{{ getTituloLivro(emp) }}</div>
+                  <small class="text-muted" style="font-size: 12px"
+                    >COD: {{ getCodigoExemplar(emp) }}</small
+                  >
                 </td>
-                <td>{{ emp.data_retirada | date: 'dd/MM/yyyy' }}</td>
-                <td>{{ emp.data_devolucao_esperada | date: 'dd/MM/yyyy' }}</td>
+                <td class="text-secondary py-3">{{ emp.data_retirada | date: 'dd/MM/yyyy' }}</td>
+                <td class="py-3">{{ emp.data_devolucao_esperada | date: 'dd/MM/yyyy' }}</td>
                 <td
-                  class="fw-medium"
+                  class="py-3 fw-medium"
                   [class.text-danger]="estaAtrasadoHistorico(emp)"
                   [class.text-success]="!estaAtrasadoHistorico(emp)"
                 >
-                  {{ emp.data_devolucao_efetiva | date: 'dd/MM/yyyy' }}
+                  @if (emp.data_devolucao_efetiva) {
+                    {{ emp.data_devolucao_efetiva | date: 'dd/MM/yyyy' }}
+                  } @else if (emp.status === 'perdido' || emp.status === 'danificado') {
+                    {{ emp.updated_at | date: 'dd/MM/yyyy' }}
+                  } @else {
+                    —
+                  }
                 </td>
-                <td class="pe-4">
-                  @if (estaAtrasadoHistorico(emp)) {
+
+                <td class="pe-4 py-3">
+                  @if (emp.status === 'perdido') {
+                    <span class="badge bg-secondary-subtle text-secondary">Perdido</span>
+                  } @else if (emp.status === 'danificado') {
+                    <span class="badge bg-warning-subtle text-warning">Danificado</span>
+                  } @else if (estaAtrasadoHistorico(emp)) {
                     <span class="badge bg-danger-subtle text-danger">Atrasado</span>
                   } @else {
                     <span class="badge bg-success-subtle text-success">No prazo</span>
@@ -367,38 +661,38 @@
           </tbody>
         </table>
       </div>
-      @if (historicoTotalPaginas > 1) {
-        <div class="d-flex justify-content-between align-items-center p-3">
-          <small class="text-secondary">
-            Página {{ paginaAtualHistorico }} de {{ historicoTotalPaginas }} ·
-            {{ emprestimosHistorico.length }} registros
-          </small>
-          <nav>
-            <ul class="pagination pagination-sm mb-0">
-              <li class="page-item" [class.disabled]="paginaAtualHistorico === 1">
-                <button class="page-link" (click)="irParaPaginaHistorico(paginaAtualHistorico - 1)">
-                  ‹
-                </button>
-              </li>
-              @for (p of historicoPaginas; track p) {
-                <li class="page-item" [class.active]="p === paginaAtualHistorico">
-                  <button class="page-link" (click)="irParaPaginaHistorico(p)">{{ p }}</button>
-                </li>
-              }
-              <li
-                class="page-item"
-                [class.disabled]="paginaAtualHistorico === historicoTotalPaginas"
-              >
-                <button class="page-link" (click)="irParaPaginaHistorico(paginaAtualHistorico + 1)">
-                  ›
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      }
 
-      @if (emprestimosHistorico.length === 0) {
+      <div
+        class="d-flex justify-content-between align-items-center px-4 py-3 border-top bg-white flex-wrap gap-2"
+      >
+        <small class="text-secondary">
+          Mostrando {{ (paginaAtualHistorico - 1) * itensPorPaginaHistorico + 1 }}-{{
+            getFimPaginaHistorico()
+          }}
+          de {{ historicoFiltrado.length }} registros
+        </small>
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="paginaAtualHistorico === 1">
+              <button class="page-link" (click)="irParaPaginaHistorico(paginaAtualHistorico - 1)">
+                ‹
+              </button>
+            </li>
+            @for (p of historicoPaginas; track p) {
+              <li class="page-item" [class.active]="p === paginaAtualHistorico">
+                <button class="page-link" (click)="irParaPaginaHistorico(p)">{{ p }}</button>
+              </li>
+            }
+            <li class="page-item" [class.disabled]="paginaAtualHistorico === historicoTotalPaginas">
+              <button class="page-link" (click)="irParaPaginaHistorico(paginaAtualHistorico + 1)">
+                ›
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      @if (historicoFiltrado.length === 0) {
         <div class="text-center py-5 text-secondary">
           <i class="bi bi-clock-history fs-1"></i>
           <h5 class="mt-3">Nenhum histórico disponível.</h5>
@@ -407,4 +701,206 @@
       }
     </div>
   }
+</div>
+<div #devolucaoModal class="modal fade" id="devolucaoModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg p-2" style="border-radius: 16px">
+      <div class="modal-header border-0 pb-0">
+        <div>
+          <h4 class="fw-bold text-dark mb-1" style="color: #0f172a !important">
+            Resumo da devolução
+          </h4>
+          <p class="text-muted small mb-0">
+            Verifique as informações abaixo antes de confirmar o fechamento do registro.
+          </p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        @if (emprestimoSelecionadoDevolucao) {
+          <h5 class="fw-bold text-primary mb-4" style="font-size: 16px">Registro encontrado</h5>
+
+          <div class="row g-4">
+            <div class="col-md-8 pe-md-4">
+              <div class="row">
+                <div class="col-sm-6 mb-4">
+                  <div
+                    class="text-uppercase text-secondary fw-bold mb-2"
+                    style="font-size: 11px; letter-spacing: 0.05em"
+                  >
+                    Item do empréstimo
+                  </div>
+                  <div class="d-flex gap-3 p-2 rounded border bg-light">
+                    <img
+                      [src]="
+                        getCapaLivro(emprestimoSelecionadoDevolucao) ||
+                        'assets/imgs/livros/livro-sem-capa.png'
+                      "
+                      class="rounded object-fit-cover shadow-sm border"
+                      width="60"
+                      height="85"
+                      alt="Capa"
+                    />
+                    <div class="overflow-hidden">
+                      <div class="fw-bold text-dark text-truncate" style="font-size: 14px">
+                        {{ getTituloLivro(emprestimoSelecionadoDevolucao) }}
+                      </div>
+                      <div class="text-muted text-truncate small">
+                        {{ getAutorLivro(emprestimoSelecionadoDevolucao) }}
+                      </div>
+                      <div class="text-secondary mt-1" style="font-size: 11px">
+                        ISBN: {{ getIsbnLivro(emprestimoSelecionadoDevolucao) }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 mb-4">
+                  <div
+                    class="text-uppercase text-secondary fw-bold mb-2"
+                    style="font-size: 11px; letter-spacing: 0.05em"
+                  >
+                    Dados do Aluno
+                  </div>
+                  <div class="d-flex align-items-start gap-2">
+                    <div
+                      class="bg-primary-subtle text-primary rounded-circle p-2 d-flex align-items-center justify-content-center"
+                      style="width: 36px; height: 36px"
+                    >
+                      <i class="bi bi-envelope-fill"></i>
+                    </div>
+                    <div>
+                      <div class="text-muted small">E-mail institucional</div>
+                      <div class="fw-bold text-dark" style="font-size: 14px; word-break: break-all">
+                        {{ getEmailAluno(emprestimoSelecionadoDevolucao) }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="my-3 opacity-25" />
+
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                  <div class="text-muted small">
+                    <i class="bi bi-calendar-event me-1"></i> Data de empréstimo
+                  </div>
+                  <div class="fw-bold text-dark">
+                    {{ emprestimoSelecionadoDevolucao.data_retirada | date: 'dd MMM yyyy' }}
+                  </div>
+                </div>
+                <div>
+                  <div class="text-muted small">
+                    <i class="bi bi-calendar-check me-1"></i> Data limite de devolução
+                  </div>
+                  <div class="fw-bold text-dark">
+                    {{
+                      emprestimoSelecionadoDevolucao.data_devolucao_esperada | date: 'dd MMM yyyy'
+                    }}
+                  </div>
+                </div>
+
+                <div>
+                  @if (estaAtrasado(emprestimoSelecionadoDevolucao.data_devolucao_esperada)) {
+                    <div
+                      class="p-2 bg-danger-subtle text-danger rounded-3 border border-danger-subtle text-center"
+                      style="min-width: 140px"
+                    >
+                      <div class="text-uppercase fw-bold" style="font-size: 10px">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Status de Atraso
+                      </div>
+                      <div class="fw-bold" style="font-size: 13px">
+                        Atrasado em
+                        {{ getDiasAtraso(emprestimoSelecionadoDevolucao.data_devolucao_esperada) }}
+                        dias
+                      </div>
+                    </div>
+                  } @else {
+                    <div
+                      class="p-2 bg-success-subtle text-success rounded-3 border border-success-subtle text-center"
+                      style="min-width: 140px"
+                    >
+                      <div class="text-uppercase fw-bold" style="font-size: 10px">
+                        <i class="bi bi-check-circle-fill"></i> Status do Prazo
+                      </div>
+                      <div class="fw-bold" style="font-size: 13px">No prazo</div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="col-md-4 d-flex flex-column justify-content-start bg-light p-3 rounded-3 border"
+            >
+              <div
+                class="text-uppercase text-secondary fw-bold mb-3"
+                style="font-size: 11px; letter-spacing: 0.05em"
+              >
+                Ações do sistema
+              </div>
+
+              <button
+                type="button"
+                class="btn w-100 py-2 mb-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                style="
+                  background: linear-gradient(135deg, #024072 0%, #112d4e 100%);
+                  border-radius: 8px;
+                  font-size: 14px;
+                  color: white;
+                "
+                (click)="devolverLivro(emprestimoSelecionadoDevolucao)"
+                [disabled]="enviandoDevolucao"
+              >
+                <i class="bi bi-check-circle"></i> Confirmar Devolução
+              </button>
+
+              <button
+                type="button"
+                class="btn w-100 py-2 mb-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                style="
+                  background-color: #ffc107;
+                  border: none;
+                  color: #000;
+                  border-radius: 8px;
+                  font-size: 14px;
+                "
+                (click)="marcarComoDanificado(emprestimoSelecionadoDevolucao)"
+                [disabled]="enviandoDevolucao"
+              >
+                <i class="bi bi-exclamation-triangle"></i> Marcar como Danificado
+              </button>
+
+              <button
+                type="button"
+                class="btn w-100 py-2 mb-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                style="
+                  background-color: #dc3545;
+                  border: none;
+                  color: #fff;
+                  border-radius: 8px;
+                  font-size: 14px;
+                "
+                (click)="marcarComoPerdido(emprestimoSelecionadoDevolucao)"
+                [disabled]="enviandoDevolucao"
+              >
+                <i class="bi bi-slash-circle"></i> Marcar como Perdido
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-outline-secondary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                style="border-radius: 8px; font-size: 14px"
+                data-bs-dismiss="modal"
+              >
+                <i class="bi bi-x-circle"></i> Cancelar
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
 </div>

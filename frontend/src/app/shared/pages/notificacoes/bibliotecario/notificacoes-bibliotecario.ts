@@ -1,6 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmprestimosService } from '../../../../../client/services/emprestimos.service';
+import { NotificacoesService } from '../../../../../client/services/notificacoes.service';
+import { HttpClient } from '@angular/common/http';
+import { BASE_PATH_DEFAULT } from '../../../../../client/tokens';
 
 interface NotificacaoAtraso {
   id: string;
@@ -8,6 +11,7 @@ interface NotificacaoAtraso {
   tituloLivro: string;
   dataLimite: Date;
   diasAtraso: number;
+  lida: boolean;
 }
 
 @Component({
@@ -22,6 +26,9 @@ export default class NotificacoesBibliotecarioComponent implements OnInit {
   mensagemErro = signal<string>('');
 
   private emprestimosService = inject(EmprestimosService);
+  private notificacoesService = inject(NotificacoesService);
+  private http = inject(HttpClient);
+  private basePath = inject(BASE_PATH_DEFAULT);
 
   ngOnInit(): void {
     this.carregarNotificacoes();
@@ -38,6 +45,8 @@ export default class NotificacoesBibliotecarioComponent implements OnInit {
         const atrasados = dados
           .filter((e: any) =>
             !e.data_devolucao_efetiva &&
+            e.status !== 'perdido' &&
+            e.status !== 'danificado' &&
             new Date(e.data_devolucao_esperada) < hoje
           )
           .map((e: any) => ({
@@ -45,7 +54,8 @@ export default class NotificacoesBibliotecarioComponent implements OnInit {
             nomeAluno: e.usuario?.nome || 'Desconhecido',
             tituloLivro: e.exemplar?.livro?.titulo || 'Livro Desconhecido',
             dataLimite: e.data_devolucao_esperada,
-            diasAtraso: this.calcularDiasAtraso(e.data_devolucao_esperada)
+            diasAtraso: this.calcularDiasAtraso(e.data_devolucao_esperada),
+            lida: false
           }))
           .sort((a, b) => b.diasAtraso - a.diasAtraso);
 
