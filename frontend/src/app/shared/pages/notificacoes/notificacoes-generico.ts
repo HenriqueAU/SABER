@@ -67,6 +67,9 @@ export default class NotificacoesGenericoComponent implements OnInit {
         this.notificacoes.update(notifs =>
           notifs.map(n => n.id === notificacao.id ? { ...n, lida: true } : n)
         );
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('notificacoesUpdated'));
+        }
       },
       error: () => {
         this.mensagemErro.set(`Não foi possível marcar "${notificacao.titulo}" como lida.`);
@@ -79,6 +82,9 @@ export default class NotificacoesGenericoComponent implements OnInit {
     this.http.delete(`${this.basePath}/notificacoes/${id}`).subscribe({
       next: () => {
         this.notificacoes.update(notifs => notifs.filter(n => n.id !== id));
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('notificacoesUpdated'));
+        }
       },
       error: () => {
         this.mensagemErro.set('Não foi possível descartar a notificação.');
