@@ -14,10 +14,20 @@ import { LivrosService } from '../../../client/services/livros.service';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { UsuariosService } from '../../../client/services/usuarios.service';
 import { forkJoin } from 'rxjs';
+import { SuccessModal } from '../../shared/components/success-modal/success-modal';
+import { ErrorModal } from '../../shared/components/error-modal/error-modal';
 
 @Component({
   selector: 'app-emprestimo',
-  imports: [AsyncPipe, DatePipe, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [
+    AsyncPipe,
+    DatePipe,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterLink,
+    SuccessModal,
+    ErrorModal
+  ],
   templateUrl: './emprestimo.html',
   styleUrl: './emprestimo.scss',
 })

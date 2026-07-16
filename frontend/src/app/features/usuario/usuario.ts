@@ -5,23 +5,35 @@ import { UsuariosService } from '../../../client/services/usuarios.service';
 import { CoreAuthService } from '../../core/auth/auth-session';
 import { TipoPerfil } from '../../core/auth/tipo-perfil.enum'
 import Modal from 'bootstrap/js/dist/modal';
+import { SuccessModal } from '../../shared/components/success-modal/success-modal';
 
 @Component({
   selector: 'app-usuario',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    SuccessModal,
+  ],
   templateUrl: './usuario.html',
   styleUrl: './usuario.scss',
 })
 export default class UsuarioComponent implements OnInit {
-  @ViewChild('usuarioModal') usuarioModalRef!: ElementRef;
 
   usuarios = signal<any[]>([]);
   carregando = signal(true);
   enviando = signal(false);
-  mensagemSucesso = signal('');
   mensagemErro = signal('');
   form!: FormGroup;
+
+  @ViewChild('usuarioModal')
+  usuarioModalRef!: ElementRef;
+
+  @ViewChild('successModal')
+  successModalRef!: ElementRef;
+
+  mensagemSucessoModal: string = 'Usuário cadastrado com sucesso!';
 
   TipoPerfilEnum = TipoPerfil;
   perfis = Object.values(TipoPerfil);
@@ -88,15 +100,25 @@ export default class UsuarioComponent implements OnInit {
     this.carregarUsuarios();
   }
 
-  abrirFormCadastro() {
+  abrirModalSucesso() {
+    const successModalElement = this.successModalRef.nativeElement;
+
+    if (!successModalElement) {
+      return;
+    }
+
+    const modal = new Modal(successModalElement);
+    modal.show();
+  }
+
+  abrirModalUsuario() {
     this.form.reset();
-    this.mensagemSucesso.set('');
     this.mensagemErro.set('');
     const modal = new Modal(this.usuarioModalRef.nativeElement);
     modal.show();
   }
 
-  fecharFormCadastro() {
+  fecharModalUsuario() {
     const modal = Modal.getInstance(this.usuarioModalRef.nativeElement);
     modal?.hide();
   }
@@ -129,7 +151,6 @@ export default class UsuarioComponent implements OnInit {
     }
 
     this.enviando.set(true);
-    this.mensagemSucesso.set('');
     this.mensagemErro.set('');
 
     const valores = this.form.value;
@@ -148,11 +169,12 @@ export default class UsuarioComponent implements OnInit {
 
     this.usuariosService.usuarioControllerCreate(payload).subscribe({
       next: () => {
-        this.mensagemSucesso.set('Usuário cadastrado com sucesso!');
+        this.fecharModalUsuario();
+        this.abrirModalSucesso();
+
         this.form.reset();
         this.enviando.set(false);
         this.carregarUsuarios();
-        setTimeout(() => this.fecharFormCadastro(), 2000);
       },
       error: (err) => {
         const msg = err.error?.message;

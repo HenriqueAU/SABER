@@ -1,18 +1,13 @@
-<div #successModal class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-success-subtle border-0">
-      <div class="modal-header bg-success text-white border-0">
-        <h1 class="modal-title fs-5">Sucesso!</h1>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-success fw-medium">
-        Dados de perfil atualizados com sucesso!
-      </div>
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-success" data-bs-dismiss="modal" (click)="onReturn()">Concluir</button>
-      </div>
-    </div>
-  </div>
+<div #successModal class="modal fade" id="successModal" tabindex="-1">
+  <app-success-modal
+    [mensagem]="mensagemSucessoModal">
+  </app-success-modal>
+</div>
+
+<div #errorModal class="modal fade" id="errorModal" tabindex="-1">
+  <app-error-modal
+    [mensagem]="mensagemErroModal">
+  </app-error-modal>
 </div>
 
 <div class="container py-4 py-md-5">

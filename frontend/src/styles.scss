@@ -65,6 +65,10 @@ $enable-responsive-font-sizes: false;
   z-index: 0;
 }
 
+.btn-primary:disabled {
+  background: linear-gradient(135deg, #003A79 0%, #003A79 100%);
+}
+
 .btn-primary::before {
   content: "";
   position: absolute;
