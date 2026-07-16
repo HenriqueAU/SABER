@@ -80,6 +80,14 @@ $enable-responsive-font-sizes: false;
   opacity: 1;
 }
 
+.btn-success {
+  --bs-btn-color: #ffffff;
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-active-color: #ffffff;
+  --bs-btn-focus-color: #ffffff;
+  --bs-btn-disabled-color: #ffffff;
+}
+
 .bg-primary-soft {
   background-color: #DBEAFE;
 }
@@ -99,6 +107,11 @@ $enable-responsive-font-sizes: false;
 .card {
   border-color: #D9E0EA;
   transition: all 0.3s;
+}
+
+.big-number {
+  color:#003A79 !important;
+  background-color: #A8CDFF;
 }
 
 .card:hover {
@@ -144,56 +157,155 @@ $enable-responsive-font-sizes: false;
 }
 
 body {
-  //background: linear-gradient(135deg, #EEF2F8 0%, #C2CEE2 100%);
+  //background: linear-gradient(135deg, #bdd7ff 0%, #e4f0ff 100%);
   background-color: #F5F5F7;
 }
 
-.genero-poesia {
-  background-color: #E9D5FF;
-  color: #1F2232;
+.btn-genero {
+  border: 1px solid transparent;
+  transition: all .2s ease;
+
+  &.selected {
+    color: #ffffff !important;
+    font-weight: 600;
+  }
 }
 
+.genero-poesia {
+  background: #E9D5FF;
+  color: #5B21B6;
+
+  &:hover:not(.selected) {
+    background: #D8B4FE;
+  }
+
+  &.selected {
+    background: #7C3AED;
+    color: #fff;
+  }
+}
 .genero-romance {
-  background-color: #FBCFE8;
-  color: #1F2232;
+  background: #FBCFE8;
+  color: #9D174D;
+
+  &:hover:not(.selected) {
+    background: #F9A8D4;
+  }
+
+  &.selected {
+    background: #DB2777;
+    color: #fff;
+  }
 }
 
 .genero-tecnologia {
-  background-color: #DBEAFE;
-  color: #003A79;
+  background: #DBEAFE;
+  color: #1D4ED8;
+
+  &:hover:not(.selected) {
+    background: #BFDBFE;
+  }
+
+  &.selected {
+    background: #2563EB;
+    color: #fff;
+  }
 }
 
 .genero-aventura {
-  background-color: #CCFBF1;
-  color: #115E59;
+  background: #CCFBF1;
+  color: #0F766E;
+
+  &:hover:not(.selected) {
+    background: #99F6E4;
+  }
+
+  &.selected {
+    background: #14B8A6;
+    color: #fff;
+  }
 }
 
 .genero-ficcao-cientifica {
-  background-color: #DBEAFE;
-  color: #1E3A8A;
+  background: #DBEAFE;
+  color: #1E40AF;
+
+  &:hover:not(.selected) {
+    background: #BFDBFE;
+  }
+
+  &.selected {
+    background: #3B82F6;
+    color: #fff;
+  }
 }
 
 .genero-filosofia {
-  background-color: #FEF3C7;
-  color: #92400E;
+  background: #FEF3C7;
+  color: #B45309;
+
+  &:hover:not(.selected) {
+    background: #FDE68A;
+  }
+
+  &.selected {
+    background: #D97706;
+    color: #fff;
+  }
 }
 
 .genero-historia {
-  background-color: #F5E6D3;
-  color: #7C4A1D;
+  background: #F5E6D3;
+  color: #92400E;
+
+  &:hover:not(.selected) {
+    background: #EFD4B4;
+  }
+
+  &.selected {
+    background: #B45309;
+    color: #fff;
+  }
 }
 
 .genero-terror {
-  background-color: #E5E7EB;
-  color: #374151;
+  background: #E5E7EB;
+  color: #4B5563;
+
+  &:hover:not(.selected) {
+    background: #D1D5DB;
+  }
+
+  &.selected {
+    background: #4B5563;
+    color: #fff;
+  }
 }
 
 .genero-fantasia {
-  background-color: #DCFCE7;
-  color: #166534;
+  background: #DCFCE7;
+  color: #15803D;
+
+  &:hover:not(.selected) {
+    background: #BBF7D0;
+  }
+
+  &.selected {
+    background: #22C55E;
+    color: #fff;
+  }
 }
 
 .genero-biografias {
-  background-color: #E0F2FE;
-  color: #075985;
+  background: #E0F2FE;
+  color: #0369A1;
+
+  &:hover:not(.selected) {
+    background: #BAE6FD;
+  }
+
+  &.selected {
+    background: #0EA5E9;
+    color: #fff;
+  }
 }
