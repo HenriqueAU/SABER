@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -39,6 +40,14 @@ export class RespostaMembroService {
       throw new ForbiddenException(
         'Você só pode responder utilizando a sua própria participação no clube',
       );
+    }
+
+    const jaRespondeu = await this.respostaMembroRepository.findOne({
+      where: { membro: { id: membro_id } },
+    });
+
+    if (jaRespondeu) {
+      throw new ConflictException('Você já avaliou este clube.');
     }
 
     await this.validarItemPergunta(item_pergunta_id);

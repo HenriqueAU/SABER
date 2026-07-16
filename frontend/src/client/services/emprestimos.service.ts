@@ -176,4 +176,45 @@ export class EmprestimosService {
 
         return this.httpClient.delete(url, requestOptions);
     }
+    emprestimoControllerMarcarPerdido(id: string, observe?: 'body', options?: RequestOptions<'json'>): Observable<any> {
+    const url = `${this.basePath}/emprestimos/${id}/perdido`;
+
+    let headers: HttpHeaders;
+    if (options?.headers instanceof HttpHeaders) {
+        headers = options.headers;
+    } else {
+        headers = new HttpHeaders(options?.headers);
+    }
+
+    const requestOptions: any = {
+        observe: observe as any,
+        headers,
+        reportProgress: options?.reportProgress,
+        withCredentials: options?.withCredentials,
+        context: this.createContextWithClientId(options?.context)
+    };
+
+    return this.httpClient.patch(url, {}, requestOptions);
+}
+
+emprestimoControllerMarcarDanificado(id: string, observe?: 'body', options?: RequestOptions<'json'>): Observable<any> {
+    const url = `${this.basePath}/emprestimos/${id}/danificado`;
+
+    let headers: HttpHeaders;
+    if (options?.headers instanceof HttpHeaders) {
+        headers = options.headers;
+    } else {
+        headers = new HttpHeaders(options?.headers);
+    }
+
+    const requestOptions: any = {
+        observe: observe as any,
+        headers,
+        reportProgress: options?.reportProgress,
+        withCredentials: options?.withCredentials,
+        context: this.createContextWithClientId(options?.context)
+    };
+
+    return this.httpClient.patch(url, {}, requestOptions);
+}
 }
