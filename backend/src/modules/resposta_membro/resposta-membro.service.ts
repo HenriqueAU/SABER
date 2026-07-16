@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -41,6 +42,14 @@ export class RespostaMembroService {
       );
     }
 
+    const jaRespondeu = await this.respostaMembroRepository.findOne({
+      where: { membro: { id: membro_id } },
+    });
+
+    if (jaRespondeu) {
+      throw new ConflictException('Você já avaliou este clube.');
+    }
+
     await this.validarItemPergunta(item_pergunta_id);
 
     const novaRespostaMembro = this.respostaMembroRepository.create({
@@ -52,43 +61,52 @@ export class RespostaMembroService {
     const salva = await this.respostaMembroRepository.save(novaRespostaMembro);
     const respostaCompleta = await this.respostaMembroRepository.findOne({
       where: { id: salva.id },
-      relations: ['membro', 'membro.usuario', 'membro.clube', 'membro.clube.professor']
+      relations: [
+        'membro',
+        'membro.usuario',
+        'membro.clube',
+        'membro.clube.professor',
+      ],
     });
 
     if (respostaCompleta && respostaCompleta.membro.clube.professor) {
       const professorId = respostaCompleta.membro.clube.professor.id;
       const nomeAluno = respostaCompleta.membro.usuario.nome;
-      const nomeClube = respostaCompleta.membro.clube.nome || 'Clube de Leitura';
+      const nomeClube =
+        respostaCompleta.membro.clube.nome || 'Clube de Leitura';
       const clubeId = respostaCompleta.membro.clube.id;
 
       const chaveLock = `${alunoLogadoId}_${clubeId}`;
       const tempoAtual = Date.now();
       const tempoUltimoDisparo = this.controleDeDisparo.get(chaveLock) || 0;
-      
+
       if (tempoAtual - tempoUltimoDisparo < 10000) {
         return salva;
       }
       this.controleDeDisparo.set(chaveLock, tempoAtual);
-      
+
       const mensagemExata = `O aluno ${nomeAluno} respondeu ao questionário do clube ${nomeClube}.[CLUBE:${clubeId}]`;
-      const notificacoes = await this.notificacaoService.findAllByUser(professorId);
-      const jaFoiNotificado = notificacoes.some(n => {
+      const notificacoes =
+        await this.notificacaoService.findAllByUser(professorId);
+      const jaFoiNotificado = notificacoes.some((n) => {
         if (n.mensagem !== mensagemExata) return false;
-        
+
         const dataNotificacao = new Date(n.data).getTime();
-        const tempoReferencia = respostaCompleta.created_at 
-          ? new Date(respostaCompleta.created_at).getTime() 
+        const tempoReferencia = respostaCompleta.created_at
+          ? new Date(respostaCompleta.created_at).getTime()
           : Date.now();
-        const diferencaEmSegundos = Math.abs((tempoReferencia - dataNotificacao) / 1000);
-        
-        return diferencaEmSegundos < 60; 
+        const diferencaEmSegundos = Math.abs(
+          (tempoReferencia - dataNotificacao) / 1000,
+        );
+
+        return diferencaEmSegundos < 60;
       });
 
       if (!jaFoiNotificado) {
         await this.notificacaoService.create({
           titulo: 'Novo Feedback de Leitura',
           mensagem: mensagemExata,
-          usuario_id: professorId
+          usuario_id: professorId,
         });
       }
     }
