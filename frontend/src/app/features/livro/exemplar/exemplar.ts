@@ -24,6 +24,10 @@ export default class ExemplarComponent implements OnInit, OnChanges{
   exemplares: Exemplar[] = [];
   mostrarForm = false;
 
+  mensagemSucessoExemplar = '';
+  erroExemplar = '';
+
+
   exemplarForm: FormGroup = this.fb.group({
     codigo: ['', Validators.required],
   });
@@ -50,15 +54,22 @@ export default class ExemplarComponent implements OnInit, OnChanges{
 }
   abrirForm() {
     this.exemplarForm.reset({ status: 'disponivel' });
+    this.erroExemplar = '';
+    this.mensagemSucessoExemplar = '';
     this.mostrarForm = true;
   }
 
   fecharForm() {
     this.mostrarForm = false;
+    this.erroExemplar = '';
+    this.mensagemSucessoExemplar = '';
   }
 
   salvarExemplar() {
   if (this.exemplarForm.invalid) return;
+  this.erroExemplar = '';
+  this.mensagemSucessoExemplar = '';
+
   const formValue = {
     ...this.exemplarForm.value,
     livro_id: this.livroId
@@ -66,8 +77,14 @@ export default class ExemplarComponent implements OnInit, OnChanges{
 
   this.exemplaresService.exemplarControllerCreate(formValue).subscribe({
     next: () => {
-      this.fecharForm();
+      this.mensagemSucessoExemplar = 'Exemplar cadastrado com sucesso!';
+      this.exemplarForm.reset();
       this.carregarExemplares();
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      this.erroExemplar = err.error?.message ?? 'Não foi possível cadastrar o exemplar.';
+      this.cdr.detectChanges();
     },
   });
 }

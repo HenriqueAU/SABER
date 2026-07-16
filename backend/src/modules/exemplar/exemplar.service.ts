@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,6 +11,10 @@ import { Exemplar, StatusExemplar } from './exemplar.entity';
 import { CreateExemplarDto } from './dto/create-exemplar.dto';
 import { UpdateExemplarDto } from './dto/update-exemplar.dto';
 import { LivroService } from '../livro/livro.service';
+
+interface ErroPostgres {
+  code?: string;
+}
 
 @Injectable()
 export class ExemplarService {
@@ -36,7 +41,15 @@ export class ExemplarService {
       livro: { id: livro_id },
     });
 
-    return await this.exemplarRepository.save(exemplar);
+    try {
+      return await this.exemplarRepository.save(exemplar);
+    } catch (error) {
+      const codigoErro = (error as ErroPostgres).code;
+      if (codigoErro === '23505') {
+        throw new ConflictException('Já existe um exemplar com este código.');
+      }
+      throw error;
+    }
   }
 
   async findAll(instituicao_id: string): Promise<Exemplar[]> {

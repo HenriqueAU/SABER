@@ -24,6 +24,12 @@
               </button>
             </div>
           </div>
+          @if (erroExemplar) {
+            <div class="alert alert-danger py-2 px-3 small mt-3 mb-0">{{ erroExemplar }}</div>
+          }
+          @if (mensagemSucessoExemplar) {
+            <div class="alert alert-success py-2 px-3 small mt-3 mb-0">{{ mensagemSucessoExemplar }}</div>
+          }
         </form>
   }
 
