@@ -9,10 +9,10 @@ import { TipoPerfil } from '../../core/auth/tipo-perfil.enum';
 import { CreateLivroDto } from '../../../client/models/index';
 import ExemplarComponent from './exemplar/exemplar';
 import GenerosComponent from './generos/generos';
-import { catchError, debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, switchMap, tap } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
 import Modal from 'bootstrap/js/dist/modal';
-import { LivroGeneroService } from "../../../client";
+import { GenerosService, LivroGeneroService } from "../../../client";
 
 interface Livro extends CreateLivroDto {
   id: string;
@@ -44,6 +44,7 @@ export default class LivroComponent implements OnInit, AfterViewInit {
   private cdr = inject(ChangeDetectorRef);
   private livroGeneroService = inject(LivroGeneroService);
   private route = inject(ActivatedRoute);
+  private generoService = inject(GenerosService);
 
   livroForm: FormGroup = this.fb.group({
     titulo: ['', Validators.required],
@@ -51,6 +52,7 @@ export default class LivroComponent implements OnInit, AfterViewInit {
     isbn: ['', isbnTemFormatoValido],
     editora: [''],
     ano_publicacao: [null],
+    paginas: [null],
     faixa_etaria: ['livre'],
     sinopse: [''],
     capa_url: ['']
@@ -77,6 +79,10 @@ export default class LivroComponent implements OnInit, AfterViewInit {
   erroIsbn = '';
   mensagemSucessoModal: string = 'Operação realizada com sucesso!';
   mensagemErroModal: string = 'Ocorreu um erro na operação.';
+  todosOsGenerosParaSelecao: any[] = [];
+  generosSelecionadosNaCriacao: string[] = [];
+  erroVinculoNaCriacao = '';
+  generoSelecionadoNaCriacaoId = '';
 
   termoPesquisa ='';
   generoSelecionado = '';
@@ -164,6 +170,41 @@ export default class LivroComponent implements OnInit, AfterViewInit {
     return `${qtdeDisponiveis}/${qtdeExemplares} DISPONÍVEIS`;
   }
 
+  carregarGenerosParaSelecao() {
+    this.generoService.generoControllerFindAll().subscribe({
+      next: (generos) => {
+        this.todosOsGenerosParaSelecao = generos;
+        this.cdr.detectChanges();
+      }
+    })
+  }
+
+  adicionarGeneroNaCriacao() {
+    if (!this.generoSelecionadoNaCriacaoId) return;
+
+    if (this.generosSelecionadosNaCriacao.includes(this.generoSelecionadoNaCriacaoId)) {
+      return;
+    }
+
+    if (this.generosSelecionadosNaCriacao.length >= 4) {
+      this.erroVinculoNaCriacao = 'Máximo de 4 gêneros por livro.';
+      return;
+    }
+
+    this.generosSelecionadosNaCriacao.push(this.generoSelecionadoNaCriacaoId);
+    this.generoSelecionadoNaCriacaoId = '';
+    this.erroVinculoNaCriacao = '';
+  }
+
+  removerGeneroNaCriacao(generoId: string) {
+    this.generosSelecionadosNaCriacao = this.generosSelecionadosNaCriacao.filter(id => id !== generoId);
+    this.erroVinculoNaCriacao = '';
+  }
+
+  getNomeGenero(generoId: string): string {
+    return this.todosOsGenerosParaSelecao.find(g => g.id === generoId)?.nome ?? '';
+  }
+
   getColorStatusExemplar(livroId: string) {
 
     const exemplares = this.getExemplaresLivro(livroId);
@@ -231,12 +272,20 @@ export default class LivroComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.carregarLivros();
+    this.carregarGenerosParaSelecao();
 
     this.livroForm.get('isbn')?.valueChanges.pipe(
       debounceTime(600),
       distinctUntilChanged(),
+      tap((isbn: string) => {
+        if (!isbn || isbn.length < 10) {
+          this.erroIsbn = '';
+          this.buscandoIsbn = false;
+        }
+      }),
       filter((isbn: string) => !!isbn && isbn.length >= 10),
       switchMap((isbn: string) => {
+        this.erroIsbn = '';
         if(!validarIsbnFormato(isbn)) {
           this.erroIsbn = 'Formato inválido';
           this.buscandoIsbn = false;
@@ -264,6 +313,7 @@ export default class LivroComponent implements OnInit, AfterViewInit {
           const ano = new Date(dados.publicado_em).getFullYear();
           if (!isNaN(ano)) this.livroForm.patchValue({ ano_publicacao: ano }, { emitEvent: false });
         }
+        if (dados.paginas) this.livroForm.patchValue({ paginas: dados.paginas }, { emitEvent: false });
         if (dados.sinopse) this.livroForm.patchValue({ sinopse: dados.sinopse }, { emitEvent: false });
       });
     }
@@ -357,6 +407,8 @@ export default class LivroComponent implements OnInit, AfterViewInit {
     else {
       this.livroSelecionado = null;
       this.livroForm.reset({ faixa_etaria: 'livre' });
+      this.generosSelecionadosNaCriacao = [];
+      this.erroVinculoNaCriacao = '';
     }
 
     const modal = new Modal(
@@ -426,39 +478,58 @@ export default class LivroComponent implements OnInit, AfterViewInit {
           this.cdr.detectChanges();
         },
       });
-    } else {
-      this.livrosService.livroControllerCreate(formValue).subscribe({
-        next: () => {
-          const livroFormModal =
-            Modal.getInstance(
-              this.livroFormModalRef.nativeElement
+      } else {
+        this.livrosService.livroControllerCreate(formValue).subscribe({
+          next: (novoLivro) => {
+            const tituloLivro = this.livroForm.get('titulo')?.value;
+
+            const finalizar = () => {
+              const livroFormModal = Modal.getInstance(this.livroFormModalRef.nativeElement);
+              livroFormModal?.hide();
+
+              this.mensagemSucessoModal = `Livro "${tituloLivro}" cadastrado com sucesso!`;
+              this.abrirModalSucesso();
+
+              this.carregarLivros();
+              this.cdr.detectChanges();
+            };
+
+            if (this.generosSelecionadosNaCriacao.length === 0) {
+              finalizar();
+              return;
+            }
+
+            const vinculos = this.generosSelecionadosNaCriacao.map((generoId) =>
+              this.livroGeneroService.livroGeneroControllerCreate({
+                livro_id: novoLivro.id,
+                genero_id: generoId,
+              })
             );
 
-          const tituloLivro = this.livroForm.get('titulo')?.value;
+            forkJoin(vinculos).subscribe({
+              next: () => finalizar(),
+              error: () => {
+                const livroFormModal = Modal.getInstance(this.livroFormModalRef.nativeElement);
+                livroFormModal?.hide();
 
-          livroFormModal?.hide();
+                this.mensagemErroModal = 'Livro cadastrado, mas houve um erro ao associar os gêneros.';
+                this.abrirModalErro();
+                this.cdr.detectChanges();
+              },
+            });
+          },
+          error: () => {
+            const livroFormModal = Modal.getInstance(this.livroFormModalRef.nativeElement);
 
-          this.mensagemSucessoModal = `Livro "${tituloLivro}" cadastrado com sucesso!`;
-          this.abrirModalSucesso();
+            const tituloLivro = this.livroForm.get('titulo')?.value;
 
-          this.carregarLivros();
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          const livroFormModal =
-            Modal.getInstance(
-              this.livroFormModalRef.nativeElement
-            );
+            livroFormModal?.hide();
 
-          const tituloLivro = this.livroForm.get('titulo')?.value;
-
-          livroFormModal?.hide();
-
-          this.mensagemErroModal = `Erro ao cadastrar o livro "${tituloLivro}".`;
-          this.abrirModalErro();
-          this.cdr.detectChanges();
-        },
-      });
-    }
+            this.mensagemErroModal = `Erro ao cadastrar o livro "${tituloLivro}".`;
+            this.abrirModalErro();
+            this.cdr.detectChanges();
+          },
+        });
+      }
   }
 }

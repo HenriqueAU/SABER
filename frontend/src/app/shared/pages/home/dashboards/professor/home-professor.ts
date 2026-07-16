@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { ClubesService } from '../../../../../../client/services/clubes.service';
@@ -8,11 +8,13 @@ import { ItemPerguntaService } from '../../../../../../client/services/itemPergu
 import { RespostaMembroService } from '../../../../../../client/services/respostaMembro.service';
 import { CoreAuthService } from '../../../../../core/auth/auth-session';
 import { Router, ActivatedRoute } from '@angular/router';
+import Modal from 'bootstrap/js/dist/modal';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home-professor',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './home-professor.html',
   styleUrls: ['../../../../../features/clube_livro/clube-livro.scss']
 })
@@ -38,6 +40,12 @@ export default class HomeProfessorComponent implements OnInit {
 
   paginaAtualAlunos = signal<number>(1);
   itensPorPaginaAlunos = 5;
+
+  termoBusca = signal('');
+  filtroStatus = signal<'TODOS' | 'ATIVOS' | 'ENCERRADOS'>('TODOS');
+
+  @ViewChild('feedbackModal')
+    feedbackModalRef!: ElementRef;
 
   get membrosPaginados(): any[] {
     const inicio = (this.paginaAtualAlunos() - 1) * this.itensPorPaginaAlunos;
@@ -90,6 +98,10 @@ export default class HomeProfessorComponent implements OnInit {
     this.carregarMeusClubes();
   }
 
+  abrirClubeFormModal() {
+    // TO DO (MODAL DE CRIAÇÃO)
+  }
+
   getDiasParaInicio(dataInicio: string | Date): number | null {
     if (!dataInicio) return null;
     const hoje = new Date();
@@ -134,6 +146,23 @@ export default class HomeProfessorComponent implements OnInit {
       this.carregando.set(false);
     }
   }
+
+  clubesFiltrados = computed(() => {
+    const termo = this.termoBusca().toLowerCase();
+    const status = this.filtroStatus();
+
+    return this.clubes().filter((c) => {
+      const tituloOk = !termo || (c.livro?.titulo?.toLowerCase().includes(termo));
+
+      const encerrado = !c.ativo || (c.data_fim && new Date(c.data_fim) < new Date());
+      const statusOk =
+        status === 'TODOS' ||
+        (status === 'ATIVOS' && !encerrado) ||
+        (status === 'ENCERRADOS' && encerrado);
+
+      return tituloOk && statusOk;
+    });
+  });
 
   abrirClube(clube: any) {
     this.clubeDetalhes.set(clube);
@@ -185,13 +214,14 @@ export default class HomeProfessorComponent implements OnInit {
   }
 
   async abrirFeedbacks() {
-    this.abaAtiva.set('feedbacks');
     this.perguntaSelecionadaId.set(null);
     this.carregando.set(true);
 
     try {
       const res = await firstValueFrom(this.respostasService.respostaMembroControllerFindAll());
       this.respostasMembros.set(Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || []);
+      const modal = new Modal(this.feedbackModalRef.nativeElement);
+      modal.show();
     } catch (error) {
       this.mensagemErro.set('Erro ao buscar respostas dos alunos.');
     } finally {
