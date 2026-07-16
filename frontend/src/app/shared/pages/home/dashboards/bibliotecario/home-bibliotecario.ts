@@ -25,6 +25,7 @@ export default class HomeBibliotecarioComponent implements OnInit {
   emprestimos = signal<any[]>([]);
   emprestimosAtivos = signal<number>(0);
   totalExemplares = signal<number>(0);
+  totalExemplaresAnimado = signal<number>(0);
   rankingLivros = signal<any[]>([]);
   generos = signal<any[]>([]);
   mediaLeitura = signal<any | null>(null);
@@ -108,6 +109,7 @@ export default class HomeBibliotecarioComponent implements OnInit {
         this.emprestimosAtivos.set(ativos.length);
 
         this.totalExemplares.set(exemplares.length);
+        this.animarContadorExemplares(exemplares.length);
       },
       error: () => this.mensagemErro.set('Erro ao carregar dados do dashboard'),
     });
@@ -173,5 +175,31 @@ export default class HomeBibliotecarioComponent implements OnInit {
         },
       },
     });
+  }
+
+  private animarContadorExemplares(destino: number) {
+    if (destino === 0 || typeof window === 'undefined') {
+      this.totalExemplaresAnimado.set(destino);
+      return;
+    }
+
+    const duracaoAnimacaoMs = 1500;
+    const inicio = performance.now();
+
+    const passoAnimacao = (tempoAtual: number) => {
+      const progresso = Math.min((tempoAtual - inicio) / duracaoAnimacaoMs, 1);
+      const curvaDesaceleracao = progresso * (2 - progresso);
+      const valorAtual = Math.floor(destino * curvaDesaceleracao);
+
+      this.totalExemplaresAnimado.set(valorAtual);
+
+      if (progresso < 1) {
+        requestAnimationFrame(passoAnimacao);
+      } else {
+        this.totalExemplaresAnimado.set(destino);
+      }
+    };
+
+    requestAnimationFrame(passoAnimacao);
   }
 }

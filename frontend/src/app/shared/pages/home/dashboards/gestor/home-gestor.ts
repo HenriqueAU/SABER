@@ -24,6 +24,7 @@ export default class HomeGestorComponent implements OnInit {
   emprestimos = signal<any[]>([]);
   emprestimosAtivos = signal<number>(0);
   totalExemplares = signal<number>(0);
+  totalExemplaresAnimado = signal<number>(0);
   rankingLivros = signal<any[]>([]);
   generos = signal<any[]>([]);
   mediaLeitura = signal<any | null>(null);
@@ -109,7 +110,10 @@ export default class HomeGestorComponent implements OnInit {
         this.rankingLivros.set(ranking);
         this.mediaLeitura.set(media);
         this.emprestimos.set(emprestimos);
-        this.totalExemplares.set(Array.isArray(exemplares) ? exemplares.length : 0);
+        
+        const qtdExemplares = Array.isArray(exemplares) ? exemplares.length : 0;
+        this.totalExemplares.set(qtdExemplares);
+        this.animarContadorExemplares(qtdExemplares);
 
         const ativos = emprestimos.filter((e: any) => !e.data_devolucao_efetiva);
         this.emprestimosAtivos.set(ativos.length);
@@ -178,5 +182,31 @@ export default class HomeGestorComponent implements OnInit {
         },
       },
     });
+  }
+
+  private animarContadorExemplares(destino: number) {
+    if (destino === 0 || typeof window === 'undefined') {
+      this.totalExemplaresAnimado.set(destino);
+      return;
+    }
+
+    const duracaoAnimacaoMs = 1500;
+    const inicio = performance.now();
+
+    const passoAnimacao = (tempoAtual: number) => {
+      const progresso = Math.min((tempoAtual - inicio) / duracaoAnimacaoMs, 1);
+      const curvaDesaceleracao = progresso * (2 - progresso);
+      const valorAtual = Math.floor(destino * curvaDesaceleracao);
+
+      this.totalExemplaresAnimado.set(valorAtual);
+
+      if (progresso < 1) {
+        requestAnimationFrame(passoAnimacao);
+      } else {
+        this.totalExemplaresAnimado.set(destino);
+      }
+    };
+
+    requestAnimationFrame(passoAnimacao);
   }
 }
