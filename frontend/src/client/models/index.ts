@@ -109,6 +109,8 @@ export interface CreateLivroDto {
     isbn?: string;
     editora?: string;
     ano_publicacao?: number;
+    /** Número de páginas */
+    paginas?: number;
     /** Resumo do livro */
     sinopse?: string;
     capa_url?: string;
@@ -126,10 +128,60 @@ export interface UpdateLivroDto {
     isbn?: string;
     editora?: string;
     ano_publicacao?: number;
+    /** Número de páginas */
+    paginas?: number;
     /** Resumo do livro */
     sinopse?: string;
     capa_url?: string;
     faixa_etaria?: 'livre' | '10+' | '12+' | '14+' | '16+' | '18+';
+}
+
+export interface CreateNotificacaoDto {
+    titulo: string;
+    mensagem: string;
+    usuario_id: string;
+}
+
+export interface CreateEmprestimoDto {
+    /** ID do exemplar */
+    exemplar_id: string;
+    /** ID do usuário */
+    usuario_id: string;
+    /** Data de retirada do empréstimo */
+    data_retirada: Date;
+    /** Data prevista para devolução */
+    data_devolucao_esperada: Date;
+    /** Data efetiva de devolução */
+    data_devolucao_efetiva?: Date;
+}
+
+export interface UpdateEmprestimoDto {
+    /** ID do exemplar */
+    exemplar_id?: string;
+    /** ID do usuário */
+    usuario_id?: string;
+    /** Data de retirada do empréstimo */
+    data_retirada?: Date;
+    /** Data prevista para devolução */
+    data_devolucao_esperada?: Date;
+    /** Data efetiva de devolução */
+    data_devolucao_efetiva?: Date;
+}
+
+export interface CreateExemplarDto {
+    /** ID do livro */
+    livro_id: string;
+    /** Código do exemplar */
+    codigo: string;
+    status: 'disponivel' | 'emprestado' | 'danificado' | 'perdido';
+}
+
+export interface UpdateExemplarDto {
+    /** ID do livro */
+    livro_id?: string;
+    /** Código do exemplar */
+    codigo?: string;
+    status?: 'disponivel' | 'emprestado' | 'danificado' | 'perdido';
 }
 
 export interface CreatePreferenciaGeneroDto {
@@ -168,48 +220,6 @@ export interface UpdateInstituicaoDto {
     estado?: string;
 }
 
-export interface CreateExemplarDto {
-    /** ID do livro */
-    livro_id: string;
-    /** Código do exemplar */
-    codigo: string;
-    status: 'disponivel' | 'emprestado' | 'danificado' | 'perdido';
-}
-
-export interface UpdateExemplarDto {
-    /** ID do livro */
-    livro_id?: string;
-    /** Código do exemplar */
-    codigo?: string;
-    status?: 'disponivel' | 'emprestado' | 'danificado' | 'perdido';
-}
-
-export interface CreateEmprestimoDto {
-    /** ID do exemplar */
-    exemplar_id: string;
-    /** ID do usuário */
-    usuario_id: string;
-    /** Data de retirada do empréstimo */
-    data_retirada: Date;
-    /** Data prevista para devolução */
-    data_devolucao_esperada: Date;
-    /** Data efetiva de devolução */
-    data_devolucao_efetiva?: Date;
-}
-
-export interface UpdateEmprestimoDto {
-    /** ID do exemplar */
-    exemplar_id?: string;
-    /** ID do usuário */
-    usuario_id?: string;
-    /** Data de retirada do empréstimo */
-    data_retirada?: Date;
-    /** Data prevista para devolução */
-    data_devolucao_esperada?: Date;
-    /** Data efetiva de devolução */
-    data_devolucao_efetiva?: Date;
-}
-
 export interface LoginDto {
     /** E-mail do usuário */
     email: string;
@@ -220,12 +230,6 @@ export interface LoginDto {
 export interface RefreshTokenDto {
     /** Token antigo para refresh */
     token: string;
-}
-
-export interface CreateNotificacaoDto {
-    titulo: string;
-    mensagem: string;
-    usuario_id: string;
 }
 
 /** Request Options for Angular HttpClient requests */
