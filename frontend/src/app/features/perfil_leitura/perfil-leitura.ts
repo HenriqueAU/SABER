@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { firstValueFrom } from 'rxjs';
 import { ClubesService, EmprestimosService, LivroGeneroService } from '../../../client';
+import { PreferenciasGeneroService } from '../../../client/services/preferenciasGenero.service';
 
 Chart.register(...registerables);
 
@@ -12,12 +13,14 @@ Chart.register(...registerables);
   standalone: true,
   imports: [CommonModule],
   templateUrl: './perfil-leitura.html',
+  styleUrl: './perfil-leitura.scss'
 })
 export default class PerfilLeituraComponent implements OnInit {
   private emprestimosService = inject(EmprestimosService);
   private clubesService = inject(ClubesService);
   private livroGeneroService = inject(LivroGeneroService);
   private router = inject(Router);
+  private preferenciasGeneroService = inject(PreferenciasGeneroService);
 
   carregando = signal<boolean>(true);
   erro = signal<string>('');
@@ -72,7 +75,7 @@ export default class PerfilLeituraComponent implements OnInit {
 
   itensPorPaginaRecomendacoes = computed(() => {
     const w = this.larguraTela();
-    if (w < 768) return 2;
+    if (w < 576) return 3;
     if (w < 992) return 4;
     return 6;
   });
@@ -109,6 +112,22 @@ export default class PerfilLeituraComponent implements OnInit {
     });
     return `conic-gradient(${gradientParts.join(', ')})`;
   });
+
+  getClassGenero(genero: string) {
+    switch (genero) {
+      case 'Poesia': return 'genero-poesia';
+      case 'Romance': return 'genero-romance';
+      case 'Tecnologia': return 'genero-tecnologia';
+      case 'Aventura': return 'genero-aventura';
+      case 'Ficção Científica': return 'genero-ficcao-cientifica';
+      case 'Filosofia': return 'genero-filosofia';
+      case 'História': return 'genero-historia';
+      case 'Terror': return 'genero-terror';
+      case 'Fantasia': return 'genero-fantasia';
+      case 'Biografias': return 'genero-biografias';
+      default: return 'bg-secondary text-white';
+    }
+  }
 
   ngOnInit(): void {
     this.carregarDados();
@@ -147,27 +166,62 @@ export default class PerfilLeituraComponent implements OnInit {
       const encerrados = todosClubes.filter(c => !c.ativo || (c.data_fim && new Date(c.data_fim) <= hoje));
       this.historicoClubs.set(encerrados);
 
+      const resPreferencias = await firstValueFrom(this.preferenciasGeneroService.preferenciaGeneroControllerFindAll());
+      const preferencias = Array.isArray(resPreferencias) ? resPreferencias : [];
+
+      const pontuacaoGeneros = new Map<string, number>();
+
+      for (const pref of preferencias) {
+        if (pref.genero?.nome) {
+          pontuacaoGeneros.set(pref.genero.nome.trim().toLowerCase(), 5);
+        }
+      }
+
       if (perfil.length > 0) {
-        const sortedPerfil = [...perfil].sort((a, b) => b.quantidade - a.quantidade);
-        const generosPreferidos = sortedPerfil.map(p => p.genero);
-
-        const resLivroGeneros = await firstValueFrom(this.livroGeneroService.livroGeneroControllerFindAll());
-        const livroGeneros = Array.isArray(resLivroGeneros) ? resLivroGeneros : [];
-
-        const recomendadosMap = new Map();
-        for (const generoAtual of generosPreferidos) {
-          for (const lg of livroGeneros) {
-            if (lg.genero?.nome === generoAtual && lg.livro) {
-              const jaLeu = historico.some(h => h.exemplar?.livro?.id === lg.livro.id);
-              const estaLendo = ativos.some(a => a.exemplar?.livro?.id === lg.livro.id);
-              if (!jaLeu && !estaLendo && !recomendadosMap.has(lg.livro.id)) {
-                recomendadosMap.set(lg.livro.id, { ...lg.livro, generoNome: generoAtual });
-              }
-            }
+        for (const itemPerfil of perfil) {
+          if (itemPerfil.genero) {
+            const genLower = itemPerfil.genero.trim().toLowerCase();
+            const pontosAtuais = pontuacaoGeneros.get(genLower) || 0;
+            pontuacaoGeneros.set(genLower, pontosAtuais + itemPerfil.quantidade);
           }
         }
-        this.recomendacoes.set(Array.from(recomendadosMap.values()));
       }
+
+      const livrosMap = new Map<string, any>();
+      
+      const livroIndisponivel = (livroId: string) => {
+        const jaLeu = historico.some(h => h.exemplar?.livro?.id === livroId);
+        const estaLendo = ativos.some(a => a.exemplar?.livro?.id === livroId);
+        return jaLeu || estaLendo;
+      };
+
+      const resLivroGeneros = await firstValueFrom(this.livroGeneroService.livroGeneroControllerFindAll());
+      const livroGeneros = Array.isArray(resLivroGeneros) ? resLivroGeneros : [];
+
+      for (const lg of livroGeneros) {
+        if (!lg.livro || !lg.genero || livroIndisponivel(lg.livro.id)) continue;
+
+        const livroId = lg.livro.id;
+        const generoNome = lg.genero.nome;
+        const generoLower = generoNome.trim().toLowerCase();
+
+        if (!livrosMap.has(livroId)) {
+          livrosMap.set(livroId, { ...lg.livro, generos: [], pontuacao: 0 });
+        }
+        const livroAgrupado = livrosMap.get(livroId);
+        livroAgrupado.generos.push(generoNome);
+        if (pontuacaoGeneros.has(generoLower)) {
+          livroAgrupado.pontuacao += pontuacaoGeneros.get(generoLower)!;
+        }
+      }
+
+      let recomendados = Array.from(livrosMap.values()).filter(l => l.pontuacao > 0);
+      recomendados.sort((a, b) => b.pontuacao - a.pontuacao);
+      if (recomendados.length === 0) {
+        recomendados = Array.from(livrosMap.values()).slice(0, 12);
+      }
+      this.recomendacoes.set(recomendados);
+
     } catch (e) {
       this.erro.set('Não foi possível carregar os dados do perfil de leitura.');
     } finally {

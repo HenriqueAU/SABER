@@ -59,6 +59,13 @@ export class NotificacaoService {
     return await this.notificacaoRepository.save(notificacao);
   }
 
+  async remove(id: string) {
+    const resultado = await this.notificacaoRepository.delete(id);
+    if (resultado.affected === 0) {
+      throw new NotFoundException(`A notificação com o ID ${id} não foi encontrada.`);
+    }
+  }
+
   @Cron(CronExpression.EVERY_DAY_AT_1AM)
   async notificarBibliotecarioAtrasos(): Promise<void> {
     const hoje = new Date();

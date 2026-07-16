@@ -35,26 +35,4 @@
       font-size: 0.75rem;
     }
   }
-
-  .list-book-cover {
-    width: 40px;
-    height: 55px;
-    object-fit: cover;
-  }
-
-  .list-book-date {
-    font-size: 0.75rem;
-  }
-
-  .bg-prazo-verde {
-    background-color: rgba(var(--bs-success-rgb), 0.1) !important; 
-  }
-  
-  .bg-prazo-amarelo {
-    background-color: rgba(var(--bs-warning-rgb), 0.1) !important; 
-  }
-  
-  .bg-prazo-vermelho {
-    background-color: rgba(var(--bs-danger-rgb), 0.1) !important; 
-  }
 }

@@ -1,5 +1,5 @@
 import { Component, HostListener, inject, signal, effect } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { CoreAuthService } from '../../../core/auth/auth-session';
 import { UsuariosService } from '../../../../client';
 import { NotificacoesService } from '../../../../client/services/notificacoes.service';
@@ -37,7 +37,18 @@ export class Navbar {
           });
         }
       });
+      window.addEventListener('notificacoesUpdated', () => {
+        this.atualizarContagemNotificacoes();
+      });
     }
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        if (this.estaLogado()) {
+          this.atualizarContagemNotificacoes();
+        }
+      }
+    });
+
     effect(() => {
       if (this.estaLogado()) {
         this.usuarioId = this.coreAuthService.getId();
@@ -45,31 +56,37 @@ export class Navbar {
         this.usuariosService.usuarioControllerFindOne(this.usuarioId).subscribe(usuario => {
           this.fotoPerfil.set(usuario.foto_perfil || null);
         });
-
-        if (this.perfil() === 'bibliotecario') {
-          this.emprestimosService.emprestimoControllerFindAll().subscribe({
-            next: (dados: any[]) => {
-              const hoje = new Date();
-              const atrasados = dados.filter((e: any) =>
-                !e.data_devolucao_efetiva &&
-                new Date(e.data_devolucao_esperada) < hoje
-              ).length;
-              this.notificacoesNaoLidas.set(atrasados);
-            }
-          });
-        } else {
-          this.notificacoesService.notificacaoControllerFindAll().subscribe({
-            next: (notificacoes: any[]) => {
-              const naoLidas = notificacoes.filter(n => !n.lida).length;
-              this.notificacoesNaoLidas.set(naoLidas);
-            }
-          });
-        }
+        this.atualizarContagemNotificacoes();
+        
       } else {
         this.fotoPerfil.set(null);
         this.notificacoesNaoLidas.set(0);
       }
     });
+  }
+
+  atualizarContagemNotificacoes() {
+    if (!this.estaLogado()) return;
+
+    if (this.perfil() === 'bibliotecario') {
+      this.emprestimosService.emprestimoControllerFindAll().subscribe({
+        next: (dados: any[]) => {
+          const hoje = new Date();
+          const atrasados = dados.filter((e: any) =>
+            !e.data_devolucao_efetiva &&
+            new Date(e.data_devolucao_esperada) < hoje
+          ).length;
+          this.notificacoesNaoLidas.set(atrasados);
+        }
+      });
+    } else {
+      this.notificacoesService.notificacaoControllerFindAll().subscribe({
+        next: (notificacoes: any[]) => {
+          const naoLidas = notificacoes.filter(n => !n.lida).length;
+          this.notificacoesNaoLidas.set(naoLidas);
+        }
+      });
+    }
   }
 
   navbarHidden = false;

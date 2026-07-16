@@ -1,7 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { NotificacoesService } from '../../../../client/services/notificacoes.service';
 import { Router } from '@angular/router';
+import { BASE_PATH_DEFAULT } from '../../../../client/tokens';
 
 interface Notificacao {
   id: string;
@@ -26,6 +28,8 @@ export default class NotificacoesGenericoComponent implements OnInit {
 
   private notificacoesService = inject(NotificacoesService);
   private router = inject(Router);
+  private http = inject(HttpClient);
+  private basePath = inject(BASE_PATH_DEFAULT);
 
   ngOnInit(): void {
     this.carregarNotificacoes();
@@ -63,6 +67,9 @@ export default class NotificacoesGenericoComponent implements OnInit {
         this.notificacoes.update(notifs =>
           notifs.map(n => n.id === notificacao.id ? { ...n, lida: true } : n)
         );
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('notificacoesUpdated'));
+        }
       },
       error: () => {
         this.mensagemErro.set(`Não foi possível marcar "${notificacao.titulo}" como lida.`);
@@ -70,6 +77,21 @@ export default class NotificacoesGenericoComponent implements OnInit {
     });
   }
   
+  descartarNotificacao(id: string, evento: Event) {
+    evento.stopPropagation();
+    this.http.delete(`${this.basePath}/notificacoes/${id}`).subscribe({
+      next: () => {
+        this.notificacoes.update(notifs => notifs.filter(n => n.id !== id));
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('notificacoesUpdated'));
+        }
+      },
+      error: () => {
+        this.mensagemErro.set('Não foi possível descartar a notificação.');
+      }
+    });
+  }
+
   abrirNotificacao(notificacao: Notificacao) {
     if (!notificacao.lida) {
       this.marcarComoLida(notificacao);

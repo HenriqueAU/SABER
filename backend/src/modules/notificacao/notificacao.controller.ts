@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Delete, Param, Req } from '@nestjs/common';
 import { NotificacaoService } from './notificacao.service';
 import { CreateNotificacaoDto } from './dto/create-notificacao.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -28,5 +28,11 @@ export class NotificacaoController {
   markAsRead(@Param('id') id: string, @Req() request: RequestComUser) {
     const usuarioId = request.user.id;
     return this.notificacaoService.markAsRead(id, usuarioId);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Excluir uma notificação' })
+  remove(@Param('id') id: string) {
+    return this.notificacaoService.remove(id);
   }
 }
