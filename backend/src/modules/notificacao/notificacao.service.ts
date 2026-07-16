@@ -91,51 +91,46 @@ export class NotificacaoService {
     }
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_DAY_AT_1AM)
   async notificarGestorAtrasos(): Promise<void> {
-    const emprestimosAtrasados =
-      await this.emprestimoService.findAllAtrasados();
-    const alunoIds = [
-      ...new Set(emprestimosAtrasados.map((e) => e.usuario.id)),
-    ];
-    for (const alunoId of alunoIds) {
-      const historico =
-        await this.emprestimoService.findHistoricoByAluno(alunoId);
-      let consecutivos = 0;
-      for (const emp of historico) {
-        if (
-          new Date(emp.data_devolucao_efetiva!) >
-          new Date(emp.data_devolucao_esperada)
-        ) {
-          consecutivos++;
-        } else {
-          break;
-        }
+    const emprestimosAtrasados = await this.emprestimoService.findAllAtrasados();
+
+    const atrasosPorAluno = emprestimosAtrasados.reduce((acc, emp) => {
+      const alunoId = emp.usuario.id;
+      if (!acc[alunoId]) {
+        acc[alunoId] = { aluno: emp.usuario, quantidade: 0 };
       }
-      const gruposDeAtraso = Math.floor(consecutivos / 3);
-      if (gruposDeAtraso === 0) continue;
-      const aluno = historico[0].usuario;
-      const instituicaoId = aluno.instituicao.id;
-      const notificacoesExistentes = await this.notificacaoRepository
-        .createQueryBuilder('notificacao')
-        .innerJoin('notificacao.usuario', 'usuario')
-        .where('usuario.instituicao_id = :instituicaoId', { instituicaoId })
-        .andWhere('notificacao.titulo = :titulo', {
-          titulo: 'Padrão de Atrasos Consecutivos',
-        })
-        .andWhere('notificacao.mensagem LIKE :aluno', {
-          aluno: `%${aluno.nome}%`,
-        })
-        .getCount();
-      if (gruposDeAtraso > notificacoesExistentes) {
-        const usuarios = await this.usuarioService.findAll(instituicaoId);
-        const gestores = usuarios.filter((u) => u.perfil === TipoPerfil.GESTOR);
-        for (const gestor of gestores) {
-          await this.create({
-            titulo: 'Padrão de Atrasos Consecutivos',
-            mensagem: `O aluno ${aluno.nome} devolveu os últimos ${consecutivos} livros com atraso. Verifique o histórico deste aluno.`,
-            usuario_id: gestor.id,
-          });
+      acc[alunoId].quantidade += 1;
+      return acc;
+    }, {} as Record<string, { aluno: any; quantidade: number }>);
+
+    for (const { aluno, quantidade } of Object.values(atrasosPorAluno)) {
+      if (quantidade >= 3) {
+        const instituicaoId = aluno.instituicao.id;
+
+        const notificacaoExistente = await this.notificacaoRepository
+          .createQueryBuilder('notificacao')
+          .innerJoin('notificacao.usuario', 'usuario')
+          .where('usuario.instituicao_id = :instituicaoId', { instituicaoId })
+          .andWhere('notificacao.titulo = :titulo', {
+            titulo: 'Excesso de Empréstimos Atrasados',
+          })
+          .andWhere('notificacao.mensagem LIKE :aluno', {
+            aluno: `%${aluno.nome}%`,
+          })
+          .getOne();
+
+        if (!notificacaoExistente) {
+          const usuarios = await this.usuarioService.findAll(instituicaoId);
+          const gestores = usuarios.filter((u) => u.perfil === TipoPerfil.GESTOR);
+
+          for (const gestor of gestores) {
+            await this.create({
+              titulo: 'Excesso de Empréstimos Atrasados',
+              mensagem: `Atenção: O aluno ${aluno.nome} possui atualmente ${quantidade} livros em atraso simultaneamente. Verifique a situação.`,
+              usuario_id: gestor.id,
+            });
+          }
         }
       }
     }
