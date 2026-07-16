@@ -31,6 +31,30 @@ function senhaForteValidator(): ValidatorFn {
   };
 }
 
+function senhasIguaisValidator(): ValidatorFn {
+  return (group: AbstractControl): ValidationErrors | null => {
+    const senha = group.get('novaSenha')?.value;
+    const confirmacao = group.get('novaSenhaRepetida')?.value;
+
+    if (!senha || !confirmacao) return null;
+
+    return senha === confirmacao ? null : { senhasDiferentes: true };
+  };
+}
+
+function senhaDiferenteDaAtualValidator(): ValidatorFn {
+  return (group: AbstractControl): ValidationErrors | null => {
+    const senhaAtual = group.get('senhaAtual')?.value;
+    const novaSenha = group.get('novaSenha')?.value;
+
+    if (!senhaAtual || !novaSenha) return null;
+
+    return senhaAtual === novaSenha
+      ? { senhaIgualAtual: true }
+      : null;
+  };
+}
+
 @Component({
   selector: 'app-alterar-senha',
   standalone: true,
@@ -58,8 +82,15 @@ export default class AlterarSenhaComponent {
     this.form = this.fb.group({
       senhaAtual: ['', [Validators.required]],
       novaSenha: ['', [Validators.required, Validators.minLength(8), senhaForteValidator()]],
-      novaSenhaRepetida: ['', []],
-    });
+      novaSenhaRepetida: ['', [Validators.required]],
+    },
+    {
+      validators: [ 
+        senhasIguaisValidator(),
+        senhaDiferenteDaAtualValidator(),
+      ]
+    }
+    );
   }
 
   toggleVisibilidadeSenhaAtual(): void {

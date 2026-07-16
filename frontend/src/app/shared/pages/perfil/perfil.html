@@ -22,7 +22,7 @@
       <div>
         <p class="text-secondary mb-0">Atualize suas informações pessoais e de segurança.</p>
       </div>
-      <button class="btn btn-outline-secondary btn-sm flex-shrink-0 ms-3" (click)="cancelarEdicao()">
+      <button class="btn btn-light border btn-sm flex-shrink-0 ms-3" (click)="cancelarEdicao()">
         <i class="bi bi-arrow-left me-1"></i> Voltar
       </button>
     </div>
@@ -75,7 +75,7 @@
 
         <div class="mb-3">
           <label class="form-label fw-semibold">Nome Completo</label>
-          <input type="text" class="form-control" formControlName="nome" placeholder="Digite seu nome">
+          <input type="text" class="form-control" formControlName="nome" placeholder="Digite seu nome" maxlength="150">
         </div>
 
         <div class="mb-3">
@@ -102,9 +102,8 @@
             @for (genero of (generos$ | async); track genero.id) {
               <button
                 type="button"
-                class="btn rounded-pill"
-                [class.btn-primary]="isGeneroSelecionado(genero.id)"
-                [class.btn-outline-secondary]="!isGeneroSelecionado(genero.id)"
+                [class]="'btn btn-genero rounded-pill text-truncate ' + getClassGenero(genero.nome)"
+                [class.selected]="isGeneroSelecionado(genero.id)"
                 (click)="toggleGenero(genero.id)"
               >
               {{ genero.nome }}

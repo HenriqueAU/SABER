@@ -167,6 +167,44 @@ export default class PerfilComponent implements OnInit{
     });
   }
 
+  getClassGenero(genero: string) {
+    switch (genero) {
+      case 'Poesia':
+        return 'genero-poesia';
+
+      case 'Romance':
+        return 'genero-romance';
+
+      case 'Tecnologia':
+        return 'genero-tecnologia';
+
+      case 'Aventura':
+        return 'genero-aventura';
+
+      case 'Ficção Científica':
+        return 'genero-ficcao-cientifica';
+
+      case 'Filosofia':
+        return 'genero-filosofia';
+
+      case 'História':
+        return 'genero-historia';
+
+      case 'Terror':
+        return 'genero-terror';
+
+      case 'Fantasia':
+        return 'genero-fantasia';
+
+      case 'Biografias':
+        return 'genero-biografias';
+
+      default:
+        return 'bg-secondary text-white';
+    }
+  }
+
+
   toggleGenero(id: string) {
     const index = this.generosSelecionados.indexOf(id);
     if (index >= 0) {
