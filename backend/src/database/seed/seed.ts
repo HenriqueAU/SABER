@@ -458,6 +458,55 @@ async function seed(): Promise<void> {
   }
   await respostaMembroRepo.save(respostasEntries);
 
+  const alunoDemo = await usuarioRepo.save(
+    usuarioRepo.create({
+      nome: 'Lucas Demonstração',
+      email: 'aluno.demo@email.com',
+      senha_hash: senhaHash,
+      perfil: TipoPerfil.ALUNO,
+      data_nasc: new Date('2011-04-12'),
+      instituicao: { id: instituicao.id },
+      ativo: true,
+    }),
+  );
+
+  for (let i = 0; i < 3; i++) {
+    const exemplarIdx = exemplares.length - 1 - qtdAtivos - i;
+    const exemplar = exemplares[((exemplarIdx % exemplares.length) + exemplares.length) % exemplares.length];
+    const retiradaHa = 20 + i * 5;
+
+    await emprestimoRepo.save(
+      emprestimoRepo.create({
+        exemplar: { id: exemplar.id },
+        usuario: { id: alunoDemo.id },
+        data_retirada: diasAtras(retiradaHa),
+        data_devolucao_esperada: diasAtras(retiradaHa - prazoPadrao),
+      }),
+    );
+
+    await exemplarRepo.update(exemplar.id, { status: StatusExemplar.EMPRESTADO });
+  }
+
+  const clubeDemo = await clubeLivroRepo.save(
+    clubeLivroRepo.create({
+      nome: 'Clube da Meia-Noite',
+      professor: { id: professor1.id },
+      livro: { id: livros[1].id }, // 1984
+      ativo: false,
+      data_inicio: diasAtras(40),
+      data_fim: diasAtras(3),
+      local_encontro: 'Biblioteca Principal',
+    }),
+  );
+
+  await membroClubeRepo.save(
+    membroClubeRepo.create({
+      clube: { id: clubeDemo.id },
+      usuario: { id: alunoDemo.id },
+      status: StatusMembro.CONFIRMADO,
+    }),
+  );
+
   console.log('Seed concluído com sucesso.');
   await AppDataSource.destroy();
 }
