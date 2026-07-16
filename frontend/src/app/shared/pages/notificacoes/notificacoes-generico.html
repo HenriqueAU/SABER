@@ -1,7 +1,7 @@
 <div class="notificacoes-container container py-4">
   <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-4">
     <h2 class="d-flex align-items-center fw-bold m-0 titulo-pagina">
-      <i class="bi bi-bell-fill me-2"></i>Minhas Notificações
+      <i class="bi bi-bell-fill me-2"></i>Minhas notificações
     </h2>
   </div>
 
@@ -20,14 +20,20 @@
   } @else {
     <div class="notificacoes-lista d-flex flex-column gap-2">
       @for (notif of notificacoes(); track notif.id) {
-        <div class="notificacao-card card border-0 border-start border-4 shadow-sm p-3 transition-all"
+        <div class="notificacao-card card border-0 border-start border-4 shadow-sm p-3 transition-all position-relative"
              [class.border-primary]="!notif.lida"
              [class.border-light-subtle]="notif.lida"
              [class.bg-card-lida]="notif.lida"
              [style.cursor]="notif.clubeId ? 'pointer' : 'default'"
              (click)="abrirNotificacao(notif)">
           
-          <div class="d-flex justify-content-between align-items-center gap-3">
+          <button class="btn btn-link text-secondary position-absolute top-0 end-0 p-2 z-3" 
+                  (click)="descartarNotificacao(notif.id, $event)"
+                  title="Descartar notificação">
+            <i class="bi bi-x-lg"></i>
+          </button>
+
+          <div class="d-flex justify-content-between align-items-center gap-3 mt-2">
             <div class="d-flex gap-2 align-items-start">
               <div class="mt-0.5 icon-wrapper">
                 @if (!notif.lida) {

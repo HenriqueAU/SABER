@@ -1,0 +1,48 @@
+:host ::ng-deep {
+  .section-title {
+    font-size: 0.95rem;
+  }
+
+  .btn-pagination {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+
+    .pagination-icon {
+      font-size: 0.8rem;
+    }
+  }
+
+  .pagination-label {
+    font-size: 0.8rem;
+  }
+
+  .recommendation-card {
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .book-cover {
+      aspect-ratio: 2/3;
+      object-fit: cover;
+    }
+
+    .book-author {
+      font-size: 0.75rem;
+    }
+  }
+
+  .list-book-cover {
+    width: 40px;
+    height: 55px;
+    object-fit: cover;
+  }
+
+  .list-book-date {
+    font-size: 0.75rem;
+  }
+}
