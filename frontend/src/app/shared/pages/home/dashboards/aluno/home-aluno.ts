@@ -26,6 +26,7 @@ export default class HomeAlunoComponent implements OnInit {
   totalLivrosLidos = signal<number>(0);
   totalClubes = signal<number>(0);
   totalPaginasLidas = signal<number>(0);
+  paginasLidasAnimado = signal<number>(0);
 
   emprestimosAtivos = signal<any[]>([]);
   clubesAtivos = signal<any[]>([]);
@@ -65,9 +66,22 @@ export default class HomeAlunoComponent implements OnInit {
     this.carregarPainel();
   }
 
-  estaAtrasado(data: string | Date): boolean {
-    if (!data) return false;
-    return new Date(data) < new Date();
+  getStatusPrazo(dataLimite: string | Date): 'no-prazo' | 'proximo' | 'atrasado' {
+    if (!dataLimite) return 'no-prazo';
+    
+    const limite = new Date(dataLimite).setHours(0, 0, 0, 0);
+    const hoje = new Date().setHours(0, 0, 0, 0);
+    
+    const diffMs = limite - hoje;
+    const diasRestantes = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diasRestantes < 0) {
+      return 'atrasado';
+    } else if (diasRestantes <= 2) {
+      return 'proximo'; 
+    } else {
+      return 'no-prazo';
+    }
   }
 
   abrirRecomendacao(livroId: string) {
@@ -135,6 +149,7 @@ export default class HomeAlunoComponent implements OnInit {
         return acc + (emp.exemplar?.livro?.paginas || 0);
       }, 0);
       this.totalPaginasLidas.set(paginasLidas);
+      this.animarContadorPaginas(paginasLidas);
 
       const resClubes = await firstValueFrom(this.clubesService.clubeControllerFindMeusClubes());
       const todosClubes = Array.isArray(resClubes) ? resClubes : [];
@@ -210,5 +225,30 @@ export default class HomeAlunoComponent implements OnInit {
     } finally {
       this.carregando.set(false);
     }
+  }
+
+  private animarContadorPaginas(destino: number) {
+    if (destino === 0 || typeof window === 'undefined') {
+      this.paginasLidasAnimado.set(destino);
+      return;
+    }
+
+    const duracaoAnimacaoMs = 1500;
+    const inicio = performance.now();
+    const passoAnimacao = (tempoAtual: number) => {
+      const progresso = Math.min((tempoAtual - inicio) / duracaoAnimacaoMs, 1);
+      const curvaDesaceleracao = progresso * (2 - progresso);
+      const valorAtual = Math.floor(destino * curvaDesaceleracao);
+
+      this.paginasLidasAnimado.set(valorAtual);
+
+      if (progresso < 1) {
+        requestAnimationFrame(passoAnimacao);
+      } else {
+        this.paginasLidasAnimado.set(destino);
+      }
+    };
+
+    requestAnimationFrame(passoAnimacao);
   }
 }

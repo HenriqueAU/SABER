@@ -79,6 +79,7 @@ export class LivroService {
         null,
       editora: livroEncontrado.publishers?.[0]?.name ?? null,
       publicado_em: livroEncontrado.publish_date ?? null,
+      paginas: livroEncontrado.number_of_pages ?? null,
     };
   }
 }

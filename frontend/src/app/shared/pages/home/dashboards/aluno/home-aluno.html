@@ -48,14 +48,14 @@
 
                 <div class="d-none d-sm-inline">
                   <i class="bi bi-file-earmark-text text-primary opacity-25 position-absolute start-0 ms-3 top-0 fs-1"></i>
-                  <h2 class="fw-bold mb-2">{{ totalPaginasLidas() > 0 ? totalPaginasLidas(): '-'}}</h2>
+                  <h2 class="fw-bold mb-2">{{ totalPaginasLidas() > 0 ? paginasLidasAnimado() : '-' }}</h2>
                   <h5 class="mb-0 fw-semibold">
                     {{ totalPaginasLidas() === 1 ? 'Página lida' : 'Páginas lidas' }}
                   </h5>
                 </div>
                 
                 <div class="d-block d-sm-none">
-                  <h2 class="fw-bold mb-1"><i class="bi bi-file-earmark-text text-primary fs-4 me-2"></i>{{ totalPaginasLidas() > 0 ? totalPaginasLidas(): '-'}}</h2>
+                  <h2 class="fw-bold mb-1"><i class="bi bi-file-earmark-text text-primary fs-4 me-2"></i>{{ totalPaginasLidas() > 0 ? paginasLidasAnimado() : '-' }}</h2>
                   <h6 class="mb-0 fw-semibold">
                     {{ totalPaginasLidas() === 1 ? 'Página lida' : 'Páginas lidas' }}
                   </h6>
@@ -161,16 +161,41 @@
               <span class="text-truncate"><i class="bi bi-bookmark-fill text-primary me-2"></i>Livros com você</span>
               <span class="badge bg-secondary rounded-pill ms-2">{{ emprestimosAtivos().length }}</span>
             </h6>
-            <ul class="list-unstyled mb-0">
-              @for (emp of emprestimosAtivos(); track emp.id; let i = $index) {
-                <li class="d-flex align-items-center gap-2 gap-sm-3 py-2" [class.border-top]="i > 0">
+            <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+              @for (emp of emprestimosAtivos(); track emp.id) {
+                
+                <li class="d-flex align-items-center gap-2 gap-sm-3 p-2 rounded border border-light-subtle"
+                    [ngClass]="{
+                      'bg-prazo-verde': getStatusPrazo(emp.data_devolucao_esperada) === 'no-prazo',
+                      'bg-prazo-amarelo': getStatusPrazo(emp.data_devolucao_esperada) === 'proximo',
+                      'bg-prazo-vermelho': getStatusPrazo(emp.data_devolucao_esperada) === 'atrasado'
+                    }">
+                  
                   <img [src]="emp.exemplar?.livro?.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" class="rounded shadow-sm flex-shrink-0 list-book-cover">
+                  
                   <div class="flex-grow-1 overflow-hidden">
-                    <div class="fw-semibold text-truncate small">{{ emp.exemplar?.livro?.titulo }}</div>
-                    <small [class.text-danger]="estaAtrasado(emp.data_devolucao_esperada)" [class.text-secondary]="!estaAtrasado(emp.data_devolucao_esperada)" class="list-book-date">
+                    
+                    <div class="fw-semibold text-truncate small"
+                         [ngClass]="{
+                           'text-success-emphasis': getStatusPrazo(emp.data_devolucao_esperada) === 'no-prazo',
+                           'text-warning-emphasis': getStatusPrazo(emp.data_devolucao_esperada) === 'proximo',
+                           'text-danger-emphasis': getStatusPrazo(emp.data_devolucao_esperada) === 'atrasado'
+                         }">
+                      {{ emp.exemplar?.livro?.titulo }}
+                    </div>
+                    
+                    <small class="list-book-date d-block mt-1"
+                           [ngClass]="{
+                             'text-success-emphasis': getStatusPrazo(emp.data_devolucao_esperada) === 'no-prazo',
+                             'text-warning-emphasis': getStatusPrazo(emp.data_devolucao_esperada) === 'proximo',
+                             'text-danger': getStatusPrazo(emp.data_devolucao_esperada) === 'atrasado'
+                           }">
                       <i class="bi bi-calendar-event me-1"></i>Até {{ emp.data_devolucao_esperada | date:'dd/MM/yyyy' }}
-                      @if (estaAtrasado(emp.data_devolucao_esperada)) {
-                        <span class="ms-1 fw-bold">⚠</span>
+                      
+                      @if (getStatusPrazo(emp.data_devolucao_esperada) === 'atrasado') {
+                        <span class="ms-1 fw-bold">⚠ Atrasado</span>
+                      } @else if (getStatusPrazo(emp.data_devolucao_esperada) === 'proximo') {
+                        <span class="ms-1 fw-bold"><i class="bi bi-clock-history"></i> Vence em breve</span>
                       }
                     </small>
                   </div>
