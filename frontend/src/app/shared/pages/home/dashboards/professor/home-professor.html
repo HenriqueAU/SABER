@@ -1,21 +1,22 @@
-<div class="container-fluid py-4 px-4">
+<div class="container-fluid py-4 px-3 px-md-4">
 
   @if (modoListagem()) {
     <header class="mb-4">
-      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+      <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3">
         <div>
           <h2 class="fw-bold mb-1"><i class="bi bi-journal-bookmark-fill text-primary me-2"></i>Meus clubes de leitura</h2>
           <p class="text-secondary mb-0">Gerencie os clubes de leitura em que você é o coordenador.</p>
         </div>
 
-        <div class="d-flex flex-column flex-sm-row gap-2 align-items-stretch align-items-sm-center">
-          <div class="card shadow-sm border-0" style="min-width: 400px;">
+        <div class="d-flex flex-column flex-lg-row gap-2 align-items-stretch w-100" style="max-width: 900px;">
+          
+          <div class="card shadow-sm border-0 flex-grow-1">
             <div class="card-body p-0">
               <div class="position-relative">
                 <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"></i>
                 <input
                   type="text"
-                  class="form-control border-0 ps-5 py-2"
+                  class="form-control border-0 ps-5 py-2 w-100"
                   placeholder="Buscar por título do livro"
                   [ngModel]="termoBusca()"
                   (ngModelChange)="termoBusca.set($event)">
@@ -23,23 +24,25 @@
             </div>
           </div>
 
-          <select class="form-select" style="min-width: 160px;" [ngModel]="filtroStatus()" (ngModelChange)="filtroStatus.set($event)">
-            <option value="TODOS">Todos os status</option>
-            <option value="ATIVOS">Ativos</option>
-            <option value="ENCERRADOS">Encerrados</option>
-          </select>
-          <button type="button" class="btn btn-primary text-nowrap flex-shrink-0 px-4" (click)="abrirClubeFormModal()">
-            <i class="bi bi-plus-circle me-1"></i>
-            Criar clube
-          </button>
+          <div class="d-flex flex-column flex-sm-row gap-2 flex-shrink-0">
+            <select class="form-select shadow-sm border-0" style="min-width: 170px;" [ngModel]="filtroStatus()" (ngModelChange)="filtroStatus.set($event)">
+              <option value="TODOS">Todos os clubes</option>
+              <option value="ATIVOS">Ativos</option>
+              <option value="ENCERRADOS">Encerrados</option>
+            </select>
+            <button type="button" class="btn btn-primary text-nowrap flex-shrink-0 shadow-sm px-4" (click)="abrirClubeFormModal()">
+              <i class="bi bi-plus-circle me-1"></i> Criar clube
+            </button>
+          </div>
+          
         </div>
       </div>
     </header>
 
     @if (carregando()) {
       <div class="text-center py-5">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-3 text-secondary">Carregando os seus clubes...</p>
+        <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+        <span class="text-secondary small">A carregar os seus clubes...</span>
       </div>
     }
 
@@ -51,41 +54,54 @@
     }
 
     @if (!carregando() && !mensagemErro()) {
-      <div class="row g-4">
+      <div class="row g-3 g-md-4">
         @for (c of clubesFiltrados(); track c.id) {
-          <div class="col-12 col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm h-100 overflow-hidden" style="cursor: pointer; transition: transform 0.2s;" (click)="abrirClube(c)" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-              <div class="row g-0 h-100">
-                <div class="col-4 position-relative bg-light border-end" style="aspect-ratio: 2/3;">
-                  <img [src]="c.livro?.capa_url || c.livro?.capaUrl || 'assets/imgs/livros/livro-sem-capa.png'" alt="Capa do Livro" class="w-100 h-100 object-fit-cover position-absolute top-0 start-0">
+          <div class="col-12 col-sm-6 col-lg-4">
+            
+            <div class="card h-100 shadow-sm border-0 overflow-hidden clube-card-horizontal position-relative w-100" style="cursor: pointer;" (click)="abrirClube(c)">
+              
+              <div class="d-flex flex-row h-100">
+                <div class="clube-cover-wrapper flex-shrink-0 border-end">
+                  <img [src]="c.livro?.capa_url || c.livro?.capaUrl || 'assets/imgs/livros/livro-sem-capa.png'" alt="Capa do Livro" class="clube-cover-img">
                 </div>
-                <div class="col-8 d-flex flex-column">
-                  <div class="card-body p-3 d-flex flex-column h-100">
-                    <h6 class="fw-bold text-dark text-truncate mb-1" title="{{ c.livro?.titulo }}">
-                      {{ c.livro?.titulo || 'Título não informado' }}
-                    </h6>
-                    <p class="text-primary text-truncate mb-2 small fw-medium" title="{{ c.nome }}">
-                      <i class="bi bi-people me-1"></i>{{ c.nome || 'Clube de leitura' }}
-                    </p>
-                    <div class="mt-auto">
-                      @if (getDiasParaInicio(c.data_inicio); as dias) {
-                        <div class="mb-1 small"><i class="bi bi-rocket-takeoff text-primary me-1"></i>Início: <span class="text-primary fw-medium">{{ dias }} dia(s)</span></div>
-                      }
-                      <div class="mb-1 small"><i class="bi bi-calendar-event text-secondary me-1"></i>Fim: {{ (c.data_fim | date:'dd/MM/yyyy') || 'Não definido' }}</div>
-                      @if (c.local_encontro) {
-                        <div class="mb-0 text-truncate small" title="{{ c.local_encontro }}"><i class="bi bi-geo-alt text-danger me-1"></i>{{ c.local_encontro }}</div>
-                      }
+
+                <div class="card-body p-3 d-flex flex-column min-w-0">
+                  <h6 class="fw-bold text-dark text-truncate mb-1" title="{{ c.livro?.titulo }}">
+                    {{ c.livro?.titulo || 'Título não informado' }}
+                  </h6>
+                  
+                  <span class="badge bg-primary-subtle text-primary text-truncate d-inline-block mb-2 align-self-start" style="font-size: 0.75rem; max-width: 100%;" title="{{ c.nome }}">
+                    <i class="bi bi-people me-1"></i>{{ c.nome || 'Clube de leitura' }}
+                  </span>
+
+                  <div class="clube-info-list mt-auto">
+                    @if (getDiasParaInicio(c.data_inicio); as dias) {
+                      <div class="text-truncate">
+                        <i class="bi bi-rocket-takeoff"></i>
+                        <span class="fw-medium">Início:</span> {{ dias }} dia(s)
+                      </div>
+                    }
+                    <div class="text-truncate">
+                      <i class="bi bi-calendar-event"></i>
+                      <span class="fw-medium">Fim:</span> {{ (c.data_fim | date:'dd/MM/yyyy') || 'Não definido' }}
                     </div>
+                    @if (c.local_encontro) {
+                      <div class="text-truncate" title="{{ c.local_encontro }}">
+                        <i class="bi bi-geo-alt"></i>
+                        <span class="fw-medium">Local:</span> {{ c.local_encontro }}
+                      </div>
+                    }
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
         } @empty {
           <div class="col-12">
             <div class="text-center py-5 bg-white rounded-3 shadow-sm border border-light">
               <i class="bi bi-journal-x fs-1 text-secondary opacity-50 mb-3 d-block"></i>
-              <h4 class="text-secondary fw-medium">Você ainda não possui clubes de leitura.</h4>
+              <h5 class="text-secondary fw-medium mb-0">Você ainda não possui clubes de leitura.</h5>
             </div>
           </div>
         }
@@ -93,7 +109,7 @@
     }
   } @else {
 
-    <button class="btn btn-outline-secondary mb-4" (click)="voltarParaListagem()">
+    <button class="btn btn-outline-secondary mb-4 shadow-sm" (click)="voltarParaListagem()">
       <i class="bi bi-arrow-left me-2"></i>Voltar à Lista
     </button>
 
@@ -101,7 +117,7 @@
       <div class="row g-4">
 
         <div class="col-12 col-lg-4">
-          <div class="card border-0 shadow-sm overflow-hidden bg-light mx-auto" style="aspect-ratio: 2/3; max-width: 400px;">
+          <div class="card border border-light-subtle shadow-sm overflow-hidden bg-light mx-auto" style="aspect-ratio: 2/3; max-width: 300px;">
             <img [src]="detalhes.livro?.capa_url || detalhes.livro?.capaUrl || 'assets/imgs/livros/livro-sem-capa.png'" alt="Capa do Livro" class="w-100 h-100 object-fit-cover">
           </div>
         </div>
@@ -109,21 +125,21 @@
         <div class="col-12 col-lg-8">
 
           <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
-              <div class="d-flex justify-content-between align-items-start mb-3 gap-3">
+            <div class="card-body p-3 p-md-4">
+              <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start mb-3 gap-3">
                 <div>
-                  <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-book me-2"></i>{{ detalhes.livro?.titulo || 'Título não informado' }}</h4>
+                  <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-book text-primary me-2 d-none d-sm-inline"></i>{{ detalhes.livro?.titulo || 'Título não informado' }}</h4>
                   <p class="text-secondary fw-medium mb-1">Por: {{ detalhes.livro?.autor || 'Autor Desconhecido' }}</p>
-                  <h5 class="text-primary mb-0 mt-2"><i class="bi bi-people me-2"></i>{{ detalhes.nome || 'Clube de leitura' }}</h5>
+                  <h6 class="text-primary mb-0 mt-2"><i class="bi bi-people me-2"></i>{{ detalhes.nome || 'Clube de leitura' }}</h6>
                 </div>
-                <span class="badge bg-primary-subtle text-primary border flex-shrink-0" style="font-size: 0.85rem;">Clube de leitura</span>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 flex-shrink-0" style="font-size: 0.85rem;">Clube de leitura</span>
               </div>
 
               <p class="small text-secondary mb-3 text-justify">
                 {{ detalhes.livro?.sinopse || 'Nenhuma sinopse disponível para este livro no momento.' }}
               </p>
 
-              <div class="d-flex flex-wrap gap-4 bg-light p-3 rounded-3 small text-secondary">
+              <div class="d-flex flex-wrap gap-3 gap-md-4 bg-light p-3 rounded-3 small text-secondary">
                 @if (detalhes.livro?.isbn) { <div><strong class="text-dark d-block text-uppercase" style="font-size: 0.75rem;">ISBN</strong> {{ detalhes.livro.isbn }}</div> }
                 @if (detalhes.livro?.editora) { <div><strong class="text-dark d-block text-uppercase" style="font-size: 0.75rem;">Editora</strong> {{ detalhes.livro.editora }}</div> }
                 @if (detalhes.livro?.ano_publicacao || detalhes.livro?.ano) {
@@ -138,11 +154,11 @@
 
           <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-3 p-md-4">
-              <h5 class="fw-bold mb-4"><i class="bi bi-info-circle text-primary me-2"></i>Informações do encontro</h5>
+              <h6 class="fw-bold mb-3 section-title"><i class="bi bi-info-circle-fill text-primary me-2"></i>Informações do encontro</h6>
 
-              <div class="d-flex flex-nowrap gap-2 mb-2">
+              <div class="row g-2 mb-3">
                 @if (detalhes.local_encontro) {
-                  <div class="flex-fill" style="min-width: 0;">
+                  <div class="col-6 col-sm-3">
                     <div class="p-2 p-md-3 bg-light rounded-3 h-100 border border-light text-center d-flex flex-column justify-content-center">
                       <span class="d-block text-secondary text-uppercase mb-1" style="font-size: 0.65rem;">Local</span>
                       <strong class="text-dark text-truncate d-block" style="font-size: 0.8rem;" title="{{ detalhes.local_encontro }}"><i class="bi bi-geo-alt me-1 text-danger d-none d-sm-inline"></i>{{ detalhes.local_encontro }}</strong>
@@ -150,7 +166,7 @@
                   </div>
                 }
 
-                <div class="flex-fill" style="min-width: 0;">
+                <div class="col-6 col-sm-3">
                   <div class="p-2 p-md-3 bg-light rounded-3 h-100 border border-light text-center d-flex flex-column justify-content-center">
                     <span class="d-block text-secondary text-uppercase mb-1" style="font-size: 0.65rem;">Status</span>
                     @if (clubeEncerrado()) {
@@ -165,14 +181,14 @@
                   </div>
                 </div>
 
-                <div class="flex-fill" style="min-width: 0;">
+                <div class="col-6 col-sm-3">
                   <div class="p-2 p-md-3 bg-light rounded-3 h-100 border border-light text-center d-flex flex-column justify-content-center">
                     <span class="d-block text-secondary text-uppercase mb-1" style="font-size: 0.65rem;">Início</span>
                     <strong class="text-dark text-truncate d-block" style="font-size: 0.8rem;"><i class="bi bi-calendar-event me-1 text-secondary d-none d-sm-inline"></i>{{ detalhes.data_inicio | date:'dd/MM' }}</strong>
                   </div>
                 </div>
 
-                <div class="flex-fill" style="min-width: 0;">
+                <div class="col-6 col-sm-3">
                   <div class="p-2 p-md-3 bg-light rounded-3 h-100 border border-light text-center d-flex flex-column justify-content-center">
                     <span class="d-block text-secondary text-uppercase mb-1" style="font-size: 0.65rem;">Fim</span>
                     <strong class="text-dark text-truncate d-block" style="font-size: 0.8rem;"><i class="bi bi-calendar-check me-1 text-secondary d-none d-sm-inline"></i>{{ (detalhes.data_fim | date:'dd/MM') || 'N/A' }}</strong>
@@ -182,12 +198,12 @@
 
               @if (abaAtiva() === 'detalhes') {
                 @if (clubeEncerrado()) {
-                  <button class="btn btn-primary w-100 py-2 fw-semibold" (click)="abrirFeedbacks()">
+                  <button class="btn btn-primary w-100 py-2 fw-semibold shadow-sm" (click)="abrirFeedbacks()">
                     <i class="bi bi-bar-chart-line me-2"></i>Ver Feedbacks dos alunos
                   </button>
                 } @else {
-                  <div class="alert alert-warning border-0 d-flex align-items-center mb-0 shadow-sm">
-                    <i class="bi bi-clock-history fs-4 text-warning me-3"></i>
+                  <div class="alert alert-warning border-0 d-flex align-items-center mb-0 shadow-sm small">
+                    <i class="bi bi-clock-history fs-5 text-warning me-3"></i>
                     <div class="text-dark">Os feedbacks dos alunos só estarão disponíveis após o encerramento do clube.</div>
                   </div>
                 }
@@ -197,22 +213,22 @@
 
           @if (abaAtiva() === 'detalhes') {
             <div class="card border-0 shadow-sm">
-              <div class="card-body p-4">
-                <h5 class="fw-bold mb-4 d-flex align-items-center">
-                  <i class="bi bi-people-fill text-primary me-2"></i> Alunos inscritos
-                  <span class="badge bg-primary rounded-pill ms-2">{{ membrosDoClube().length }}</span>
-                </h5>
+              <div class="card-body p-3 p-md-4">
+                <h6 class="fw-bold mb-4 d-flex justify-content-between align-items-center section-title">
+                  <span><i class="bi bi-people-fill text-primary me-2"></i> Alunos inscritos</span>
+                  <span class="badge bg-secondary rounded-pill ms-2">{{ membrosDoClube().length }}</span>
+                </h6>
 
                 @if (carregandoMembros()) {
                   <div class="text-center py-4">
                     <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-                    <span class="text-secondary small">Carregando lista de alunos...</span>
+                    <span class="text-secondary small">A carregar lista de alunos...</span>
                   </div>
                 }
 
                 @if (erroMembros()) {
-                  <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center">
-                    <i class="bi bi-exclamation-octagon-fill fs-4 me-3"></i>
+                  <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center small">
+                    <i class="bi bi-exclamation-octagon-fill fs-5 me-3"></i>
                     <div>{{ erroMembros() }}</div>
                   </div>
                 }
@@ -220,37 +236,31 @@
                 @if (!carregandoMembros() && !erroMembros()) {
                   <ul class="list-group list-group-flush mb-3">
                     @for (membro of membrosPaginados; track membro.id) {
-                      <li class="list-group-item d-flex align-items-center px-0 py-3 border-light">
-                        <img [src]="membro.usuario?.foto_perfil || 'assets/imgs/avatares/0.png'" alt="Foto do aluno" class="rounded-circle shadow-sm object-fit-cover me-3" style="width: 48px; height: 48px;">
-                        <div>
-                          <strong class="d-block text-dark">{{ membro.usuario?.nome || 'Aluno Desconhecido' }}</strong>
-                          <small class="text-secondary"><i class="bi bi-envelope me-1"></i>{{ membro.usuario?.email || 'Sem e-mail' }}</small>
+                      <li class="list-group-item d-flex align-items-center px-0 py-2 border-light">
+                        <img [src]="membro.usuario?.foto_perfil || 'assets/imgs/avatares/0.png'" alt="Foto do aluno" class="rounded shadow-sm object-fit-cover me-3 list-book-cover" style="width: 40px; height: 40px; border-radius: 50% !important;">
+                        <div class="flex-grow-1 overflow-hidden">
+                          <strong class="d-block text-dark text-truncate" style="font-size: 0.9rem;">{{ membro.usuario?.nome || 'Aluno Desconhecido' }}</strong>
+                          <small class="text-secondary text-truncate d-block" style="font-size: 0.75rem;"><i class="bi bi-envelope me-1"></i>{{ membro.usuario?.email || 'Sem e-mail' }}</small>
                         </div>
                       </li>
                     } @empty {
                       <div class="text-center py-4 bg-light rounded-3 border border-light">
-                        <i class="bi bi-person-x fs-2 text-secondary opacity-50 mb-2 d-block"></i>
-                        <span class="text-secondary small">Nenhum aluno inscrito neste clube ainda.</span>
+                        <i class="bi bi-person-x fs-1 text-secondary opacity-50 mb-2 d-block"></i>
+                        <span class="text-secondary small mb-0">Nenhum aluno inscrito neste clube ainda.</span>
                       </div>
                     }
                   </ul>
 
                   @if (totalPaginasAlunos > 1) {
-                    <nav aria-label="Navegação de páginas de alunos" class="mt-4">
-                      <ul class="pagination pagination-sm justify-content-center mb-0">
-                        <li class="page-item" [class.disabled]="paginaAtualAlunos() === 1">
-                          <a class="page-link" href="#" (click)="mudarPaginaAlunos(paginaAtualAlunos() - 1, $event)">Anterior</a>
-                        </li>
-                        @for (pagina of paginasExibidasAlunos; track $index) {
-                          <li class="page-item" [class.active]="pagina === paginaAtualAlunos()" [class.disabled]="pagina === '...'">
-                            <a class="page-link" href="#" (click)="mudarPaginaAlunos(pagina, $event)">{{ pagina }}</a>
-                          </li>
-                        }
-                        <li class="page-item" [class.disabled]="paginaAtualAlunos() === totalPaginasAlunos">
-                          <a class="page-link" href="#" (click)="mudarPaginaAlunos(paginaAtualAlunos() + 1, $event)">Próxima</a>
-                        </li>
-                      </ul>
-                    </nav>
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                      <button class="btn btn-sm btn-outline-secondary btn-pagination d-flex justify-content-center align-items-center" [disabled]="paginaAtualAlunos() === 1" (click)="mudarPaginaAlunos(paginaAtualAlunos() - 1, $event)">
+                        <i class="bi bi-chevron-left pagination-icon"></i>
+                      </button>
+                      <span class="small text-secondary fw-medium align-self-center pagination-label">{{ paginaAtualAlunos() }} / {{ totalPaginasAlunos }}</span>
+                      <button class="btn btn-sm btn-outline-secondary btn-pagination d-flex justify-content-center align-items-center" [disabled]="paginaAtualAlunos() === totalPaginasAlunos" (click)="mudarPaginaAlunos(paginaAtualAlunos() + 1, $event)">
+                        <i class="bi bi-chevron-right pagination-icon"></i>
+                      </button>
+                    </div>
                   }
                 }
               </div>
@@ -259,31 +269,31 @@
 
           <div #feedbackModal class="modal fade" id="feedbackModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
-              <div class="modal-content rounded-4 shadow-lg">
-                <div class="modal-header bg-light">
-                  <h5 class="modal-title"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Resultados dos Feedbacks</h5>
+              <div class="modal-content rounded-4 shadow-lg border-0">
+                <div class="modal-header bg-light border-bottom-0 pb-3">
+                  <h5 class="modal-title fw-bold"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Resultados dos Feedbacks</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body pt-0">
                   <p class="text-secondary small mb-4">Selecione uma pergunta abaixo para ver a votação dos alunos.</p>
 
                   @if (perguntas().length === 0) {
-                    <div class="alert alert-secondary border-0 text-center py-4 shadow-sm">Não há perguntas configuradas.</div>
+                    <div class="alert alert-secondary border-0 text-center py-4 shadow-sm small">Não há perguntas configuradas.</div>
                   }
 
                   <div class="accordion" id="accordionFeedbacks">
                     @for (pergunta of perguntas(); track pergunta.id; let i = $index) {
-                      <div class="accordion-item border-light mb-2 shadow-sm rounded">
+                      <div class="accordion-item border-light mb-2 shadow-sm rounded overflow-hidden">
                         <h2 class="accordion-header">
-                          <button class="accordion-button bg-light rounded" [class.collapsed]="perguntaSelecionadaId() !== pergunta.id" type="button" (click)="selecionarPerguntaParaAnalise(pergunta.id)">
-                            <strong class="me-2">{{ i + 1 }}.</strong> {{ pergunta.texto }}
+                          <button class="accordion-button bg-light fw-medium" [class.collapsed]="perguntaSelecionadaId() !== pergunta.id" type="button" (click)="selecionarPerguntaParaAnalise(pergunta.id)">
+                            <strong class="me-2 text-primary">{{ i + 1 }}.</strong> {{ pergunta.texto }}
                           </button>
                         </h2>
                         @if (perguntaSelecionadaId() === pergunta.id) {
                           <div class="accordion-collapse collapse show">
-                            <div class="accordion-body bg-white border-top">
+                            <div class="accordion-body bg-white border-top border-light">
                               @for (stat of estatisticas(); track stat.texto) {
-                                <div class="d-flex justify-content-between align-items-center p-3 mb-2 bg-light rounded border-start border-4 border-primary">
+                                <div class="d-flex justify-content-between align-items-center p-2 px-3 mb-2 bg-light rounded border-start border-4 border-primary">
                                   <span class="text-dark small fw-medium">{{ stat.texto }}</span>
                                   <span class="badge rounded-pill" [class.bg-primary]="stat.quantidade > 0" [class.bg-secondary]="stat.quantidade === 0">
                                     {{ stat.quantidade }} voto(s)
@@ -304,34 +314,35 @@
       </div>
     }
   }
+  
   <div #clubeFormModal class="modal fade" id="clubeFormModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content rounded-4 shadow-lg">
-        <div class="modal-header bg-light">
-          <h5 class="modal-title">Criar clube de leitura</h5>
+      <div class="modal-content rounded-4 shadow-lg border-0">
+        <div class="modal-header bg-light border-bottom-0 pb-3">
+          <h5 class="modal-title fw-bold">Criar clube de leitura</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <form [formGroup]="clubeForm" (ngSubmit)="criarClube()">
-          <div class="modal-body">
+          <div class="modal-body pt-0">
             @if (erroClube()) {
-              <div class="alert alert-danger py-2 px-3 small">{{ erroClube() }}</div>
+              <div class="alert alert-danger py-2 px-3 small border-0 shadow-sm">{{ erroClube() }}</div>
             }
 
             <div class="mb-3">
-              <label class="form-label fw-medium">Livro *</label>
+              <label class="form-label fw-semibold small text-secondary text-uppercase">Livro *</label>
               <div class="position-relative">
                 <input
                   type="text"
                   formControlName="livro_busca"
                   (input)="filtrarLivrosParaSelecao()"
-                  class="form-control"
+                  class="form-control bg-light border-light-subtle"
                   placeholder="Buscar por título do livro"
                   autocomplete="off">
 
                 @if (livrosFiltrados().length > 0) {
-                  <div class="list-group position-absolute w-100 shadow z-3">
+                  <div class="list-group position-absolute w-100 shadow z-3 mt-1">
                     @for (livro of livrosFiltrados(); track livro.id) {
-                      <button type="button" class="list-group-item list-group-item-action" (click)="selecionarLivro(livro)">
+                      <button type="button" class="list-group-item list-group-item-action py-2 small" (click)="selecionarLivro(livro)">
                         {{ livro.titulo }}
                       </button>
                     }
@@ -340,29 +351,29 @@
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-medium">Nome do clube *</label>
-              <input type="text" formControlName="nome" class="form-control" placeholder="Ex: Clube da meia noite">
+              <label class="form-label fw-semibold small text-secondary text-uppercase">Nome do clube *</label>
+              <input type="text" formControlName="nome" class="form-control bg-light border-light-subtle" placeholder="Ex: Clube da meia noite">
             </div>
 
             <div class="row g-3 mb-3">
               <div class="col-6">
-                <label class="form-label fw-medium">Data de início</label>
-                <input type="date" formControlName="data_inicio" class="form-control">
+                <label class="form-label fw-semibold small text-secondary text-uppercase">Início</label>
+                <input type="date" formControlName="data_inicio" class="form-control bg-light border-light-subtle text-secondary">
               </div>
               <div class="col-6">
-                <label class="form-label fw-medium">Data de término *</label>
-                <input type="date" formControlName="data_fim" class="form-control">
+                <label class="form-label fw-semibold small text-secondary text-uppercase">Término *</label>
+                <input type="date" formControlName="data_fim" class="form-control bg-light border-light-subtle text-secondary">
               </div>
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-medium">Local ou link de encontro</label>
-              <input type="text" formControlName="local_encontro" class="form-control" placeholder="Ex: link do Meet">
+              <label class="form-label fw-semibold small text-secondary text-uppercase">Local ou link de encontro</label>
+              <input type="text" formControlName="local_encontro" class="form-control bg-light border-light-subtle" placeholder="Ex: Sala 4 ou link do Meet">
             </div>
           </div>
-          <div class="modal-footer bg-light">
-            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" [disabled]="clubeForm.invalid || enviandoClube()" class="btn btn-primary btn-sm">
+          <div class="modal-footer bg-light border-top-0 pt-3">
+            <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" [disabled]="clubeForm.invalid || enviandoClube()" class="btn btn-primary btn-sm px-4 shadow-sm">
               {{ enviandoClube() ? 'Criando...' : 'Criar clube' }}
             </button>
           </div>
