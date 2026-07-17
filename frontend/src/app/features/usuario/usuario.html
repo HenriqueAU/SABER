@@ -1,14 +1,18 @@
 <div #usuarioModal class="modal fade" id="usuarioModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-lg" style="width: 80%; max-width: 800px;">
+  <div class="modal-dialog modal-dialog-centered modal-lg" style="width: 80%; max-width: 800px">
     <div class="modal-content rounded-4 shadow-lg border-0">
 
       <div class="modal-header bg-light border-bottom">
-        <h1 class="modal-title fs-5 fw-bold text-dark"><i class="bi bi-person-plus text-primary me-2"></i>Cadastrar Utilizador</h1>
+        <h1 class="modal-title fs-5 fw-bold text-dark">
+          <i class="bi bi-person-plus text-primary me-2"></i>Cadastrar Utilizador
+        </h1>
         <button type="button" class="btn-close" (click)="fecharModalUsuario()"></button>
       </div>
 
       <div class="modal-body p-4">
-        <p class="text-secondary small mb-4">Preencha os dados do novo utilizador para dar-lhe acesso ao sistema.</p>
+        <p class="text-secondary small mb-4">
+          Preencha os dados do novo utilizador para dar-lhe acesso ao sistema.
+        </p>
 
         @if (mensagemErro()) {
           <div class="alert alert-danger small d-flex align-items-center shadow-sm border-0">
@@ -17,18 +21,29 @@
         }
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()" id="formUsuario">
-
           <div class="row g-3 mb-3">
             <div class="col-12 col-md-8">
-              <label for="nome" class="form-label small fw-bold text-secondary">Nome Completo</label>
-              <input id="nome" type="text" formControlName="nome" class="form-control bg-light" placeholder="Ex: João da Silva">
+              <label for="nome" class="form-label small fw-bold text-secondary"
+                >Nome Completo</label
+              >
+              <input
+                id="nome"
+                type="text"
+                formControlName="nome"
+                class="form-control bg-light"
+                placeholder="Ex: João da Silva"
+              />
               @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
-                <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Verifique o nome introduzido.</small>
+                <small class="text-danger mt-1 d-block"
+                  ><i class="bi bi-info-circle me-1"></i>Verifique o nome introduzido.</small
+                >
               }
             </div>
 
             <div class="col-12 col-md-4">
-              <label for="perfil" class="form-label small fw-bold text-secondary">Perfil de Acesso</label>
+              <label for="perfil" class="form-label small fw-bold text-secondary"
+                >Perfil de Acesso</label
+              >
               <select id="perfil" formControlName="perfil" class="form-select bg-light">
                 <option value="">Selecione</option>
                 @for (p of perfis; track p) {
@@ -36,7 +51,9 @@
                 }
               </select>
               @if (form.get('perfil')?.invalid && form.get('perfil')?.touched) {
-                <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Obrigatório.</small>
+                <small class="text-danger mt-1 d-block"
+                  ><i class="bi bi-info-circle me-1"></i>Obrigatório.</small
+                >
               }
             </div>
           </div>
@@ -45,27 +62,54 @@
             <div class="col-12 col-md-5">
               <label for="email" class="form-label small fw-bold text-secondary">E-mail</label>
               <div class="input-group">
-                <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-secondary"></i></span>
-                <input id="email" type="email" formControlName="email" class="form-control bg-light border-start-0 ps-0" placeholder="Ex: joao@email.com">
+                <span class="input-group-text bg-light border-end-0"
+                  ><i class="bi bi-envelope text-secondary"></i
+                ></span>
+                <input
+                  id="email"
+                  type="email"
+                  formControlName="email"
+                  class="form-control bg-light border-start-0 ps-0"
+                  placeholder="Ex: joao@email.com"
+                />
               </div>
               @if (form.get('email')?.invalid && form.get('email')?.touched) {
-                <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Introduza um e-mail válido.</small>
+                <small class="text-danger mt-1 d-block"
+                  ><i class="bi bi-info-circle me-1"></i>Introduza um e-mail válido.</small
+                >
               }
             </div>
 
             <div class="col-12 col-md-4">
               <label for="senha" class="form-label small fw-bold text-secondary">Senha</label>
-              <input id="senha" type="password" formControlName="senha" class="form-control bg-light" placeholder="Mínimo 8 caracteres">
+              <input
+                id="senha"
+                type="password"
+                formControlName="senha"
+                class="form-control bg-light"
+                placeholder="Mínimo 8 caracteres"
+              />
               @if (form.get('senha')?.invalid && form.get('senha')?.touched) {
-                <small class="text-danger mt-1 d-block"><i class="bi bi-shield-exclamation me-1"></i>Senha inválida.</small>
+                <small class="text-danger mt-1 d-block"
+                  ><i class="bi bi-shield-exclamation me-1"></i>Senha inválida.</small
+                >
               }
             </div>
 
             <div class="col-12 col-md-3">
-              <label for="data_nasc" class="form-label small fw-bold text-secondary">Data de Nasc.</label>
-              <input id="data_nasc" type="date" formControlName="data_nasc" class="form-control bg-light">
+              <label for="data_nasc" class="form-label small fw-bold text-secondary"
+                >Data de Nasc.</label
+              >
+              <input
+                id="data_nasc"
+                type="date"
+                formControlName="data_nasc"
+                class="form-control bg-light"
+              />
               @if (form.get('data_nasc')?.invalid && form.get('data_nasc')?.touched) {
-                <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Obrigatório.</small>
+                <small class="text-danger mt-1 d-block"
+                  ><i class="bi bi-info-circle me-1"></i>Obrigatório.</small
+                >
               }
             </div>
           </div>
@@ -74,8 +118,15 @@
       </div>
 
       <div class="modal-footer bg-light border-top">
-        <button type="button" class="btn btn-outline-secondary" (click)="fecharModalUsuario()">Cancelar</button>
-        <button type="submit" form="formUsuario" class="btn btn-primary shadow-sm" [disabled]="form.invalid || enviando()">
+        <button type="button" class="btn btn-outline-secondary" (click)="fecharModalUsuario()">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          form="formUsuario"
+          class="btn btn-primary shadow-sm"
+          [disabled]="form.invalid || enviando()"
+        >
           @if (enviando()) {
             <span class="spinner-border spinner-border-sm me-2" role="status"></span> A cadastrar...
           } @else {
@@ -89,16 +140,18 @@
 </div>
 
 <div #successModal class="modal fade" id="successModal" tabindex="-1">
-  <app-success-modal
-    [mensagem]="mensagemSucessoModal">
-  </app-success-modal>
+  <app-success-modal [mensagem]="mensagemSucessoModal"> </app-success-modal>
 </div>
 
 <div class="container-fluid py-4 px-4">
   <div class="container py-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
+    <div
+      class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3"
+    >
       <div class="text-center text-md-start">
-        <p class="fs-5 fw-medium text-dark mb-0">Gerencie os utilizadores e perfis vinculados à sua instituição.</p>
+        <p class="fs-5 fw-medium text-dark mb-0">
+          Gerencie os utilizadores e perfis vinculados à sua instituição.
+        </p>
       </div>
       <button class="btn btn-primary fw-medium shadow-sm" (click)="abrirModalUsuario()">
         <i class="bi bi-person-plus me-2"></i>Cadastrar Usuário
@@ -111,15 +164,26 @@
     <div class="row g-3 mb-4">
       <div class="col-12 col-md-6 col-lg-4">
         <div class="input-group shadow-sm">
-          <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
-          <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por nome ou e-mail"
-                 [ngModel]="termoBusca()" (ngModelChange)="termoBusca.set($event); onFiltroChange()"
-                 [ngModelOptions]="{standalone: true}">
+          <span class="input-group-text bg-white border-end-0"
+            ><i class="bi bi-search text-secondary"></i
+          ></span>
+          <input
+            type="text"
+            class="form-control border-start-0 ps-0"
+            placeholder="Buscar por nome ou e-mail"
+            [ngModel]="termoBusca()"
+            (ngModelChange)="termoBusca.set($event); onFiltroChange()"
+            [ngModelOptions]="{ standalone: true }"
+          />
         </div>
       </div>
       <div class="col-12 col-md-4 col-lg-3">
-        <select class="form-select shadow-sm" [ngModel]="perfilSelecionado()" (ngModelChange)="perfilSelecionado.set($event); onFiltroChange()"
-                [ngModelOptions]="{standalone: true}">
+        <select
+          class="form-select shadow-sm"
+          [ngModel]="perfilSelecionado()"
+          (ngModelChange)="perfilSelecionado.set($event); onFiltroChange()"
+          [ngModelOptions]="{ standalone: true }"
+        >
           <option value="">Todos os perfis</option>
           @for (p of perfis; track p) {
             <option [value]="p">{{ p }}</option>
@@ -145,13 +209,40 @@
 
     @if (!carregando() && usuariosFiltrados().length > 0) {
       <div class="card shadow-sm border-0 mb-4">
-        <div class="table-responsive">
+        <div class="table-responsive" style="background-color: #f8f9fa; padding: 12px">
           <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th class="ps-4 py-3 text-secondary small fw-bold text-uppercase">Nome / Email</th>
-                <th class="py-3 text-secondary small fw-bold text-uppercase">Perfil</th>
-                <th class="pe-4 py-3 text-secondary small fw-bold text-uppercase">Data de Nascimento</th>
+            <!-- DEPOIS -->
+            <thead style="background-color: #003a79 !important; color: #ffffff !important">
+              <tr style="background-color: #003a79 !important">
+                <th
+                  class="ps-4 py-3"
+                  style="background-color: #003a79 !important; color: #ffffff !important"
+                >
+                  Nome / Email
+                </th>
+                <th
+                  class="py-3"
+                  style="background-color: #003a79 !important; color: #ffffff !important"
+                >
+                  Perfil
+                </th>
+                <th
+                  class="pe-4 py-3"
+                  style="
+                    background-color: #003a79 !important;
+                    color: #ffffff !important;
+                    cursor: pointer;
+                    user-select: none;
+                  "
+                  (click)="alternarOrdenacao()"
+                >
+                  Data de Nascimento
+                  <i class="bi ms-1"
+                    [class.bi-arrow-up]="ordemDataNasc() === 'asc'"
+                    [class.bi-arrow-down]="ordemDataNasc() === 'desc'"
+                    [class.bi-arrow-down-up]="ordemDataNasc() === null">
+                  </i>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -159,20 +250,34 @@
                 <tr>
                   <td class="ps-4 py-3">
                     <div class="d-flex align-items-center gap-3">
-                      <div class="bg-primary-subtle text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; font-size: 1.1rem;">
+                      <div
+                        class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white flex-shrink-0"
+                        style="
+                          width: 42px;
+                          height: 42px;
+                          background-color: #003a79;
+                          font-size: 1.1rem;
+                        "
+                      >
                         {{ usuario.nome.charAt(0).toUpperCase() }}
                       </div>
                       <div>
                         <div class="fw-bold text-dark">{{ usuario.nome }}</div>
-                        <small class="text-secondary"><i class="bi bi-envelope me-1"></i>{{ usuario.email }}</small>
+                        <small class="text-secondary"
+                          ><i class="bi bi-envelope me-1"></i>{{ usuario.email }}</small
+                        >
                       </div>
                     </div>
                   </td>
                   <td class="py-3">
-                    <span class="badge rounded-pill bg-secondary-subtle text-secondary text-uppercase">{{ usuario.perfil }}</span>
+                    <span
+                      class="badge rounded-pill bg-secondary-subtle text-secondary text-uppercase"
+                      >{{ usuario.perfil }}</span
+                    >
                   </td>
                   <td class="pe-4 py-3 text-secondary">
-                    <i class="bi bi-calendar me-2"></i>{{ usuario.data_nasc | date:'dd/MM/yyyy':'UTC' }}
+                    <i class="bi bi-calendar me-2"></i
+                    >{{ usuario.data_nasc | date: 'dd/MM/yyyy' : 'UTC' }}
                   </td>
                 </tr>
               }
@@ -183,12 +288,15 @@
 
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-3">
         <span class="text-secondary small mb-3 mb-md-0 fw-medium">
-          A exibir {{ (paginaAtual() - 1) * ITENS_POR_PAGINA + 1 }}–{{ fimDaPagina() }} de {{ usuariosFiltrados().length }} utilizadores
+          A exibir {{ (paginaAtual() - 1) * ITENS_POR_PAGINA + 1 }}–{{ fimDaPagina() }} de
+          {{ usuariosFiltrados().length }} utilizadores
         </span>
         <nav>
           <ul class="pagination mb-0 shadow-sm">
             <li class="page-item" [class.disabled]="paginaAtual() === 1">
-              <button class="page-link text-dark" (click)="irParaPagina(paginaAtual() - 1)"><i class="bi bi-chevron-left"></i></button>
+              <button class="page-link text-dark" (click)="irParaPagina(paginaAtual() - 1)">
+                <i class="bi bi-chevron-left"></i>
+              </button>
             </li>
             @for (p of paginas(); track p) {
               <li class="page-item" [class.active]="p === paginaAtual()">
@@ -196,7 +304,9 @@
               </li>
             }
             <li class="page-item" [class.disabled]="paginaAtual() === totalPaginas()">
-              <button class="page-link text-dark" (click)="irParaPagina(paginaAtual() + 1)"><i class="bi bi-chevron-right"></i></button>
+              <button class="page-link text-dark" (click)="irParaPagina(paginaAtual() + 1)">
+                <i class="bi bi-chevron-right"></i>
+              </button>
             </li>
           </ul>
         </nav>

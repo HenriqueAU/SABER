@@ -1,26 +1,26 @@
 import { Component, OnInit, inject, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators,FormsModule } from '@angular/forms'
-import { UsuariosService } from '../../../client/services/usuarios.service'; 
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  FormsModule,
+} from '@angular/forms';
+import { UsuariosService } from '../../../client/services/usuarios.service';
 import { CoreAuthService } from '../../core/auth/auth-session';
-import { TipoPerfil } from '../../core/auth/tipo-perfil.enum'
+import { TipoPerfil } from '../../core/auth/tipo-perfil.enum';
 import Modal from 'bootstrap/js/dist/modal';
 import { SuccessModal } from '../../shared/components/success-modal/success-modal';
 
 @Component({
   selector: 'app-usuario',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    SuccessModal,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SuccessModal],
   templateUrl: './usuario.html',
   styleUrl: './usuario.scss',
 })
 export default class UsuarioComponent implements OnInit {
-
   usuarios = signal<any[]>([]);
   carregando = signal(true);
   enviando = signal(false);
@@ -48,25 +48,38 @@ export default class UsuarioComponent implements OnInit {
   private usuariosService = inject(UsuariosService);
   private authService = inject(CoreAuthService);
 
-  usuariosFiltrados = computed(() =>
-    this.usuarios().filter((usuario) => {
-      const nomeOk =
-        !this.termoBusca() ||
-        usuario.nome.toLowerCase().includes(this.termoBusca().toLowerCase()) ||
-        usuario.email.toLowerCase().includes(this.termoBusca().toLowerCase());
-      const perfilOk =
-        !this.perfilSelecionado() ||
-        usuario.perfil === this.perfilSelecionado();
-      return nomeOk && perfilOk;
-    })
-  );
+ usuariosFiltrados = computed(() => {
+  let lista = this.usuarios().filter((usuario) => {
+    const nomeOk =
+      !this.termoBusca() ||
+      usuario.nome.toLowerCase().includes(this.termoBusca().toLowerCase()) ||
+      usuario.email.toLowerCase().includes(this.termoBusca().toLowerCase());
+    const perfilOk =
+      !this.perfilSelecionado() ||
+      usuario.perfil === this.perfilSelecionado();
+    return nomeOk && perfilOk;
+  });
+
+  const ordem = this.ordemDataNasc();
+  if (ordem === 'asc') {
+    lista = [...lista].sort((a, b) =>
+      new Date(a.data_nasc).getTime() - new Date(b.data_nasc).getTime()
+    );
+  } else if (ordem === 'desc') {
+    lista = [...lista].sort((a, b) =>
+      new Date(b.data_nasc).getTime() - new Date(a.data_nasc).getTime()
+    );
+  }
+
+  return lista;
+});
 
   fimDaPagina = computed(() =>
-    Math.min(this.paginaAtual() * this.ITENS_POR_PAGINA, this.usuariosFiltrados().length)
+    Math.min(this.paginaAtual() * this.ITENS_POR_PAGINA, this.usuariosFiltrados().length),
   );
 
-  totalPaginas = computed(() =>
-    Math.ceil(this.usuariosFiltrados().length / this.ITENS_POR_PAGINA) || 1
+  totalPaginas = computed(
+    () => Math.ceil(this.usuariosFiltrados().length / this.ITENS_POR_PAGINA) || 1,
   );
 
   usuariosPaginados = computed(() => {
@@ -74,9 +87,7 @@ export default class UsuarioComponent implements OnInit {
     return this.usuariosFiltrados().slice(inicio, inicio + this.ITENS_POR_PAGINA);
   });
 
-  paginas = computed(() =>
-    Array.from({ length: this.totalPaginas() }, (_, i) => i + 1)
-  );
+  paginas = computed(() => Array.from({ length: this.totalPaginas() }, (_, i) => i + 1));
 
   irParaPagina(pagina: number): void {
     if (pagina < 1 || pagina > this.totalPaginas()) return;
@@ -89,12 +100,31 @@ export default class UsuarioComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      nome: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(150), Validators.pattern(/^[A-Za-zÀ-ÿ' -]+$/)]],
-      email: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255), Validators.email]],
-      senha: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).*$/)]],
+      nome: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(150),
+          Validators.pattern(/^[A-Za-zÀ-ÿ' -]+$/),
+        ],
+      ],
+      email: [
+        '',
+        [Validators.required, Validators.minLength(3), Validators.maxLength(255), Validators.email],
+      ],
+      senha: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.maxLength(72),
+          Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).*$/),
+        ],
+      ],
       perfil: ['', [Validators.required]],
       data_nasc: ['', [Validators.required]],
-      foto_perfil: ['', [Validators.maxLength(500)]]
+      foto_perfil: ['', [Validators.maxLength(500)]],
     });
 
     this.carregarUsuarios();
@@ -128,13 +158,13 @@ export default class UsuarioComponent implements OnInit {
 
     this.usuariosService.usuarioControllerFindAll().subscribe({
       next: (dados: any) => {
-        this.usuarios.set(Array.isArray(dados) ? dados : (dados?.data || dados?.items || []));
+        this.usuarios.set(Array.isArray(dados) ? dados : dados?.data || dados?.items || []);
         this.paginaAtual.set(1);
         this.carregando.set(false);
       },
       error: () => {
         this.carregando.set(false);
-      }
+      },
     });
   }
 
@@ -160,7 +190,7 @@ export default class UsuarioComponent implements OnInit {
       email: valores.email,
       senha: valores.senha,
       perfil: valores.perfil,
-      data_nasc: valores.data_nasc
+      data_nasc: valores.data_nasc,
     };
 
     if (valores.foto_perfil) {
@@ -184,8 +214,15 @@ export default class UsuarioComponent implements OnInit {
           this.mensagemErro.set('Ocorreu um erro ao cadastrar o usuário. Tente novamente.');
         }
         this.enviando.set(false);
-      }
+      },
     });
   }
+  ordemDataNasc = signal<'asc' | 'desc' | null>(null);
 
+  alternarOrdenacao() {
+    const atual = this.ordemDataNasc();
+    if (atual === null) this.ordemDataNasc.set('asc');
+    else if (atual === 'asc') this.ordemDataNasc.set('desc');
+    else this.ordemDataNasc.set(null);
+  }
 }
