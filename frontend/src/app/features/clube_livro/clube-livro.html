@@ -245,7 +245,7 @@
           <div class="row g-4 text-start align-items-center mb-4">
             <div class="col-12 col-md-4">
               <span class="info-label text-uppercase text-muted d-block small mb-1"
-                >Local do Encontro</span
+                >Local do encontro</span
               >
               <strong class="info-value text-dark-blue fs-5 d-block">
                 {{ clubeDetalhes().local_encontro || 'Não definido' }}
@@ -253,7 +253,7 @@
             </div>
             <div class="col-12 col-md-4">
               <span class="info-label text-uppercase text-muted d-block small mb-1"
-                >Data de Início</span
+                >Data de início</span
               >
               <strong class="info-value text-dark-blue fs-5 d-block">
                 {{ clubeDetalhes().data_inicio | date: 'dd/MM/yyyy' }}
@@ -261,7 +261,7 @@
             </div>
             <div class="col-12 col-md-4">
               <span class="info-label text-uppercase text-muted d-block small mb-1"
-                >Data de Fim</span
+                >Data de fim</span
               >
               <strong class="info-value text-dark-blue fs-5 d-block">
                 {{ clubeDetalhes().data_fim | date: 'dd/MM/yyyy' }}
@@ -281,7 +281,7 @@
                 [disabled]="enviando()"
                 (click)="entrarNoClube(clubeDetalhes().id)"
               >
-                Participar do Clube
+                Participar do clube
               </button>
             </div>
           }
@@ -298,7 +298,7 @@
                       data-bs-target="#modalAvaliacao"
                       (click)="abrirAvaliacao()"
                     >
-                      Avaliar Clube
+                      Avaliar clube
                     </button>
                   </div>
                 }
@@ -326,7 +326,7 @@
                     class="btn btn-participar text-uppercase fw-bold shadow-sm"
                     (click)="abrirFeedbacks()"
                   >
-                    Ver Feedbacks dos Alunos
+                    Ver feedbacks dos alunos
                   </button>
                 </div>
               }
@@ -341,7 +341,7 @@
         @if (abaAtiva() === 'feedbacks') {
           <div class="card feedback-analysis-card border shadow-sm p-4">
             <header class="mb-4">
-              <h2 class="fw-bold text-dark-blue fs-4 mb-1">Resultados dos Feedbacks</h2>
+              <h2 class="fw-bold text-dark-blue fs-4 mb-1">Resultados dos feedbacks</h2>
               <p class="text-secondary small m-0">
                 Selecione uma pergunta abaixo para ver a votação dos alunos.
               </p>
