@@ -439,25 +439,6 @@ async function seed(): Promise<void> {
 
   const todosItens = [itensPergunta1, itensPergunta2, itensPergunta3];
 
-  const respostasEntries: RespostaMembro[] = [];
-  for (let i = 0; i < clubesDados.length; i++) {
-    if (clubesDados[i].ativo) continue; 
-
-    const membros = membrosPorClube[i];
-    membros.forEach((membro, mIdx) => {
-      todosItens.forEach((itens, perguntaIdx) => {
-        const item = itens[(mIdx + perguntaIdx) % itens.length];
-        respostasEntries.push(
-          respostaMembroRepo.create({
-            membro: { id: membro.id },
-            itemPergunta: { id: item.id },
-          }),
-        );
-      });
-    });
-  }
-  await respostaMembroRepo.save(respostasEntries);
-
   const alunoDemo = await usuarioRepo.save(
     usuarioRepo.create({
       nome: 'Lucas Demonstração',
@@ -487,25 +468,6 @@ async function seed(): Promise<void> {
     await exemplarRepo.update(exemplar.id, { status: StatusExemplar.EMPRESTADO });
   }
 
-  const clubeDemo = await clubeLivroRepo.save(
-    clubeLivroRepo.create({
-      nome: 'Clube da Meia-Noite',
-      professor: { id: professor1.id },
-      livro: { id: livros[1].id }, // 1984
-      ativo: false,
-      data_inicio: diasAtras(40),
-      data_fim: diasAtras(3),
-      local_encontro: 'Biblioteca Principal',
-    }),
-  );
-
-  await membroClubeRepo.save(
-    membroClubeRepo.create({
-      clube: { id: clubeDemo.id },
-      usuario: { id: alunoDemo.id },
-      status: StatusMembro.CONFIRMADO,
-    }),
-  );
 
   console.log('Seed concluído com sucesso.');
   await AppDataSource.destroy();
