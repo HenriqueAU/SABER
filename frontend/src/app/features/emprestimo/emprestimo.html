@@ -177,15 +177,11 @@
 </div>
 
 <div #successModal class="modal fade" id="successModal" tabindex="-1">
-  <app-success-modal
-    [mensagem]="mensagemSucessoModal">
-  </app-success-modal>
+  <app-success-modal [mensagem]="mensagemSucessoModal"> </app-success-modal>
 </div>
 
 <div #errorModal class="modal fade" id="errorModal" tabindex="-1">
-  <app-error-modal
-    [mensagem]="mensagemErroModal">
-  </app-error-modal>
+  <app-error-modal [mensagem]="mensagemErroModal"> </app-error-modal>
 </div>
 
 <div class="container py-4">
@@ -710,7 +706,7 @@
           <h4 class="fw-bold text-dark mb-1" style="color: #0f172a !important">
             Resumo da devolução
           </h4>
-          <p class="text-muted small mb-0">
+          <p class="text-muted small mb-3">
             Verifique as informações abaixo antes de confirmar o fechamento do registro.
           </p>
         </div>
@@ -719,8 +715,7 @@
 
       <div class="modal-body">
         @if (emprestimoSelecionadoDevolucao) {
-          <h5 class="fw-bold text-primary mb-4" style="font-size: 16px">Registro encontrado</h5>
-
+          <div></div>
           <div class="row g-4">
             <div class="col-md-8 pe-md-4">
               <div class="row">
@@ -842,61 +837,51 @@
                 Ações do sistema
               </div>
 
-              <button
-                type="button"
-                class="btn w-100 py-2 mb-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
-                style="
-                  background: linear-gradient(135deg, #024072 0%, #112d4e 100%);
-                  border-radius: 8px;
-                  font-size: 14px;
-                  color: white;
-                "
-                (click)="devolverLivro(emprestimoSelecionadoDevolucao)"
-                [disabled]="enviandoDevolucao"
-              >
-                <i class="bi bi-check-circle"></i> Confirmar Devolução
-              </button>
+              <div class="d-flex flex-column gap-2">
+                <button
+                  type="button"
+                  class="btn btn-primary d-flex align-items-center gap-2 py-2 px-3 fw-semibold w-100"
+                  style="border-radius: 8px; font-size: 13px"
+                  (click)="devolverLivro(emprestimoSelecionadoDevolucao)"
+                  [disabled]="enviandoDevolucao"
+                >
+                  <i class="bi bi-check-circle flex-shrink-0" style="font-size: 16px"></i>
+                  <span>Confirmar Devolução</span>
+                </button>
 
-              <button
-                type="button"
-                class="btn w-100 py-2 mb-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
-                style="
-                  background-color: #ffc107;
-                  border: none;
-                  color: #000;
-                  border-radius: 8px;
-                  font-size: 14px;
-                "
-                (click)="marcarComoDanificado(emprestimoSelecionadoDevolucao)"
-                [disabled]="enviandoDevolucao"
-              >
-                <i class="bi bi-exclamation-triangle"></i> Marcar como Danificado
-              </button>
+                <button
+                  type="button"
+                  class="btn btn-warning d-flex align-items-center gap-2 py-2 px-3 fw-semibold w-100"
+                  style="border-radius: 8px; font-size: 13px"
+                  (click)="marcarComoDanificado(emprestimoSelecionadoDevolucao)"
+                  [disabled]="enviandoDevolucao"
+                >
+                  <i class="bi bi-exclamation-triangle flex-shrink-0" style="font-size: 16px"></i>
+                  <span>Marcar como Danificado</span>
+                </button>
 
-              <button
-                type="button"
-                class="btn w-100 py-2 mb-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
-                style="
-                  background-color: #dc3545;
-                  border: none;
-                  color: #fff;
-                  border-radius: 8px;
-                  font-size: 14px;
-                "
-                (click)="marcarComoPerdido(emprestimoSelecionadoDevolucao)"
-                [disabled]="enviandoDevolucao"
-              >
-                <i class="bi bi-slash-circle"></i> Marcar como Perdido
-              </button>
+                <button
+                  type="button"
+                  class="btn btn-danger d-flex align-items-center gap-2 py-2 px-3 fw-semibold w-100"
+                  style="border-radius: 8px; font-size: 13px"
+                  (click)="marcarComoPerdido(emprestimoSelecionadoDevolucao)"
+                  [disabled]="enviandoDevolucao"
+                >
+                  <i class="bi bi-slash-circle flex-shrink-0" style="font-size: 16px"></i>
+                  <span>Marcar como Perdido</span>
+                </button>
 
-              <button
-                type="button"
-                class="btn btn-outline-secondary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
-                style="border-radius: 8px; font-size: 14px"
-                data-bs-dismiss="modal"
-              >
-                <i class="bi bi-x-circle"></i> Cancelar
-              </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary d-flex align-items-center gap-2 py-2 px-3 fw-semibold w-100"
+                  style="border-radius: 8px; font-size: 13px"
+                  data-bs-dismiss="modal"
+                  [disabled]="enviandoDevolucao"
+                >
+                  <i class="bi bi-x-circle flex-shrink-0" style="font-size: 16px"></i>
+                  <span>Cancelar</span>
+                </button>
+              </div>
             </div>
           </div>
         }

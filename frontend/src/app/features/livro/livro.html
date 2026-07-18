@@ -1,22 +1,54 @@
-<div #livroDetalhesModal class="modal fade" id="livroDetalhesModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-xl" (click)="$event.stopPropagation()">
-    <div class="modal-content rounded-4 shadow-lg flex-row overflow-hidden" style="max-height: 92vh; min-height: 70vh;">
-      @if(livroDetalhes) {
+<div
+  #livroDetalhesModal
+  class="modal fade"
+  id="livroDetalhesModal"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div
+    class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-sm-down"
+    (click)="$event.stopPropagation()"
+  >
+    <div
+      class="modal-content rounded-4 shadow-lg flex-row overflow-hidden"
+      style="max-height: 92vh"
+    >
+      @if (livroDetalhes) {
         <div class="col-md-4 bg-light flex-shrink-0 position-relative d-none d-md-block border-end">
-          <img [src]="livroDetalhes.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" [alt]="livroDetalhes.titulo" class="w-100 h-100" style="object-fit: cover;">
+          <img
+            [src]="livroDetalhes.capa_url || 'assets/imgs/livros/livro-sem-capa.png'"
+            [alt]="livroDetalhes.titulo"
+            class="w-100 h-100"
+            style="object-fit: cover"
+          />
         </div>
 
-        <div class="col-md-8 d-flex flex-column overflow-hidden position-relative">
-          <div class="px-4 py-3 d-flex justify-content-between align-items-start bg-white border-bottom position-sticky top-0">
+        <div class="col-12 col-md-8 d-flex flex-column overflow-hidden position-relative">
+          <div
+            class="px-4 py-3 d-flex justify-content-between align-items-start bg-white border-bottom position-sticky top-0"
+          >
             <div class="pe-4">
               <h2 class="fs-3 fw-bold text-dark mb-0">{{ livroDetalhes.titulo }}</h2>
               <p class="text-primary fw-medium mb-0 mt-1">{{ livroDetalhes.autor }}</p>
             </div>
-            <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+            <button
+              type="button"
+              col-12
+              col-md-8
+              d-flex
+              flex-column
+              overflow-hidden
+              position-relative
+              class="btn-close position-absolute top-0 end-0 m-3"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
 
           <div class="p-4 overflow-auto">
-            <div class="d-flex flex-wrap gap-4 mb-4 bg-light rounded-3 p-3 border">
+            <div
+              class="d-flex flex-wrap gap-4 mb-4 rounded-3 p-3"
+              style="background-color: #e8f0f7; border: 1.5px solid #003a79"
+            >
               @if (livroDetalhes.ano_publicacao) {
                 <div>
                   <span class="d-block text-secondary text-uppercase small">Ano</span>
@@ -54,10 +86,24 @@
                 </span>
               </div>
             </div>
+            @if (generosPorLivro[livroDetalhes.id]?.length) {
+              <div class="d-flex flex-wrap gap-2 mb-4">
+                @for (nome of generosPorLivro[livroDetalhes.id]; track nome) {
+                  <span
+                    [class]="'badge rounded-pill ' + getClassGenero(nome)"
+                    style="font-size: 0.75rem; padding: 6px 12px"
+                  >
+                    {{ nome }}
+                  </span>
+                }
+              </div>
+            }
 
             <div class="mb-4">
               <h3 class="fs-6 fw-bold text-dark mb-2 text-uppercase">Sinopse</h3>
-              <p class="text-secondary small text-justify">{{ livroDetalhes.sinopse || 'Nenhuma sinopse disponível para este livro.' }}</p>
+              <p class="text-secondary small text-justify">
+                {{ livroDetalhes.sinopse || 'Nenhuma sinopse disponível para este livro.' }}
+              </p>
             </div>
 
             @if (isBibliotecario) {
@@ -85,10 +131,19 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label fw-medium">ISBN</label>
-            <input type="text" formControlName="isbn" class="form-control" placeholder="Digite o ISBN para preencher automaticamente">
+            <input
+              type="text"
+              formControlName="isbn"
+              class="form-control"
+              placeholder="Digite o ISBN para preencher automaticamente"
+            />
             @if (buscandoIsbn) {
               <div class="form-text text-primary d-flex align-items-center gap-2 mt-1">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
                 Buscando informações do livro, aguarde...
               </div>
             }
@@ -102,32 +157,62 @@
 
           <div class="mb-3">
             <label class="form-label fw-medium">Título *</label>
-            <input type="text" formControlName="titulo" class="form-control" placeholder="Ex: O Pequeno Príncipe">
+            <input
+              type="text"
+              formControlName="titulo"
+              class="form-control"
+              placeholder="Ex: O Pequeno Príncipe"
+            />
           </div>
 
           <div class="mb-3">
             <label class="form-label fw-medium">Autor *</label>
-            <input type="text" formControlName="autor" class="form-control" placeholder="Ex: Antoine de Saint-Exupéry">
+            <input
+              type="text"
+              formControlName="autor"
+              class="form-control"
+              placeholder="Ex: Antoine de Saint-Exupéry"
+            />
           </div>
 
           <div class="mb-3">
             <label class="form-label fw-medium">URL da capa (Imagem)</label>
-            <input type="text" formControlName="capa_url" class="form-control" placeholder="https://exemplo.com/imagem.jpg">
+            <input
+              type="text"
+              formControlName="capa_url"
+              class="form-control"
+              placeholder="https://exemplo.com/imagem.jpg"
+            />
           </div>
 
           <div class="mb-3">
             <label class="form-label fw-medium">Editora</label>
-            <input type="text" formControlName="editora" class="form-control" placeholder="Opcional">
+            <input
+              type="text"
+              formControlName="editora"
+              class="form-control"
+              placeholder="Opcional"
+            />
           </div>
 
           <div class="row g-3 mb-3">
             <div class="col-6">
               <label class="form-label fw-medium">Ano de publicação</label>
-              <input type="number" formControlName="ano_publicacao" class="form-control" placeholder="Opcional">
+              <input
+                type="number"
+                formControlName="ano_publicacao"
+                class="form-control"
+                placeholder="Opcional"
+              />
             </div>
             <div class="col-6">
               <label class="form-label fw-medium">Páginas</label>
-              <input type="number" formControlName="paginas" class="form-control" placeholder="Opcional">
+              <input
+                type="number"
+                formControlName="paginas"
+                class="form-control"
+                placeholder="Opcional"
+              />
             </div>
             <div class="col-6">
               <label class="form-label fw-medium">Faixa etária</label>
@@ -144,7 +229,12 @@
 
           <div class="mb-3">
             <label class="form-label fw-medium">Sinopse</label>
-            <textarea formControlName="sinopse" rows="3" class="form-control" placeholder="Breve resumo do livro..."></textarea>
+            <textarea
+              formControlName="sinopse"
+              rows="3"
+              class="form-control"
+              placeholder="Breve resumo do livro..."
+            ></textarea>
           </div>
 
           @if (isBibliotecario) {
@@ -154,22 +244,39 @@
               <div class="mb-3">
                 <label class="form-label fw-medium">Gêneros (máximo 4)</label>
                 <div class="d-flex gap-2 mb-2 align-items-center">
-                  <select [(ngModel)]="generoSelecionadoNaCriacaoId" [ngModelOptions]="{standalone: true}" class="form-select form-select-sm flex-grow-1">
+                  <select
+                    [(ngModel)]="generoSelecionadoNaCriacaoId"
+                    [ngModelOptions]="{ standalone: true }"
+                    class="form-select form-select-sm flex-grow-1"
+                  >
                     <option value="" disabled selected>Selecione um gênero...</option>
                     @for (g of todosOsGenerosParaSelecao; track g.id) {
                       <option [value]="g.id">{{ g.nome }}</option>
                     }
                   </select>
-                  <button type="button" (click)="adicionarGeneroNaCriacao()" [disabled]="!generoSelecionadoNaCriacaoId" class="btn btn-sm btn-primary d-flex align-items-center justify-content-center px-4">
+                  <button
+                    type="button"
+                    (click)="adicionarGeneroNaCriacao()"
+                    [disabled]="!generoSelecionadoNaCriacaoId"
+                    class="btn btn-sm btn-primary d-flex align-items-center justify-content-center px-4"
+                  >
                     Adicionar
                   </button>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
                   @for (generoId of generosSelecionadosNaCriacao; track generoId) {
-                    <div class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle d-inline-flex align-items-center gap-1 fw-medium py-2 px-3">
+                    <div
+                      class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle d-inline-flex align-items-center gap-1 fw-medium py-2 px-3"
+                    >
                       {{ getNomeGenero(generoId) }}
-                      <button (click)="removerGeneroNaCriacao(generoId)" type="button" class="btn btn-sm p-0 border-0 d-flex align-items-center text-primary-emphasis" style="line-height: 0;" title="Remover">
-                        <i class="bi bi-x-lg" style="font-size: 0.7rem;"></i>
+                      <button
+                        (click)="removerGeneroNaCriacao(generoId)"
+                        type="button"
+                        class="btn btn-sm p-0 border-0 d-flex align-items-center text-primary-emphasis"
+                        style="line-height: 0"
+                        title="Remover"
+                      >
+                        <i class="bi bi-x-lg" style="font-size: 0.7rem"></i>
                       </button>
                     </div>
                   }
@@ -183,8 +290,16 @@
         </div>
 
         <div class="modal-footer bg-light">
-          <button type="button" data-bs-dismiss="modal" class="btn btn-light btn-sm">Cancelar</button>
-          <button type="submit" [disabled]="livroForm.invalid" class="btn btn-primary btn-sm shadow-sm">Salvar</button>
+          <button type="button" data-bs-dismiss="modal" class="btn btn-light btn-sm">
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="livroForm.invalid"
+            class="btn btn-primary btn-sm shadow-sm"
+          >
+            Salvar
+          </button>
         </div>
       </form>
     </div>
@@ -192,101 +307,117 @@
 </div>
 
 <div #successModal class="modal fade" id="successModal" tabindex="-1">
-  <app-success-modal
-    [mensagem]="mensagemSucessoModal">
-  </app-success-modal>
+  <app-success-modal [mensagem]="mensagemSucessoModal"> </app-success-modal>
 </div>
 
 <div #errorModal class="modal fade" id="errorModal" tabindex="-1">
-  <app-error-modal
-    [mensagem]="mensagemErroModal">
-  </app-error-modal>
+  <app-error-modal [mensagem]="mensagemErroModal"> </app-error-modal>
 </div>
 
-<div class="container py-4">
+<div class="container py-4 py-4">
   <div
-    class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
-
+    class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3"
+  >
     <div class="text-center text-md-start">
-      <h5 class="text-dark mb-0">
-        Veja abaixo o acervo de livros disponíveis.
-      </h5>
+      <h5 class="text-dark mb-0">Veja abaixo o acervo de livros disponíveis.</h5>
     </div>
-
-    @if (isBibliotecario) {
-      <button
-        type="button"
-        class="btn btn-primary"
-        (click)="abrirLivroFormModal()">
-        <i class="bi bi-plus-circle me-1"></i>
-        Cadastrar Livro
-      </button>
-    }
-
   </div>
 </div>
 
-<div class="container">
-  <div class="d-flex flex-column flex-md-row justify-content-center align-items-stretch align-items-md-center mb-4 gap-4">
-
-    <div class="card shadow-sm border-0 w-100">
+<div class="container py-4">
+  <div class="d-flex flex-column flex-md-row align-items-stretch mb-4 gap-3">
+    <div class="card shadow-sm border-0 flex-grow-1">
       <div class="card-body p-0">
         <div class="position-relative">
-          <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"></i>
+          <i
+            class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"
+          ></i>
           <input
             type="text"
             class="form-control border-0 ps-5 py-3"
             placeholder="Pesquise por título ou autor"
             [(ngModel)]="termoPesquisa"
             (ngModelChange)="paginaAtual = 1"
-            maxlength="255">
+            maxlength="255"
+          />
         </div>
       </div>
     </div>
 
-    <select
-      class="form-select shadow-sm border-0 ps-4 py-3 w-50"
-      [(ngModel)]="generoSelecionado"
-      (ngModelChange)="paginaAtual = 1"
-    >
-      <option value="">Todos os gêneros</option>
+    <div class="d-flex gap-3">
+      <select
+        class="form-select shadow-sm border-0 ps-4 py-3"
+        style="max-width: 220px"
+        [(ngModel)]="generoSelecionado"
+        (ngModelChange)="paginaAtual = 1"
+      >
+        <option value="">Todos os gêneros</option>
+        @for (genero of generosDisponiveis; track genero) {
+          <option [value]="genero">{{ genero }}</option>
+        }
+      </select>
 
-      @for (genero of generosDisponiveis; track genero) {
-        <option [value]="genero">
-          {{ genero }}
-        </option>
+      @if (isBibliotecario) {
+        <button
+          type="button"
+          class="btn btn-primary py-3 px-3"
+          style="white-space: nowrap; flex-shrink: 0"
+          (click)="abrirLivroFormModal()"
+        >
+          <i class="bi bi-plus-circle me-1"></i>
+          <span class="d-none d-sm-inline">Cadastrar Livro</span>
+        </button>
       }
-    </select>
+    </div>
   </div>
 
-  <div class="row g-2 g-md-4">
+  <div class="row g-3">
     @for (livro of livrosPaginados; track livro.id) {
-
-      <div class="col-4 col-sm-3 col-lg-2">
-        <div class="card h-100 shadow-sm border-0 overflow-hidden" style="cursor: pointer;" (click)="abrirLivroDetalhesModal(livro)">
-
-          <div class="position-relative bg-light border-bottom" style="aspect-ratio: 2/3; overflow: hidden;">
-            <img [src]="livro.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" [alt]="livro.titulo" class="w-100 h-100" style="object-fit: cover;">
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <div
+          class="card h-100 border-0 overflow-hidden livro-card"
+          style="cursor: pointer"
+          (click)="abrirLivroDetalhesModal(livro)"
+        >
+          <div class="position-relative bg-light" style="aspect-ratio: 2/3; overflow: hidden">
+            <img
+              [src]="livro.capa_url || 'assets/imgs/livros/livro-sem-capa.png'"
+              [alt]="livro.titulo"
+              class="w-100 h-100"
+              style="object-fit: cover"
+            />
           </div>
 
-          <div class="card-body p-2 p-md-3 d-flex flex-column">
-            <h6 class="fw-bold text-dark mb-1 text-truncate" style="font-size: 0.85rem;" [title]="livro.titulo">
+          <div class="card-body p-2 d-flex flex-column gap-1">
+            <h6
+              class="fw-bold text-dark mb-0 text-truncate"
+              style="font-size: 0.82rem"
+              [title]="livro.titulo"
+            >
               {{ livro.titulo }}
             </h6>
-            <p class="text-secondary text-truncate mb-2" style="font-size: 0.75rem;" [title]="livro.autor">
+            <p
+              class="text-secondary mb-0 text-truncate"
+              style="font-size: 0.72rem"
+              [title]="livro.autor"
+            >
               {{ livro.autor }}
             </p>
 
-            <div class="mb-2">
-              <span class="badge {{ getColorStatusExemplar(livro.id) }} text-truncate w-100" style="font-size: 0.65rem;">
-                {{ getStatusExemplar(livro.id) }}
-              </span>
-            </div>
+            <span
+              class="badge w-100 text-truncate {{ getColorStatusExemplar(livro.id) }}"
+              style="font-size: 0.62rem"
+            >
+              {{ getStatusExemplar(livro.id) }}
+            </span>
 
             @if (generosPorLivro[livro.id]?.length) {
-              <div class="d-flex flex-wrap gap-1 mb-2">
+              <div class="d-flex flex-wrap gap-1">
                 @for (nome of generosPorLivro[livro.id]; track nome) {
-                  <span [class]="'badge rounded-pill text-truncate ' + getClassGenero(nome)" style="font-size: 0.65rem; max-width: 100%;">
+                  <span
+                    [class]="'badge rounded-pill text-truncate ' + getClassGenero(nome)"
+                    style="font-size: 0.6rem; max-width: 100%"
+                  >
                     {{ nome }}
                   </span>
                 }
@@ -294,14 +425,17 @@
             }
 
             @if (isBibliotecario) {
-              <div class="mt-auto pt-2">
-                <button (click)="abrirLivroFormModal(livro); $event.stopPropagation()" class="btn btn-outline-primary btn-sm w-100" style="font-size: 0.75rem;">
+              <div class="mt-auto pt-1">
+                <button
+                  (click)="abrirLivroFormModal(livro); $event.stopPropagation()"
+                  class="btn btn-outline-primary btn-sm w-100"
+                  style="font-size: 0.72rem"
+                >
                   Editar
                 </button>
               </div>
             }
           </div>
-
         </div>
       </div>
     }
@@ -314,7 +448,11 @@
           <a class="page-link" href="#" (click)="mudarPagina(paginaAtual - 1, $event)">Anterior</a>
         </li>
         @for (pagina of paginasExibidas; track $index) {
-          <li class="page-item" [class.active]="pagina === paginaAtual" [class.disabled]="pagina === '...'">
+          <li
+            class="page-item"
+            [class.active]="pagina === paginaAtual"
+            [class.disabled]="pagina === '...'"
+          >
             <a class="page-link" href="#" (click)="mudarPagina(pagina, $event)">{{ pagina }}</a>
           </li>
         }
@@ -324,12 +462,14 @@
       </ul>
     </nav>
   }
+
   @if (carregando) {
     <div class="text-center py-5">
       <div class="spinner-border text-primary"></div>
       <p class="mt-3 text-secondary">Carregando o acervo...</p>
     </div>
   }
+
   @if (!carregando && livros.length === 0) {
     <div class="card shadow-sm border-0 text-center p-5 mt-4">
       <i class="bi bi-book mb-2 opacity-25 fs-1"></i>
