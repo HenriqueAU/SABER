@@ -3,10 +3,18 @@
     <div class="container-fluid flex-nowrap">
       
       @if (isOnboardingPage) {
-        <a class="navbar-brand fw-bold ms-2 d-flex align-items-center" href="#" (click)="scrollToTop($event)">
-          <img src="assets/imgs/logos/logo-azul.png" class="me-1" style="height: 20px; width: auto;" alt="Logo" />
-          SABER
-        </a>
+        <div class="d-flex d-md-none">
+          <a class="navbar-brand fw-bold ms-0 d-flex align-items-center" href="#" (click)="scrollToTop($event)">
+            <img src="assets/imgs/logos/logo-azul.png" class="me-1" style="height: 20px; width: auto;" alt="Logo" />
+            SABER
+          </a>
+        </div>
+        <div class="d-none d-md-flex">
+          <a class="navbar-brand fw-bold ms-2 d-flex align-items-center" href="#" (click)="scrollToTop($event)">
+            <img src="assets/imgs/logos/logo-azul.png" class="me-1" style="height: 20px; width: auto;" alt="Logo" />
+            SABER
+          </a>
+        </div>
 
         <ul class="navbar-nav fw-bold flex-row ms-1 gap-3">
           <li class="nav-item">
@@ -91,7 +99,7 @@
           }
         </ul>
 
-<ul class="navbar-nav flex-row ms-auto gap-2 flex-shrink-0 align-items-center">
+        <ul class="navbar-nav flex-row ms-auto gap-2 flex-shrink-0 align-items-center">
           <li class="nav-item flex-shrink-0 d-flex align-items-center">
             <a class="nav-link p-1 py-md-1 px-md-2 d-flex align-items-center justify-content-center" routerLink="/notificacoes" aria-label="Notificações">
               <span class="position-relative d-inline-block" style="line-height: 1;">
