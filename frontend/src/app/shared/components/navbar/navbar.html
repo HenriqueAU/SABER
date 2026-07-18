@@ -1,119 +1,131 @@
 @if (!isLoginPage) {
   <nav [class]="'navbar navbar-expand-lg border-bottom sticky-top nav-' + perfil()" [class.navbar-hidden]="navbarHidden">
-
-    <div class="container-fluid">
+    <div class="container-fluid flex-nowrap">
+      
       @if (isOnboardingPage) {
-
-      <a class="navbar-brand fw-bold ms-2 d-flex align-items-center" href="#" (click)="scrollToTop($event)">
-        <img src="assets/imgs/logos/logo-azul.png" class="me-1" style="height: 20px; width: auto;" alt="Logo" />
-        SABER
-      </a>
-
-      <ul class="navbar-nav fw-bold flex-row ms-1 gap-3">
-        <li class="nav-item">
-          <a class="nav-link fw-bold p-1" style="cursor: pointer;" (click)="scrollToBottom($event)">
-            Contato
-          </a>
-        </li>
-      </ul>
-
-      <div class="ms-auto flex-shrink-0">
-        <a class="btn btn-primary text-nowrap" [routerLink]="getLoginOrHomeRoute()">
-          Fazer login
+        <a class="navbar-brand fw-bold ms-2 d-flex align-items-center" href="#" (click)="scrollToTop($event)">
+          <img src="assets/imgs/logos/logo-azul.png" class="me-1" style="height: 20px; width: auto;" alt="Logo" />
+          SABER
         </a>
-      </div>
-      } @else {
 
-      <ul class="navbar-nav flex-row gap-2 gap-md-3 align-items-center overflow-x-auto flex-nowrap" style="scrollbar-width: none;">
-        @if (perfil() === 'gestor') {
-          <a class="navbar-brand d-flex align-items-center ms-2 me-3 me-md-4 flex-shrink-0" routerLink="/home">
-            <img src="assets/imgs/logos/logo-preta.png" style="height: 20px; width: auto;" alt="Logo" />
+        <ul class="navbar-nav fw-bold flex-row ms-1 gap-3">
+          <li class="nav-item">
+            <a class="nav-link fw-bold p-1 py-md-1 px-md-2" style="cursor: pointer;" (click)="scrollToBottom($event)">
+              Contato
+            </a>
+          </li>
+        </ul>
+
+        <div class="ms-auto flex-shrink-0">
+          <a class="btn btn-primary text-nowrap" [routerLink]="getLoginOrHomeRoute()">
+            Fazer login
           </a>
-          <li class="nav-item flex-shrink-0">
-            <a class="nav-link fw-bold p-1" routerLink="/home" routerLinkActive="active-link">Home</a>
+        </div>
+      } 
+      @else {
+        <ul class="navbar-nav flex-row gap-1 align-items-center overflow-x-auto flex-nowrap d-flex d-md-none" style="scrollbar-width: none; min-width: 0;">
+          @if (perfil() === 'gestor') {
+            <a class="navbar-brand d-flex align-items-center ms-0 me-0 flex-shrink-0" routerLink="/home">
+              <img src="assets/imgs/logos/logo-preta.png" style="height: 20px; width: auto;" alt="Logo" />
+            </a>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/home" routerLinkActive="active-link">Home</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/instituicao" routerLinkActive="active-link">Instituição</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/usuarios" routerLinkActive="active-link">Usuários</a></li>
+          }
+          @if (perfil() === 'bibliotecario') {
+            <a class="navbar-brand d-flex align-items-center ms-0 me-0 flex-shrink-0" routerLink="/home">
+              <img src="assets/imgs/logos/logo-cinza.png" style="height: 20px; width: auto;" alt="Logo" />
+            </a>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/home" routerLinkActive="active-link">Home</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/livros" routerLinkActive="active-link">Livros</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/emprestimos" routerLinkActive="active-link">Empréstimos</a></li>
+          }
+          @if (perfil() === 'professor') {
+            <a class="navbar-brand d-flex align-items-center ms-0 me-0 flex-shrink-0" routerLink="/home">
+              <img src="assets/imgs/logos/logo-azul.png" style="height: 20px; width: auto;" alt="Logo" />
+            </a>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/home" routerLinkActive="active-link">Home</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/livros" routerLinkActive="active-link">Livros</a></li>
+          }
+          @if (perfil() === 'aluno') {
+            <a class="navbar-brand d-flex align-items-center ms-0 me-0 flex-shrink-0" routerLink="/home">
+              <img src="assets/imgs/logos/logo-azul.png" style="height: 20px; width: auto;" alt="Logo" />
+            </a>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/home" routerLinkActive="active-link">Home</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/clubes" routerLinkActive="active-link">Clubes</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/livros" routerLinkActive="active-link">Livros</a></li>
+          }
+        </ul>
+
+        <ul class="navbar-nav flex-row gap-2 align-items-center overflow-x-auto flex-nowrap d-none d-md-flex" style="scrollbar-width: none;">
+          @if (perfil() === 'gestor') {
+            <a class="navbar-brand d-flex align-items-center ms-2 flex-shrink-0" routerLink="/home">
+              <img src="assets/imgs/logos/logo-preta.png" style="height: 20px; width: auto;" alt="Logo" />
+            </a>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold py-1 px-2" routerLink="/home" routerLinkActive="active-link">Home</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold py-1 px-2" routerLink="/instituicao" routerLinkActive="active-link">Instituição</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold py-1 px-2" routerLink="/usuarios" routerLinkActive="active-link">Usuários</a></li>
+          }
+          @else if (perfil() === 'bibliotecario') {
+            <a class="navbar-brand d-flex align-items-center ms-2 flex-shrink-0" routerLink="/home">
+              <img src="assets/imgs/logos/logo-cinza.png" style="height: 20px; width: auto;" alt="Logo" />
+            </a>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold py-1 px-2" routerLink="/home" routerLinkActive="active-link">Home</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold py-1 px-2" routerLink="/livros" routerLinkActive="active-link">Livros</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold py-1 px-2" routerLink="/emprestimos" routerLinkActive="active-link">Empréstimos</a></li>
+          }
+          @else if (perfil() === 'professor') {
+            <a class="navbar-brand d-flex align-items-center ms-2 flex-shrink-0" routerLink="/home">
+              <img src="assets/imgs/logos/logo-azul.png" style="height: 20px; width: auto;" alt="Logo" />
+            </a>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold py-1 px-2" routerLink="/home" routerLinkActive="active-link">Home</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold py-1 px-2" routerLink="/livros" routerLinkActive="active-link">Livros</a></li>
+          }
+          @else if (perfil() === 'aluno') {
+            <a class="navbar-brand d-flex align-items-center ms-2 flex-shrink-0" routerLink="/home">
+              <img src="assets/imgs/logos/logo-azul.png" style="height: 20px; width: auto;" alt="Logo" />
+            </a>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold py-1 px-2" routerLink="/home" routerLinkActive="active-link">Home</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold py-1 px-2" routerLink="/clubes" routerLinkActive="active-link">Clubes</a></li>
+            <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold py-1 px-2" routerLink="/livros" routerLinkActive="active-link">Livros</a></li>
+          }
+        </ul>
+
+<ul class="navbar-nav flex-row ms-auto gap-2 flex-shrink-0 align-items-center">
+          <li class="nav-item flex-shrink-0 d-flex align-items-center">
+            <a class="nav-link p-1 py-md-1 px-md-2 d-flex align-items-center justify-content-center" routerLink="/notificacoes" aria-label="Notificações">
+              <span class="position-relative d-inline-block" style="line-height: 1;">
+                <i class="bi bi-bell fs-5"></i>
+                @if (notificacoesNaoLidas() > 0) {
+                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem; padding: 0.25em 0.4em;">
+                    {{ notificacoesNaoLidas() > 99 ? '99+' : notificacoesNaoLidas() }}
+                  </span>
+                }
+              </span>
+            </a>
           </li>
-          <li class="nav-item flex-shrink-0">
-            <a class="nav-link fw-bold p-1" routerLink="/instituicao" routerLinkActive="active-link">Instituição</a>
-          </li>
-          <li class="nav-item flex-shrink-0">
-            <a class="nav-link fw-bold p-1" routerLink="/usuarios" routerLinkActive="active-link">Usuários</a>
-          </li>
-        }
-        @else if (perfil() === 'bibliotecario') {
-          <a class="navbar-brand d-flex align-items-center ms-2 me-3 me-md-4 flex-shrink-0" routerLink="/home">
-            <img src="assets/imgs/logos/logo-cinza.png" style="height: 20px; width: auto;" alt="Logo" />
-          </a>
-          <li class="nav-item flex-shrink-0">
-            <a class="nav-link fw-bold p-1" routerLink="/home" routerLinkActive="active-link">Home</a>
-          </li>
-          <li class="nav-item flex-shrink-0">
-            <a class="nav-link fw-bold p-1" routerLink="/livros" routerLinkActive="active-link">Livros</a>
-          </li>
-          <li class="nav-item flex-shrink-0">
-            <a class="nav-link fw-bold p-1" routerLink="/emprestimos" routerLinkActive="active-link">Empréstimos</a>
-          </li>
-        }
-        @else if (perfil() === 'professor') {
-          <a class="navbar-brand d-flex align-items-center ms-2 me-3 me-md-4 flex-shrink-0" routerLink="/home">
-            <img src="assets/imgs/logos/logo-azul.png" style="height: 20px; width: auto;" alt="Logo" />
-          </a>
-          <li class="nav-item flex-shrink-0">
-            <a class="nav-link fw-bold p-1" routerLink="/home" routerLinkActive="active-link">Home</a>
-          </li>
-          <li class="nav-item flex-shrink-0">
-            <a class="nav-link fw-bold p-1" routerLink="/livros" routerLinkActive="active-link">Livros</a>
-          </li>
-        }
-        @else if (perfil() === 'aluno') {
-          <a class="navbar-brand d-flex align-items-center ms-2 me-3 me-md-4 flex-shrink-0" routerLink="/home">
-            <img src="assets/imgs/logos/logo-azul.png" style="height: 20px; width: auto;" alt="Logo" />
-          </a>
-          <li class="nav-item flex-shrink-0">
-            <a class="nav-link fw-bold p-1" routerLink="/home" routerLinkActive="active-link">Home</a>
-          </li>
-          <li class="nav-item flex-shrink-0">
-            <a class="nav-link fw-bold p-1" routerLink="/clubes" routerLinkActive="active-link">Clubes</a>
-          </li>
-          <li class="nav-item flex-shrink-0">
-            <a class="nav-link fw-bold p-1" routerLink="/livros" routerLinkActive="active-link">Livros</a>
-          </li>
-        }
-      </ul>
-      <ul class="navbar-nav flex-row ms-auto gap-2 flex-shrink-0 align-items-center">
-        <li class="nav-item flex-shrink-0">
-          <a class="nav-link p-2 mt-1 mt-lg-0" routerLink="/notificacoes" aria-label="Notificações">
-            <span class="position-relative d-inline-block">
-              <i class="bi bi-bell fs-5"></i>
-              @if (notificacoesNaoLidas() > 0) {
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
-                  {{ notificacoesNaoLidas() > 99 ? '99+' : notificacoesNaoLidas() }}
-                </span>
+
+          <li class="nav-item dropdown flex-shrink-0 d-flex align-items-center">
+            <button class="nav-link d-flex align-items-center gap-1 border-0 bg-transparent" style="padding:2px;"type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <img
+                [src]="fotoPerfil() || 'assets/imgs/avatares/0.png'"
+                alt="Foto de Perfil"
+                class="rounded-circle shadow-sm"
+                style="width: 36px; height: 36px; object-fit: cover; display: block;"
+              >
+              <i class="bi bi-chevron-down small"></i>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end position-absolute shadow border-0 mt-2">
+              <li><a class="dropdown-item" routerLink="/perfil">Configurações de usuário</a></li>
+              @if (perfil() === 'aluno') {
+                <li><a class="dropdown-item" routerLink="/perfil-leitura">Perfil de leitura</a></li>
               }
-            </span>
-          </a>
-        </li>
-
-        <li class="nav-item dropdown flex-shrink-0">
-          <button class="nav-link p-1 d-flex align-items-center gap-1 border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img
-              [src]="fotoPerfil() || 'assets/imgs/avatares/0.png'"
-              alt="Foto de Perfil"
-              class="rounded-circle shadow-sm"
-              style="width: 36px; height: 36px; object-fit: cover;"
-            >
-            <i class="bi bi-chevron-down small"></i>
-          </button>
-
-          <ul class="dropdown-menu dropdown-menu-end position-absolute shadow border-0 mt-2">
-            <li><a class="dropdown-item" routerLink="/perfil">Configurações de usuário</a></li>
-            @if (perfil() === 'aluno') {
-              <li><a class="dropdown-item" routerLink="/perfil-leitura">Perfil de leitura</a></li>
-            }
-            <li><hr class="dropdown-divider"></li>
-            <li><button class="dropdown-item" type="button" (click)="logOut()">Sair</button></li>
-          </ul>
-        </li>
-      </ul>
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item" type="button" (click)="logOut()">Sair</button></li>
+            </ul>
+          </li>
+        </ul>
       }
     </div>
   </nav>

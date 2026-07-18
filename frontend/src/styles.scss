@@ -161,7 +161,6 @@ $enable-responsive-font-sizes: false;
 }
 
 body {
-  //background: linear-gradient(135deg, #bdd7ff 0%, #e4f0ff 100%);
   background-color: #F5F5F7;
 }
 
@@ -179,7 +178,7 @@ body {
   background: #E9D5FF;
   color: #5B21B6;
 
-  &:hover:not(.selected) {
+  &.btn-genero:hover:not(.selected) {
     background: #D8B4FE;
   }
 
@@ -192,7 +191,7 @@ body {
   background: #FBCFE8;
   color: #9D174D;
 
-  &:hover:not(.selected) {
+  &.btn-genero:hover:not(.selected) {
     background: #F9A8D4;
   }
 
@@ -206,7 +205,7 @@ body {
   background: #DBEAFE;
   color: #1D4ED8;
 
-  &:hover:not(.selected) {
+  &.btn-genero:hover:not(.selected) {
     background: #BFDBFE;
   }
 
@@ -220,7 +219,7 @@ body {
   background: #CCFBF1;
   color: #0F766E;
 
-  &:hover:not(.selected) {
+  &.btn-genero:hover:not(.selected) {
     background: #99F6E4;
   }
 
@@ -234,7 +233,7 @@ body {
   background: #DBEAFE;
   color: #1E40AF;
 
-  &:hover:not(.selected) {
+  &.btn-genero:hover:not(.selected) {
     background: #BFDBFE;
   }
 
@@ -248,7 +247,7 @@ body {
   background: #FEF3C7;
   color: #B45309;
 
-  &:hover:not(.selected) {
+  &.btn-genero:hover:not(.selected) {
     background: #FDE68A;
   }
 
@@ -262,7 +261,7 @@ body {
   background: #F5E6D3;
   color: #92400E;
 
-  &:hover:not(.selected) {
+  &.btn-genero:hover:not(.selected) {
     background: #EFD4B4;
   }
 
@@ -276,7 +275,7 @@ body {
   background: #E5E7EB;
   color: #4B5563;
 
-  &:hover:not(.selected) {
+  &.btn-genero:hover:not(.selected) {
     background: #D1D5DB;
   }
 
@@ -290,7 +289,7 @@ body {
   background: #DCFCE7;
   color: #15803D;
 
-  &:hover:not(.selected) {
+  &.btn-genero:hover:not(.selected) {
     background: #BBF7D0;
   }
 
@@ -304,7 +303,7 @@ body {
   background: #E0F2FE;
   color: #0369A1;
 
-  &:hover:not(.selected) {
+  &.btn-genero:hover:not(.selected) {
     background: #BAE6FD;
   }
 
