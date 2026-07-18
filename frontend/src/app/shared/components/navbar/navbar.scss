@@ -1,4 +1,13 @@
 nav {
+  --nav-color: var(--bs-primary);
+  --nav-bg-subtle: var(--bs-primary-bg-subtle);
+
+  --bs-navbar-color: var(--nav-color);
+  --bs-navbar-hover-color: var(--nav-color);
+  --bs-navbar-active-color: var(--nav-color);
+
+  background: #F8F9FA;
+
   transition: transform 0.3s ease;
   z-index: 1030;
 }
@@ -8,7 +17,7 @@ nav {
 }
 
 .navbar-brand {
-  color: var(--bs-primary);
+  color: var(--nav-color);
 }
 
 .nav-link {
@@ -16,7 +25,34 @@ nav {
 }
 
 .nav-link.active-link {
-  background-color: var(--bs-primary-bg-subtle);
-  color: var(--bs-primary);
-  transition: all 0.2s ease;
+  background: var(--nav-bg-subtle);
+  color: var(--nav-color);
+}
+
+.nav-bibliotecario {
+  --nav-color: #334155;
+  --nav-bg-subtle: #E2E8F0;
+
+  background: #F1F5F9;
+}
+
+.nav-gestor {
+  --nav-color: #475569;
+  --nav-bg-subtle: #CBD5E1;
+
+  background: #E2E8F0;
+}
+
+.nav-professor {
+  --nav-color: var(--bs-primary);
+  --nav-bg-subtle: #E0E7FF;
+
+  background: #FFFFFF;
+}
+
+.nav-aluno {
+  --nav-color: var(--bs-primary);
+  --nav-bg-subtle: var(--bs-primary-bg-subtle);
+
+  background: #F8F9FA;
 }
