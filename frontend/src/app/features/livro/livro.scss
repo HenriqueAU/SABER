@@ -4,3 +4,13 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+.livro-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-top: 3px solid #003a79 !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.13) !important;
+  }
+}
