@@ -36,6 +36,7 @@ export default class HomeAlunoComponent implements OnInit {
   larguraTela = signal<number>(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
   @HostListener('window:resize')
+
   onResize() {
     if (typeof window !== 'undefined') {
       this.larguraTela.set(window.innerWidth);
@@ -68,17 +69,17 @@ export default class HomeAlunoComponent implements OnInit {
 
   getStatusPrazo(dataLimite: string | Date): 'no-prazo' | 'proximo' | 'atrasado' {
     if (!dataLimite) return 'no-prazo';
-    
+
     const limite = new Date(dataLimite).setHours(0, 0, 0, 0);
     const hoje = new Date().setHours(0, 0, 0, 0);
-    
+
     const diffMs = limite - hoje;
     const diasRestantes = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
     if (diasRestantes < 0) {
       return 'atrasado';
     } else if (diasRestantes <= 2) {
-      return 'proximo'; 
+      return 'proximo';
     } else {
       return 'no-prazo';
     }
@@ -162,7 +163,7 @@ export default class HomeAlunoComponent implements OnInit {
 
       const resLivroGeneros = await firstValueFrom(this.livroGeneroService.livroGeneroControllerFindAll());
       const livroGeneros = Array.isArray(resLivroGeneros) ? resLivroGeneros : [];
-      
+
       const resPerfil = await firstValueFrom(this.emprestimosService.emprestimoControllerGetLeiturasPorGenero());
       const perfil = Array.isArray(resPerfil) ? resPerfil : [];
 
@@ -187,7 +188,7 @@ export default class HomeAlunoComponent implements OnInit {
         }
       }
       const livrosMap = new Map<string, any>();
-      
+
       const livroIndisponivel = (livroId: string) => {
         const jaLeu = historico.some(h => h.exemplar?.livro?.id === livroId);
         const estaLendo = ativos.some(a => a.exemplar?.livro?.id === livroId);

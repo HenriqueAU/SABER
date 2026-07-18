@@ -2,14 +2,14 @@
   <div class="mb-4">
     <p class="text-secondary small mb-0">Veja seu histórico e distribuição de leituras por gênero.</p>
   </div>
-  
+
   @if (erro()) {
     <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center mb-4">
       <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
       <div>{{ erro() }}</div>
     </div>
   }
-  
+
   @if (carregando()) {
     <div class="text-center py-5">
       <div class="spinner-border text-primary" role="status"></div>
@@ -22,27 +22,8 @@
           <div class="card-body d-flex flex-column">
             <h6 class="fw-bold mb-4">Leituras por gênero</h6>
             @if (leiturasPorGenero().length > 0) {
-              <div class="d-flex justify-content-center align-items-center mb-4 mt-2">
-                <div class="rounded-circle position-relative shadow-sm" [style.background]="graficoDoughnut()" style="width: 160px; height: 160px;">
-                  <div class="position-absolute bg-white rounded-circle shadow-sm" style="width: 90px; height: 90px; top: 35px; left: 35px; display: flex; justify-content: center; align-items: center;">
-                    <div class="text-center">
-                      <span class="d-block fw-bold fs-4 text-dark lh-1">{{ leiturasPorGenero().length }}</span>
-                      <span class="small text-secondary" style="font-size: 0.7rem;">Gêneros</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="d-flex flex-column gap-2 mt-auto">
-                @for (item of leiturasPorGenero(); track item.genero; let i = $index) {
-                  <div class="d-flex justify-content-between align-items-center small">
-                    <div class="d-flex align-items-center">
-                      <span class="d-inline-block rounded-circle me-2 shadow-sm" [style.background]="coresGrafico[i % coresGrafico.length]" style="width: 12px; height: 12px;"></span>
-                      <span class="text-secondary fw-medium">{{ item.genero }}</span>
-                    </div>
-                    <span class="fw-bold text-dark">{{ item.quantidade }}</span>
-                  </div>
-                }
+              <div class="mb-2 mt-2" style="height: 220px;">
+                <canvas id="perfilLeituraChart"></canvas>
               </div>
             } @else {
               <div class="text-center py-4 text-secondary m-auto">
@@ -151,29 +132,29 @@
 
             <div class="row g-3">
               @for (livro of recomendacoesPaginadas(); track livro.id) {
-                
+
                 <div class="col-4 col-sm-3 col-lg-2">
                   <div class="card border border-light-subtle shadow-sm h-100 recommendation-card" (click)="abrirRecomendacao(livro.id)">
-                    
-                    <img 
-                      [src]="livro.capa_url || 'assets/imgs/livros/livro-sem-capa.png'" 
-                      class="card-img-top w-100 rounded-top book-cover" 
+
+                    <img
+                      [src]="livro.capa_url || 'assets/imgs/livros/livro-sem-capa.png'"
+                      class="card-img-top w-100 rounded-top book-cover"
                       [alt]="livro.titulo"
                     >
-                    
+
                     <div class="card-body p-2 d-flex flex-column">
                       <div>
                         <h6 class="fw-bold mb-1 text-truncate small">{{ livro.titulo }}</h6>
                         <small class="text-secondary d-block text-truncate book-author">{{ livro.autor }}</small>
                       </div>
-                      
+
                       <div class="mt-2 d-flex flex-wrap gap-1">
                         @for (genero of livro.generos; track genero) {
                           <span class="badge px-2 py-1 text-truncate" [ngClass]="getClassGenero(genero)">{{ genero }}</span>
                         }
                       </div>
                     </div>
-                    
+
                   </div>
                 </div>
 
@@ -186,7 +167,7 @@
                 </div>
               }
             </div>
-            
+
           </div>
         </div>
       </div>

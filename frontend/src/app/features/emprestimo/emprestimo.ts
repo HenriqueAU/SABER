@@ -117,7 +117,6 @@ export default class EmprestimoComponent implements OnInit {
   carregarEmprestimosAtivos() {
     this.emprestimosService.emprestimoControllerFindAll().subscribe({
       next: (data) => {
-        console.log('danificados:', data.filter((e: any) => e.status === 'danificado'));
         this.emprestimosAtivos = data
           .filter(
             (e: any) =>

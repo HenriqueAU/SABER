@@ -62,7 +62,9 @@ export class NotificacaoService {
   async remove(id: string) {
     const resultado = await this.notificacaoRepository.delete(id);
     if (resultado.affected === 0) {
-      throw new NotFoundException(`A notificação com o ID ${id} não foi encontrada.`);
+      throw new NotFoundException(
+        `A notificação com o ID ${id} não foi encontrada.`,
+      );
     }
   }
 
@@ -91,18 +93,21 @@ export class NotificacaoService {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_1AM)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async notificarGestorAtrasos(): Promise<void> {
-    const emprestimosAtrasados = await this.emprestimoService.findAllAtrasados();
+    const emprestimosAtrasados =
+      await this.emprestimoService.findAllAtrasados();
 
     const atrasosPorAluno = emprestimosAtrasados.reduce((acc, emp) => {
-      const alunoId = emp.usuario.id;
-      if (!acc[alunoId]) {
-        acc[alunoId] = { aluno: emp.usuario, quantidade: 0 };
-      }
-      acc[alunoId].quantidade += 1;
-      return acc;
-    }, {} as Record<string, { aluno: any; quantidade: number }>);
+        const alunoId = emp.usuario.id;
+        if (!acc[alunoId]) {
+          acc[alunoId] = { aluno: emp.usuario, quantidade: 0 };
+        }
+        acc[alunoId].quantidade += 1;
+        return acc;
+      },
+      {} as Record<string, { aluno: any; quantidade: number }>,
+    );
 
     for (const { aluno, quantidade } of Object.values(atrasosPorAluno)) {
       if (quantidade >= 3) {
@@ -122,7 +127,9 @@ export class NotificacaoService {
 
         if (!notificacaoExistente) {
           const usuarios = await this.usuarioService.findAll(instituicaoId);
-          const gestores = usuarios.filter((u) => u.perfil === TipoPerfil.GESTOR);
+          const gestores = usuarios.filter(
+            (u) => u.perfil === TipoPerfil.GESTOR,
+          );
 
           for (const gestor of gestores) {
             await this.create({

@@ -96,23 +96,6 @@ export default class PerfilLeituraComponent implements OnInit {
     return Math.ceil(this.recomendacoes().length / this.itensPorPaginaRecomendacoes()) || 1;
   });
 
-  graficoDoughnut = computed(() => {
-    const perfil = this.leiturasPorGenero();
-    if (!perfil || perfil.length === 0) return '';
-
-    const total = perfil.reduce((acc, curr) => acc + curr.quantidade, 0);
-    let gradientParts: string[] = [];
-    let startAngle = 0;
-    perfil.forEach((item, index) => {
-      const percentage = (item.quantidade / total) * 100;
-      const endAngle = startAngle + percentage;
-      const color = this.coresGrafico[index % this.coresGrafico.length];
-      gradientParts.push(`${color} ${startAngle}% ${endAngle}%`);
-      startAngle = endAngle;
-    });
-    return `conic-gradient(${gradientParts.join(', ')})`;
-  });
-
   getClassGenero(genero: string) {
     switch (genero) {
       case 'Poesia': return 'genero-poesia';
@@ -158,8 +141,6 @@ export default class PerfilLeituraComponent implements OnInit {
       const perfil = Array.isArray(resPerfil) ? resPerfil : [];
       this.leiturasPorGenero.set(perfil);
 
-      setTimeout(() => this.renderChart(), 0);
-
       const resClubes = await firstValueFrom(this.clubesService.clubeControllerFindMeusClubes());
       const todosClubes = Array.isArray(resClubes) ? resClubes : [];
       const hoje = new Date();
@@ -188,7 +169,7 @@ export default class PerfilLeituraComponent implements OnInit {
       }
 
       const livrosMap = new Map<string, any>();
-      
+
       const livroIndisponivel = (livroId: string) => {
         const jaLeu = historico.some(h => h.exemplar?.livro?.id === livroId);
         const estaLendo = ativos.some(a => a.exemplar?.livro?.id === livroId);
@@ -226,6 +207,7 @@ export default class PerfilLeituraComponent implements OnInit {
       this.erro.set('Não foi possível carregar os dados do perfil de leitura.');
     } finally {
       this.carregando.set(false);
+      setTimeout(() => this.renderChart(), 0);
     }
   }
 
@@ -239,7 +221,7 @@ export default class PerfilLeituraComponent implements OnInit {
     if (this.chartInstance) this.chartInstance.destroy();
 
     this.chartInstance = new Chart(canvas, {
-      type: 'doughnut',
+      type: 'bar',
       data: {
         labels: perfil.map(g => g.genero),
         datasets: [{
@@ -252,8 +234,14 @@ export default class PerfilLeituraComponent implements OnInit {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: 'right' },
+          legend: { display: false },
         },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1, precision: 3 },
+          }
+        }
       },
     });
   }
