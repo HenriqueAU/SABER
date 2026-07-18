@@ -12,7 +12,6 @@ import Modal from 'bootstrap/js/dist/modal';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LivrosService } from '../../../../../../client';
 import { SuccessModal } from '../../../../components/success-modal/success-modal';
-import * as bootstrap from 'bootstrap';
 
 @Component({
   selector: 'app-home-professor',
@@ -185,7 +184,7 @@ export default class HomeProfessorComponent implements OnInit {
         this.carregarMeusClubes();
 
         this.mensagemSucessoModal.set('Clube de leitura criado com sucesso!');
-        const successModal = new bootstrap.Modal(this.successModalElement.nativeElement);
+        const successModal = new Modal(this.successModalElement.nativeElement);
         successModal.show();
       },
       error: (err) => {
@@ -210,13 +209,13 @@ export default class HomeProfessorComponent implements OnInit {
 
   obterStatusClube(clube: any): string {
     if (!clube || !clube.data_fim) return 'Ativo';
-    
+
     const dataFim = new Date(clube.data_fim);
     const hoje = new Date();
-    
+
     hoje.setHours(0, 0, 0, 0);
     dataFim.setHours(0, 0, 0, 0);
-    
+
     return dataFim < hoje ? 'Encerrado' : 'Ativo';
   }
 
