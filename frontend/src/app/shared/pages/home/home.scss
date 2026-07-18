@@ -126,4 +126,28 @@
       gap: 6px !important;
     }
   }
+  
+  .clube-status-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: auto;
+    font-size: 0.65rem;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+  }
+
+  .status-ativo {
+    background-color: #e1f6eb;
+    color: #198754;
+  }
+
+  .status-inativo {
+    background-color: #fce8e6;
+    color: #dc3545;
+  }
 }

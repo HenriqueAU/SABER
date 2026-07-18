@@ -11,11 +11,13 @@ import { Router, ActivatedRoute } from '@angular/router';
 import Modal from 'bootstrap/js/dist/modal';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LivrosService } from '../../../../../../client';
+import { SuccessModal } from '../../../../components/success-modal/success-modal';
+import * as bootstrap from 'bootstrap';
 
 @Component({
   selector: 'app-home-professor',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SuccessModal],
   templateUrl: './home-professor.html',
   styleUrls: ['../../../../../features/clube_livro/clube-livro.scss']
 })
@@ -66,6 +68,9 @@ export default class HomeProfessorComponent implements OnInit {
 
   @ViewChild('clubeFormModal')
     clubeFormModalRef!: ElementRef;
+
+  @ViewChild('successModalElement') successModalElement!: ElementRef;
+  mensagemSucessoModal = signal<string>('');
 
   clubeForm: FormGroup = this.fb.group({
     livro_busca: [''],
@@ -178,6 +183,10 @@ export default class HomeProfessorComponent implements OnInit {
         const modal = Modal.getInstance(this.clubeFormModalRef.nativeElement);
         modal?.hide();
         this.carregarMeusClubes();
+
+        this.mensagemSucessoModal.set('Clube de leitura criado com sucesso!');
+        const successModal = new bootstrap.Modal(this.successModalElement.nativeElement);
+        successModal.show();
       },
       error: (err) => {
         this.enviandoClube.set(false);
@@ -197,6 +206,18 @@ export default class HomeProfessorComponent implements OnInit {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     return diffDays > 0 ? diffDays : null;
+  }
+
+  obterStatusClube(clube: any): string {
+    if (!clube || !clube.data_fim) return 'Ativo';
+    
+    const dataFim = new Date(clube.data_fim);
+    const hoje = new Date();
+    
+    hoje.setHours(0, 0, 0, 0);
+    dataFim.setHours(0, 0, 0, 0);
+    
+    return dataFim < hoje ? 'Encerrado' : 'Ativo';
   }
 
   async carregarMeusClubes() {

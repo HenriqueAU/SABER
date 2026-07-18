@@ -60,17 +60,26 @@
             
             <div class="card h-100 shadow-sm border-0 overflow-hidden clube-card-horizontal position-relative w-100" style="cursor: pointer;" (click)="abrirClube(c)">
               
+              <span
+                class="badge clube-status-badge shadow-sm"
+                [class.status-ativo]="obterStatusClube(c) === 'Ativo'"
+                [class.status-inativo]="obterStatusClube(c) !== 'Ativo'"
+              >
+                {{ obterStatusClube(c) }}
+              </span>
+
               <div class="d-flex flex-row h-100">
                 <div class="clube-cover-wrapper flex-shrink-0 border-end">
                   <img [src]="c.livro?.capa_url || c.livro?.capaUrl || 'assets/imgs/livros/livro-sem-capa.png'" alt="Capa do Livro" class="clube-cover-img">
                 </div>
 
-                <div class="card-body p-3 d-flex flex-column min-w-0">
-                  <h6 class="fw-bold text-dark text-truncate mb-1" title="{{ c.livro?.titulo }}">
+                <div class="card-body p-2 p-md-3 d-flex flex-column min-w-0">
+                  
+                  <h6 class="fw-bold text-dark text-truncate mb-1" style="font-size: 0.85rem;" title="{{ c.livro?.titulo }}">
                     {{ c.livro?.titulo || 'Título não informado' }}
                   </h6>
-                  
-                  <span class="badge bg-primary-subtle text-primary text-truncate d-inline-block mb-2 align-self-start" style="font-size: 0.75rem; max-width: 100%;" title="{{ c.nome }}">
+
+                  <span class="badge bg-primary-subtle text-primary text-truncate d-inline-block mb-2 align-self-start" style="font-size: 0.7rem; max-width: 100%;" title="{{ c.nome }}">
                     <i class="bi bi-people me-1"></i>{{ c.nome || 'Clube de leitura' }}
                   </span>
 
@@ -78,17 +87,17 @@
                     @if (getDiasParaInicio(c.data_inicio); as dias) {
                       <div class="text-truncate">
                         <i class="bi bi-rocket-takeoff"></i>
-                        <span class="fw-medium">Início:</span> {{ dias }} dia(s)
+                        <span class="fw-medium d-none d-sm-inline">Início:</span> {{ dias }} dia(s)
                       </div>
                     }
                     <div class="text-truncate">
                       <i class="bi bi-calendar-event"></i>
-                      <span class="fw-medium">Fim:</span> {{ (c.data_fim | date:'dd/MM/yyyy') || 'Não definido' }}
+                      <span class="fw-medium d-none d-sm-inline">Fim:</span> {{ (c.data_fim | date:'dd/MM/yy') || 'N/A' }}
                     </div>
                     @if (c.local_encontro) {
                       <div class="text-truncate" title="{{ c.local_encontro }}">
                         <i class="bi bi-geo-alt"></i>
-                        <span class="fw-medium">Local:</span> {{ c.local_encontro }}
+                        {{ c.local_encontro }}
                       </div>
                     }
                   </div>
@@ -110,7 +119,7 @@
   } @else {
 
     <button class="btn btn-outline-secondary mb-4 shadow-sm" (click)="voltarParaListagem()">
-      <i class="bi bi-arrow-left me-2"></i>Voltar à Lista
+      <i class="bi bi-arrow-left me-2"></i>Voltar à lista
     </button>
 
     @if (clubeDetalhes(); as detalhes) {
@@ -129,7 +138,7 @@
               <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start mb-3 gap-3">
                 <div>
                   <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-book text-primary me-2 d-none d-sm-inline"></i>{{ detalhes.livro?.titulo || 'Título não informado' }}</h4>
-                  <p class="text-secondary fw-medium mb-1">Por: {{ detalhes.livro?.autor || 'Autor Desconhecido' }}</p>
+                  <p class="text-secondary fw-medium mb-1">Por: {{ detalhes.livro?.autor || 'Autor desconhecido' }}</p>
                   <h6 class="text-primary mb-0 mt-2"><i class="bi bi-people me-2"></i>{{ detalhes.nome || 'Clube de leitura' }}</h6>
                 </div>
                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 flex-shrink-0" style="font-size: 0.85rem;">Clube de leitura</span>
@@ -199,7 +208,7 @@
               @if (abaAtiva() === 'detalhes') {
                 @if (clubeEncerrado()) {
                   <button class="btn btn-primary w-100 py-2 fw-semibold shadow-sm" (click)="abrirFeedbacks()">
-                    <i class="bi bi-bar-chart-line me-2"></i>Ver Feedbacks dos alunos
+                    <i class="bi bi-bar-chart-line me-2"></i>Ver feedbacks dos alunos
                   </button>
                 } @else {
                   <div class="alert alert-warning border-0 d-flex align-items-center mb-0 shadow-sm small">
@@ -239,7 +248,7 @@
                       <li class="list-group-item d-flex align-items-center px-0 py-2 border-light">
                         <img [src]="membro.usuario?.foto_perfil || 'assets/imgs/avatares/0.png'" alt="Foto do aluno" class="rounded shadow-sm object-fit-cover me-3 list-book-cover" style="width: 40px; height: 40px; border-radius: 50% !important;">
                         <div class="flex-grow-1 overflow-hidden">
-                          <strong class="d-block text-dark text-truncate" style="font-size: 0.9rem;">{{ membro.usuario?.nome || 'Aluno Desconhecido' }}</strong>
+                          <strong class="d-block text-dark text-truncate" style="font-size: 0.9rem;">{{ membro.usuario?.nome || 'Aluno desconhecido' }}</strong>
                           <small class="text-secondary text-truncate d-block" style="font-size: 0.75rem;"><i class="bi bi-envelope me-1"></i>{{ membro.usuario?.email || 'Sem e-mail' }}</small>
                         </div>
                       </li>
@@ -271,7 +280,7 @@
             <div class="modal-dialog modal-dialog-centered modal-lg">
               <div class="modal-content rounded-4 shadow-lg border-0">
                 <div class="modal-header bg-light border-bottom-0 pb-3">
-                  <h5 class="modal-title fw-bold"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Resultados dos Feedbacks</h5>
+                  <h5 class="modal-title fw-bold"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Resultados dos feedbacks</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body pt-0">
@@ -329,6 +338,11 @@
             }
 
             <div class="mb-3">
+              <label class="form-label fw-semibold small text-secondary text-uppercase">Nome do clube *</label>
+              <input type="text" formControlName="nome" class="form-control bg-light border-light-subtle" placeholder="Ex: Clube da meia noite">
+            </div>
+
+            <div class="mb-3">
               <label class="form-label fw-semibold small text-secondary text-uppercase">Livro *</label>
               <div class="position-relative">
                 <input
@@ -340,19 +354,31 @@
                   autocomplete="off">
 
                 @if (livrosFiltrados().length > 0) {
-                  <div class="list-group position-absolute w-100 shadow z-3 mt-1">
+                  <div class="list-group position-absolute w-100 shadow z-3 mt-1" style="max-height: 250px; overflow-y: auto;">
                     @for (livro of livrosFiltrados(); track livro.id) {
-                      <button type="button" class="list-group-item list-group-item-action py-2 small" (click)="selecionarLivro(livro)">
-                        {{ livro.titulo }}
+                      
+                      <button type="button" class="list-group-item list-group-item-action p-2" (click)="selecionarLivro(livro)">
+                        <div class="d-flex align-items-center gap-3">
+                          
+                          <img [src]="livro.capa_url || livro.capaUrl || 'assets/imgs/livros/livro-sem-capa.png'" 
+                               alt="Capa do Livro" 
+                               class="rounded shadow-sm flex-shrink-0" 
+                               style="width: 35px; height: 50px; object-fit: cover;">
+                          
+                          <div class="d-flex flex-column text-start overflow-hidden">
+                            <strong class="text-dark text-truncate" style="font-size: 0.85rem;">{{ livro.titulo }}</strong>
+                            <small class="text-secondary text-truncate" style="font-size: 0.75rem;">
+                              {{ livro.autor || 'Autor Desconhecido' }} • {{ livro.ano_publicacao || livro.ano || 'Ano N/A' }}
+                            </small>
+                          </div>
+                          
+                        </div>
                       </button>
+
                     }
                   </div>
                 }
               </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label fw-semibold small text-secondary text-uppercase">Nome do clube *</label>
-              <input type="text" formControlName="nome" class="form-control bg-light border-light-subtle" placeholder="Ex: Clube da meia noite">
             </div>
 
             <div class="row g-3 mb-3">
@@ -367,7 +393,7 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-semibold small text-secondary text-uppercase">Local ou link de encontro</label>
+              <label class="form-label fw-semibold small text-secondary text-uppercase">Local de encontro</label>
               <input type="text" formControlName="local_encontro" class="form-control bg-light border-light-subtle" placeholder="Ex: Sala 4 ou link do Meet">
             </div>
           </div>
@@ -380,5 +406,8 @@
         </form>
       </div>
     </div>
+  </div>
+  <div #successModalElement class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+    <app-success-modal [mensagem]="mensagemSucessoModal()"></app-success-modal>
   </div>
 </div>
