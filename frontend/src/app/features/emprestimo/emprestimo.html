@@ -326,8 +326,26 @@
   }
 
   @if (abaAtiva === 'devolucao') {
-    <div class="d-flex align-items-center mb-3">
-      <div class="btn-group" role="group">
+    <div class="d-flex align-items-stretch gap-3 mb-4">
+      <div class="card shadow-sm border-0 flex-grow-1 mb-0">
+        <div class="card-body p-0">
+          <div class="position-relative">
+            <i
+              class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"
+            ></i>
+            <input
+              type="text"
+              class="form-control border-0 ps-5 py-3"
+              placeholder="Pesquise pelo nome do aluno..."
+              [(ngModel)]="termoPesquisaDevolucao"
+              (input)="paginaAtualDevolucao = 1"
+              maxlength="255"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-group flex-shrink-0" role="group">
         <button
           type="button"
           class="btn btn-sm fw-medium"
@@ -358,24 +376,6 @@
         >
           Hoje
         </button>
-      </div>
-    </div>
-
-    <div class="card shadow-sm border-0 mb-4">
-      <div class="card-body p-0">
-        <div class="position-relative">
-          <i
-            class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"
-          ></i>
-          <input
-            type="text"
-            class="form-control border-0 ps-5 py-3"
-            placeholder="Pesquise pelo nome do aluno..."
-            [(ngModel)]="termoPesquisaDevolucao"
-            (input)="paginaAtualDevolucao = 1"
-            maxlength="255"
-          />
-        </div>
       </div>
     </div>
 
@@ -539,20 +539,82 @@
       </div>
     </div>
 
-    <div class="card shadow-sm border-0 mb-4">
-      <div class="card-body p-0">
-        <div class="position-relative">
-          <i
-            class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"
-          ></i>
-          <input
-            type="text"
-            class="form-control border-0 ps-5 py-3"
-            placeholder="Pesquise pelo nome do aluno..."
-            [(ngModel)]="termoPesquisaHistorico"
-            (input)="paginaAtualHistorico = 1"
-            maxlength="255"
-          />
+    <div class="d-flex align-items-stretch gap-3 mb-4 flex-wrap">
+      <div class="card shadow-sm border-0 flex-grow-1 mb-0" style="min-width: 200px">
+        <div class="card-body p-0">
+          <div class="position-relative">
+            <i
+              class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-info"
+            ></i>
+            <input
+              type="text"
+              class="form-control border-0 ps-5 py-3"
+              placeholder="Pesquise pelo nome do aluno..."
+              [(ngModel)]="termoPesquisaHistorico"
+              (input)="paginaAtualHistorico = 1"
+              maxlength="255"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-group flex-shrink-0" role="group">
+        <button
+          type="button"
+          class="btn btn-sm fw-medium"
+          [style.background-color]="filtroHistorico === 'todos' ? '#003A79' : 'transparent'"
+          [style.border-color]="'#003A79'"
+          [style.color]="filtroHistorico === 'todos' ? '#fff' : '#003A79'"
+          (click)="filtroHistorico = 'todos'; paginaAtualHistorico = 1"
+        >
+          Todos
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm fw-medium"
+          [style.background-color]="filtroHistorico === 'retirada' ? '#003A79' : 'transparent'"
+          [style.border-color]="'#003A79'"
+          [style.color]="filtroHistorico === 'retirada' ? '#fff' : '#003A79'"
+          (click)="filtroHistorico = 'retirada'; paginaAtualHistorico = 1"
+        >
+          Data retirada
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm fw-medium"
+          [style.background-color]="filtroHistorico === 'limite' ? '#003A79' : 'transparent'"
+          [style.border-color]="'#003A79'"
+          [style.color]="filtroHistorico === 'limite' ? '#fff' : '#003A79'"
+          (click)="filtroHistorico = 'limite'; paginaAtualHistorico = 1"
+        >
+          Data limite
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm fw-medium"
+          [style.background-color]="filtroHistorico === 'devolucao' ? '#003A79' : 'transparent'"
+          [style.border-color]="'#003A79'"
+          [style.color]="filtroHistorico === 'devolucao' ? '#fff' : '#003A79'"
+          (click)="filtroHistorico = 'devolucao'; paginaAtualHistorico = 1"
+        >
+          Data devolução
+        </button>
+      </div>
+
+      <div class="card shadow-sm border-0 flex-shrink-0 mb-0">
+        <div class="card-body p-0">
+          <div class="position-relative">
+            <i
+              class="bi bi-calendar3 position-absolute top-50 start-0 translate-middle-y ms-3 text-info"
+            ></i>
+            <input
+              type="date"
+              class="form-control border-0 ps-5 py-3"
+              style="min-width: 180px"
+              [(ngModel)]="filtroDataHistorico"
+              (change)="paginaAtualHistorico = 1"
+            />
+          </div>
         </div>
       </div>
     </div>

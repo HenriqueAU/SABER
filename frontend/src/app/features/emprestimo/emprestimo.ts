@@ -26,7 +26,7 @@ import { ErrorModal } from '../../shared/components/error-modal/error-modal';
     ReactiveFormsModule,
     RouterLink,
     SuccessModal,
-    ErrorModal
+    ErrorModal,
   ],
   templateUrl: './emprestimo.html',
   styleUrl: './emprestimo.scss',
@@ -81,6 +81,8 @@ export default class EmprestimoComponent implements OnInit {
   itensPorPaginaHistorico = 10;
 
   filtroAtivo: 'todos' | 'atrasados' | 'hoje' = 'todos';
+  filtroHistorico: 'todos' | 'retirada' | 'limite' | 'devolucao' = 'todos';
+  filtroDataHistorico: string = '';
 
   getIniciais(emp: any): string {
     const nome = this.getNomeAluno(emp);
@@ -535,11 +537,47 @@ export default class EmprestimoComponent implements OnInit {
   termoPesquisaHistorico = '';
 
   get historicoFiltrado(): any[] {
-    if (!this.termoPesquisaHistorico.trim()) return this.emprestimosHistorico;
-    const termo = this.termoPesquisaHistorico.toLowerCase();
-    return this.emprestimosHistorico.filter((emp) =>
-      this.getNomeAluno(emp).toLowerCase().includes(termo),
-    );
+    let lista = this.emprestimosHistorico;
+
+    if (this.filtroHistorico === 'retirada') {
+      lista = [...lista].sort(
+        (a, b) => new Date(b.data_retirada).getTime() - new Date(a.data_retirada).getTime(),
+      );
+    } else if (this.filtroHistorico === 'limite') {
+      lista = [...lista].sort(
+        (a, b) =>
+          new Date(b.data_devolucao_esperada).getTime() -
+          new Date(a.data_devolucao_esperada).getTime(),
+      );
+    } else if (this.filtroHistorico === 'devolucao') {
+      lista = [...lista].sort(
+        (a, b) =>
+          new Date(b.data_devolucao_efetiva ?? b.updated_at).getTime() -
+          new Date(a.data_devolucao_efetiva ?? a.updated_at).getTime(),
+      );
+    }
+
+    if (this.termoPesquisaHistorico.trim()) {
+      const termo = this.termoPesquisaHistorico.toLowerCase();
+      lista = lista.filter((emp) => this.getNomeAluno(emp).toLowerCase().includes(termo));
+    }
+
+    if (this.filtroDataHistorico) {
+      const dataSelecionada = this.filtroDataHistorico;
+      lista = lista.filter((emp) => {
+        const campoData =
+          this.filtroHistorico === 'retirada'
+            ? emp.data_retirada
+            : this.filtroHistorico === 'limite'
+              ? emp.data_devolucao_esperada
+              : this.filtroHistorico === 'devolucao'
+                ? (emp.data_devolucao_efetiva ?? emp.updated_at)
+                : emp.data_retirada;
+        return campoData?.split('T')[0] === dataSelecionada;
+      });
+    }
+
+    return lista;
   }
 
   get historicoTotalPaginas(): number {
