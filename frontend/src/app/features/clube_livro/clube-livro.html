@@ -394,4 +394,125 @@
       </div>
     }
   }
+
+  <div class="modal fade" id="modalAvaliacao" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 16px">
+        <div class="modal-header border-0 pb-0 px-4 pt-4">
+          <div class="d-flex align-items-center gap-2">
+            <div
+              class="rounded-circle d-flex align-items-center justify-content-center"
+              style="width: 38px; height: 38px; background-color: #e8f0fb"
+            >
+              <i class="bi bi-star-fill" style="color: #003a79; font-size: 16px"></i>
+            </div>
+            <div>
+              <h5 class="modal-title fw-bold mb-0" style="color: #0f172a">Avaliar clube</h5>
+              <p class="text-muted mb-0" style="font-size: 12px">
+                Responda as perguntas abaixo para enviar seu feedback
+              </p>
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body px-4 pt-3 pb-2">
+          @if (mensagemSucesso()) {
+            <div
+              class="alert alert-success border-0 d-flex align-items-center gap-2 small rounded-3"
+            >
+              <i class="bi bi-check-circle-fill"></i>
+              {{ mensagemSucesso() }}
+            </div>
+          }
+          @if (mensagemErro()) {
+            <div
+              class="alert alert-danger border-0 d-flex align-items-center gap-2 small rounded-3"
+            >
+              <i class="bi bi-exclamation-circle-fill"></i>
+              {{ mensagemErro() }}
+            </div>
+          }
+
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" id="avaliacaoForm">
+            @for (pergunta of perguntas(); track pergunta.id; let i = $index) {
+              <div class="p-3 rounded-3 border mb-3" style="background-color: #f8fafc">
+                <div class="d-flex align-items-start gap-2 mb-3">
+                  <div
+                    class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white flex-shrink-0"
+                    style="
+                      width: 24px;
+                      height: 24px;
+                      background-color: #003a79;
+                      font-size: 11px;
+                      margin-top: 1px;
+                    "
+                  >
+                    {{ i + 1 }}
+                  </div>
+                  <label class="fw-semibold text-dark mb-0" style="font-size: 13.5px">
+                    {{ pergunta.texto }}
+                  </label>
+                </div>
+
+                <div class="d-flex flex-column gap-2 ps-1">
+                  @for (item of getItensDaPergunta(pergunta.id); track item.id) {
+                    <label
+                      class="d-flex align-items-center gap-2 p-2 rounded-3 border bg-white"
+                      style="cursor: pointer; font-size: 13px; transition: border-color 0.15s"
+                      [style.border-color]="
+                        form.get(pergunta.id)?.value === item.id ? '#003a79' : '#dee2e6'
+                      "
+                      [style.background-color]="
+                        form.get(pergunta.id)?.value === item.id ? '#eef3fb' : '#fff'
+                      "
+                    >
+                      <input
+                        class="form-check-input m-0 flex-shrink-0"
+                        type="radio"
+                        [id]="item.id"
+                        [value]="item.id"
+                        [formControlName]="pergunta.id"
+                        style="accent-color: #003a79"
+                      />
+                      <span>{{ item.texto }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+          </form>
+        </div>
+
+        <div class="modal-footer border-0 px-4 pb-4 pt-2 gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm px-4"
+            style="border-radius: 8px; font-size: 13px"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            form="avaliacaoForm"
+            class="btn btn-sm px-4 fw-semibold"
+            style="background-color: #003a79; color: #fff; border-radius: 8px; font-size: 13px"
+            [disabled]="form.invalid || enviando()"
+          >
+            @if (enviando()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+              Enviando...
+            } @else {
+              <i class="bi bi-send me-1"></i> Enviar avaliação
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div #successModal class="modal fade" id="successModalClube" tabindex="-1">
+    <app-success-modal [mensagem]="mensagemSucesso()"></app-success-modal>
+  </div>
 </div>

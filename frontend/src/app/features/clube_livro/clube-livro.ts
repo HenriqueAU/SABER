@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, ViewChild, OnInit, signal, computed, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -17,11 +17,13 @@ import { RespostaMembroService } from '../../../client/services/respostaMembro.s
 import { CoreAuthService } from '../../core/auth/auth-session';
 import { TipoPerfil } from '../../core/auth/tipo-perfil.enum';
 import { LivroGeneroService } from '../../../client';
+import { SuccessModal } from '../../shared/components/success-modal/success-modal';
+import { ErrorModal } from '../../shared/components/error-modal/error-modal';
 
 @Component({
   selector: 'app-clube-livro',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SuccessModal, ErrorModal],
   templateUrl: './clube-livro.html',
   styleUrls: ['./clube-livro.scss'],
 })
@@ -58,6 +60,8 @@ export default class ClubeLivroComponent implements OnInit {
   generosPorLivro = signal<Record<string, string[]>>({});
 
   jaAvaliado = signal(false);
+@ViewChild('successModal') successModalRef!: ElementRef;
+
 
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
@@ -69,7 +73,7 @@ export default class ClubeLivroComponent implements OnInit {
   private authService = inject(CoreAuthService);
   private membroClubeService = inject(MembroClubeService);
   private livroGeneroService = inject(LivroGeneroService);
-
+  
   generosDisponiveis = computed(() =>
     Object.values(this.generosPorLivro())
       .flat()
@@ -290,15 +294,32 @@ export default class ClubeLivroComponent implements OnInit {
       const detalhes = this.clubeDetalhes();
       this.clubeEncerrado.set(this.obterStatusClube(detalhes) === 'Encerrado');
 
-      this.perguntas.set(
-        (await firstValueFrom(this.perguntasService.perguntaControllerFindAll())) || [],
+      const todasPerguntas =
+        (await firstValueFrom(this.perguntasService.perguntaControllerFindAll())) || [];
+
+      const perguntasUnicas = Object.values(
+        todasPerguntas.reduce((acc: any, p: any) => {
+          if (!acc[p.texto] || new Date(p.created_at) > new Date(acc[p.texto].created_at)) {
+            acc[p.texto] = p;
+          }
+          return acc;
+        }, {}),
       );
+
+      this.perguntas.set(perguntasUnicas);
+
+      const todosItens =
+        (await firstValueFrom(this.itemPerguntaService.itemPerguntaControllerFindAll())) || [];
+
+      const idsPerguntasUnicas = new Set(perguntasUnicas.map((p: any) => p.id));
       this.itensPergunta.set(
-        (await firstValueFrom(this.itemPerguntaService.itemPerguntaControllerFindAll())) || [],
+        todosItens.filter((item: any) => {
+          const perguntaId = item.pergunta?.id || item.pergunta_id || item.pergunta;
+          return idsPerguntasUnicas.has(perguntaId);
+        }),
       );
 
       this.montarFormAvaliacao();
-
       await this.carregarMeusClubes();
       await this.verificarSeJaAvaliou();
     } catch (error) {
@@ -367,6 +388,7 @@ export default class ClubeLivroComponent implements OnInit {
       );
       idDaInscricao = minhaInscricao.id;
     } catch (error) {
+     
       this.mensagemErro.set('Apenas membros matriculados neste clube podem enviar avaliações.');
       this.enviando.set(false);
       return;
@@ -388,14 +410,60 @@ export default class ClubeLivroComponent implements OnInit {
       if (requisicoes.length > 0) {
         forkJoin(requisicoes).subscribe({
           next: () => {
-            this.mensagemSucesso.set('Avaliação enviada com sucesso! Obrigado pelo seu feedback.');
-            this.form.disable();
+            this.jaAvaliado.set(true);
             this.enviando.set(false);
+
+          
+            const modalEl = document.getElementById('modalAvaliacao');
+            if (modalEl) {
+              const backdrop = document.querySelector('.modal-backdrop');
+              modalEl.classList.remove('show');
+              modalEl.style.display = 'none';
+              document.body.classList.remove('modal-open');
+              document.body.style.removeProperty('overflow');
+              document.body.style.removeProperty('padding-right');
+              if (backdrop) backdrop.remove();
+            }
+
+           
+            this.mensagemSucesso.set('Avaliação enviada com sucesso! Obrigado pelo seu feedback.');
+            setTimeout(() => {
+              const modalSucesso = new (window as any).bootstrap.Modal(
+                this.successModalRef.nativeElement,
+              );
+              modalSucesso.show();
+            }, 300);
           },
-          error: () => {
+          error: (err) => {
+          const status = err?.status;
+          if (status === 409) {
+            
+            this.jaAvaliado.set(true);
+            this.enviando.set(false);
+
+            const modalEl = document.getElementById('modalAvaliacao');
+            if (modalEl) {
+              const backdrop = document.querySelector('.modal-backdrop');
+              modalEl.classList.remove('show');
+              modalEl.style.display = 'none';
+              document.body.classList.remove('modal-open');
+              document.body.style.removeProperty('overflow');
+              document.body.style.removeProperty('padding-right');
+              if (backdrop) backdrop.remove();
+            }
+
+            this.mensagemSucesso.set('Você já avaliou este clube. Obrigado pelo feedback!');
+            setTimeout(() => {
+              const modalSucesso = new (window as any).bootstrap.Modal(
+                this.successModalRef.nativeElement,
+              );
+              modalSucesso.show();
+            }, 300);
+          } else {
             this.mensagemErro.set('Ocorreu um erro ao enviar a avaliação.');
             this.enviando.set(false);
-          },
+          }
+        },
         });
       } else {
         this.enviando.set(false);
@@ -405,7 +473,6 @@ export default class ClubeLivroComponent implements OnInit {
       this.enviando.set(false);
     }
   }
-  
 
   async abrirFeedbacks() {
     this.abaAtiva.set('feedbacks');
