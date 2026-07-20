@@ -160,64 +160,69 @@ export default class HomeAlunoComponent implements OnInit {
 
       this.clubesAtivos.set(cAtivos);
       this.totalClubes.set(todosClubes.length);
+      
+      // recomendações de livros
+      // pontuação
 
-      const resLivroGeneros = await firstValueFrom(this.livroGeneroService.livroGeneroControllerFindAll());
-      const livroGeneros = Array.isArray(resLivroGeneros) ? resLivroGeneros : [];
+      const resLivroGeneros = await firstValueFrom(this.livroGeneroService.livroGeneroControllerFindAll()); 
+      const livrosGeneros = Array.isArray(resLivroGeneros) ? resLivroGeneros : [];
 
-      const resPerfil = await firstValueFrom(this.emprestimosService.emprestimoControllerGetLeiturasPorGenero());
-      const perfil = Array.isArray(resPerfil) ? resPerfil : [];
+      const resHistoricoLeitura = await firstValueFrom(this.emprestimosService.emprestimoControllerGetLeiturasPorGenero());
+      const historicoLeitura = Array.isArray(resHistoricoLeitura) ? resHistoricoLeitura : [];
 
-      const resPreferencias = await firstValueFrom(this.preferenciasGeneroService.preferenciaGeneroControllerFindAll());
-      const preferencias = Array.isArray(resPreferencias) ? resPreferencias : [];
+      const resgenerosPreferidos = await firstValueFrom(this.preferenciasGeneroService.preferenciaGeneroControllerFindAll());
+      const generosPreferidos = Array.isArray(resgenerosPreferidos) ? resgenerosPreferidos : [];
 
       const pontuacaoGeneros = new Map<string, number>();
 
-      for (const pref of preferencias) {
-        if (pref.genero?.nome) {
-          pontuacaoGeneros.set(pref.genero.nome.trim().toLowerCase(), 5);
+      // os generos preferidos recebem 5 pontos e são armazenados em pontuacaoGeneros
+      for (const item of generosPreferidos) {
+        if (item.genero?.nome) {
+          pontuacaoGeneros.set(item.genero.nome.trim().toLowerCase(), 10);
         }
       }
 
-      if (perfil.length > 0) {
-        for (const itemPerfil of perfil) {
-          if (itemPerfil.genero) {
-            const genLower = itemPerfil.genero.trim().toLowerCase();
-            const pontosAtuais = pontuacaoGeneros.get(genLower) || 0;
-            pontuacaoGeneros.set(genLower, pontosAtuais + itemPerfil.quantidade);
+      // para cada livro no histórico, soma 1 aos generos dos livros + pontos atuais
+      if (historicoLeitura.length > 0) {
+        for (const livro of historicoLeitura) {
+          if (livro.genero) {
+            const generoLowerCase = livro.genero.trim().toLowerCase();
+            const pontosAtuais = pontuacaoGeneros.get(generoLowerCase) || 0;
+            pontuacaoGeneros.set(generoLowerCase, pontosAtuais + livro.quantidade);
           }
         }
       }
+      
       const livrosMap = new Map<string, any>();
-
-      const livroIndisponivel = (livroId: string) => {
+      const livroJaLeu = (livroId: string) => {
         const jaLeu = historico.some(h => h.exemplar?.livro?.id === livroId);
         const estaLendo = ativos.some(a => a.exemplar?.livro?.id === livroId);
         return jaLeu || estaLendo;
       };
 
-      for (const lg of livroGeneros) {
-        if (!lg.livro || !lg.genero || livroIndisponivel(lg.livro.id)) continue;
+      // converte a lista para não duplicadar os livros
+      for (const item of livrosGeneros) {
+        if (!item.livro || !item.genero || livroJaLeu(item.livro.id)) continue;
 
-        const livroId = lg.livro.id;
-        const generoNome = lg.genero.nome;
-        const generoLower = generoNome.trim().toLowerCase();
+        const livroId = item.livro.id;
+        const generoNome = item.genero.nome;
+        const generoLowerCase = generoNome.trim().toLowerCase();
 
         if (!livrosMap.has(livroId)) {
-          livrosMap.set(livroId, { ...lg.livro, generos: [], pontuacao: 0 });
+          livrosMap.set(livroId, { ...item.livro, generos: [], pontuacao: 0 });
         }
 
         const livroAgrupado = livrosMap.get(livroId);
         livroAgrupado.generos.push(generoNome);
 
-        if (pontuacaoGeneros.has(generoLower)) {
-          livroAgrupado.pontuacao += pontuacaoGeneros.get(generoLower)!;
+        if (pontuacaoGeneros.has(generoLowerCase)) {
+          livroAgrupado.pontuacao += pontuacaoGeneros.get(generoLowerCase)!;
         }
       }
+
+      // descarta os generos com pontuação zerada e organiza da maior para menor pontuação
       let recomendados = Array.from(livrosMap.values()).filter(l => l.pontuacao > 0);
       recomendados.sort((a, b) => b.pontuacao - a.pontuacao);
-      if (recomendados.length === 0) {
-        recomendados = Array.from(livrosMap.values()).slice(0, 12);
-      }
 
       this.recomendacoes.set(recomendados);
 

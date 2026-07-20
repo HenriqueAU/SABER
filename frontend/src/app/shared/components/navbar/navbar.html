@@ -33,7 +33,7 @@
       @else {
         <ul class="navbar-nav flex-row gap-1 align-items-center overflow-x-auto flex-nowrap d-flex d-md-none" style="scrollbar-width: none; min-width: 0;">
           @if (perfil() === 'gestor') {
-            <a class="navbar-brand d-flex align-items-center ms-0 me-0 flex-shrink-0" routerLink="/home">
+            <a class="navbar-brand d-flex align-items-center ms-0 me-1 flex-shrink-0" routerLink="/home">
               <img src="assets/imgs/logos/logo-preta.png" style="height: 20px; width: auto;" alt="Logo" />
             </a>
             <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/home" routerLinkActive="active-link">Home</a></li>
@@ -41,7 +41,7 @@
             <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/usuarios" routerLinkActive="active-link">Usuários</a></li>
           }
           @if (perfil() === 'bibliotecario') {
-            <a class="navbar-brand d-flex align-items-center ms-0 me-0 flex-shrink-0" routerLink="/home">
+            <a class="navbar-brand d-flex align-items-center ms-0 me-1 flex-shrink-0" routerLink="/home">
               <img src="assets/imgs/logos/logo-cinza.png" style="height: 20px; width: auto;" alt="Logo" />
             </a>
             <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/home" routerLinkActive="active-link">Home</a></li>
@@ -49,14 +49,14 @@
             <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/emprestimos" routerLinkActive="active-link">Empréstimos</a></li>
           }
           @if (perfil() === 'professor') {
-            <a class="navbar-brand d-flex align-items-center ms-0 me-0 flex-shrink-0" routerLink="/home">
+            <a class="navbar-brand d-flex align-items-center ms-0 me-1 flex-shrink-0" routerLink="/home">
               <img src="assets/imgs/logos/logo-azul.png" style="height: 20px; width: auto;" alt="Logo" />
             </a>
             <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/home" routerLinkActive="active-link">Home</a></li>
             <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/livros" routerLinkActive="active-link">Livros</a></li>
           }
           @if (perfil() === 'aluno') {
-            <a class="navbar-brand d-flex align-items-center ms-0 me-0 flex-shrink-0" routerLink="/home">
+            <a class="navbar-brand d-flex align-items-center ms-0 me-1 flex-shrink-0" routerLink="/home">
               <img src="assets/imgs/logos/logo-azul.png" style="height: 20px; width: auto;" alt="Logo" />
             </a>
             <li class="nav-item flex-shrink-0"><a class="nav-link fw-bold p-1" routerLink="/home" routerLinkActive="active-link">Home</a></li>
