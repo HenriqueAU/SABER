@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { firstValueFrom } from 'rxjs';
-import { ClubesService, EmprestimosService } from '../../../client';
-import { HttpClient } from '@angular/common/http';
-import { BASE_PATH_DEFAULT } from '../../../client/tokens/index';
+import { ClubesService, EmprestimosService, LivrosService } from '../../../client';
 
 Chart.register(...registerables);
 
@@ -20,8 +18,7 @@ export default class PerfilLeituraComponent implements OnInit {
   private emprestimosService = inject(EmprestimosService);
   private clubesService = inject(ClubesService);
   private router = inject(Router);
-  private http = inject(HttpClient);
-  private basePath = inject(BASE_PATH_DEFAULT);
+  private livrosService = inject(LivrosService);
 
   carregando = signal<boolean>(true);
   erro = signal<string>('');
@@ -160,9 +157,8 @@ export default class PerfilLeituraComponent implements OnInit {
       const hoje = new Date();
       const encerrados = todosClubes.filter(c => !c.ativo || (c.data_fim && new Date(c.data_fim) <= hoje));
       this.historicoClubs.set(encerrados);
-
-      const url = `${this.basePath}/livros/recomendacoes/perfil`;
-      const recomendados = await firstValueFrom(this.http.get<any[]>(url));
+      
+      const recomendados = await firstValueFrom(this.livrosService.livroControllerObterRecomendacoes());
       
       this.recomendacoes.set(recomendados);
 

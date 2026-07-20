@@ -173,7 +173,6 @@ export interface CreateExemplarDto {
     livro_id: string;
     /** Código do exemplar */
     codigo: string;
-    status: 'disponivel' | 'emprestado' | 'danificado' | 'perdido';
 }
 
 export interface UpdateExemplarDto {

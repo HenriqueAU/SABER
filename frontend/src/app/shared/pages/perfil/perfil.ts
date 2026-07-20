@@ -9,8 +9,6 @@ import Modal from 'bootstrap/js/dist/modal';
 import { GenerosService, PreferenciasGeneroService } from '../../../../client';
 import { SuccessModal } from '../../components/success-modal/success-modal';
 import { ErrorModal } from '../../components/error-modal/error-modal';
-import { HttpClient } from '@angular/common/http';
-import { BASE_PATH_DEFAULT } from '../../../../client/tokens/index';
 
 @Component({
   selector: 'app-perfil',
@@ -24,8 +22,6 @@ export default class PerfilComponent implements OnInit{
   private preferenciasGeneroService = inject(PreferenciasGeneroService);
   private generosService = inject(GenerosService);
   private location = inject(Location);
-  private http = inject(HttpClient);
-  private basePath = inject(BASE_PATH_DEFAULT);
 
   usuarioId!: string;
   usuarioData: any = null;
@@ -151,10 +147,9 @@ export default class PerfilComponent implements OnInit{
           return;
         }
 
-        const url = `${this.basePath}/preferencias-genero/sync`;
         const syncPayload = { generos_ids: this.generosSelecionados };
 
-        this.http.post(url, syncPayload).subscribe({
+        this.preferenciasGeneroService.preferenciaGeneroControllerSync(syncPayload as any).subscribe({
           next: () => {
             this.carregarPreferencias();
             if (typeof window !== 'undefined') window.dispatchEvent(new Event('avatarUpdated'));

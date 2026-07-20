@@ -2,10 +2,7 @@ import { Component, OnInit, signal, inject, computed, HostListener} from '@angul
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { EmprestimosService } from '../../../../../../client/services';
-import { ClubesService } from '../../../../../../client/services/clubes.service';
-import { HttpClient } from '@angular/common/http';
-import { BASE_PATH_DEFAULT } from '../../../../../../client/tokens/index';
+import { ClubesService, EmprestimosService, LivrosService } from '../../../../../../client';
 
 @Component({
   selector: 'app-home-aluno',
@@ -17,8 +14,7 @@ export default class HomeAlunoComponent implements OnInit {
   private router = inject(Router);
   private clubesService = inject(ClubesService);
   private emprestimosService = inject(EmprestimosService);
-  private http = inject(HttpClient);
-  private basePath = inject(BASE_PATH_DEFAULT);
+  private livrosService = inject(LivrosService);
 
   carregando = signal<boolean>(true);
   erro = signal<string>('');
@@ -161,8 +157,7 @@ export default class HomeAlunoComponent implements OnInit {
       this.clubesAtivos.set(cAtivos);
       this.totalClubes.set(todosClubes.length);
 
-      const url = `${this.basePath}/livros/recomendacoes/perfil`;
-      const recomendados = await firstValueFrom(this.http.get<any[]>(url));
+      const recomendados = await firstValueFrom(this.livrosService.livroControllerObterRecomendacoes());
       
       this.recomendacoes.set(recomendados);
 
