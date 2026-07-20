@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { firstValueFrom } from 'rxjs';
-import { ClubesService, EmprestimosService, LivroGeneroService } from '../../../client';
-import { PreferenciasGeneroService } from '../../../client/services/preferenciasGenero.service';
+import { ClubesService, EmprestimosService } from '../../../client';
+import { HttpClient } from '@angular/common/http';
+import { BASE_PATH_DEFAULT } from '../../../client/tokens/index';
 
 Chart.register(...registerables);
 
@@ -18,9 +19,9 @@ Chart.register(...registerables);
 export default class PerfilLeituraComponent implements OnInit {
   private emprestimosService = inject(EmprestimosService);
   private clubesService = inject(ClubesService);
-  private livroGeneroService = inject(LivroGeneroService);
   private router = inject(Router);
-  private preferenciasGeneroService = inject(PreferenciasGeneroService);
+  private http = inject(HttpClient);
+  private basePath = inject(BASE_PATH_DEFAULT);
 
   carregando = signal<boolean>(true);
   erro = signal<string>('');
@@ -133,7 +134,6 @@ export default class PerfilLeituraComponent implements OnInit {
     try {
       const resEmprestimos = await firstValueFrom(this.emprestimosService.emprestimoControllerFindAll());
       const emprestimos = Array.isArray(resEmprestimos) ? resEmprestimos : [];
-      const ativos = emprestimos.filter(e => !e.data_devolucao_efetiva);
       const historico = emprestimos.filter(e => e.data_devolucao_efetiva);
       this.historicoLeitura.set(historico);
 
@@ -147,60 +147,9 @@ export default class PerfilLeituraComponent implements OnInit {
       const encerrados = todosClubes.filter(c => !c.ativo || (c.data_fim && new Date(c.data_fim) <= hoje));
       this.historicoClubs.set(encerrados);
 
-      const resPreferencias = await firstValueFrom(this.preferenciasGeneroService.preferenciaGeneroControllerFindAll());
-      const preferencias = Array.isArray(resPreferencias) ? resPreferencias : [];
-
-      const pontuacaoGeneros = new Map<string, number>();
-
-      for (const pref of preferencias) {
-        if (pref.genero?.nome) {
-          pontuacaoGeneros.set(pref.genero.nome.trim().toLowerCase(), 5);
-        }
-      }
-
-      if (perfil.length > 0) {
-        for (const itemPerfil of perfil) {
-          if (itemPerfil.genero) {
-            const genLower = itemPerfil.genero.trim().toLowerCase();
-            const pontosAtuais = pontuacaoGeneros.get(genLower) || 0;
-            pontuacaoGeneros.set(genLower, pontosAtuais + itemPerfil.quantidade);
-          }
-        }
-      }
-
-      const livrosMap = new Map<string, any>();
-
-      const livroIndisponivel = (livroId: string) => {
-        const jaLeu = historico.some(h => h.exemplar?.livro?.id === livroId);
-        const estaLendo = ativos.some(a => a.exemplar?.livro?.id === livroId);
-        return jaLeu || estaLendo;
-      };
-
-      const resLivroGeneros = await firstValueFrom(this.livroGeneroService.livroGeneroControllerFindAll());
-      const livroGeneros = Array.isArray(resLivroGeneros) ? resLivroGeneros : [];
-
-      for (const lg of livroGeneros) {
-        if (!lg.livro || !lg.genero || livroIndisponivel(lg.livro.id)) continue;
-
-        const livroId = lg.livro.id;
-        const generoNome = lg.genero.nome;
-        const generoLower = generoNome.trim().toLowerCase();
-
-        if (!livrosMap.has(livroId)) {
-          livrosMap.set(livroId, { ...lg.livro, generos: [], pontuacao: 0 });
-        }
-        const livroAgrupado = livrosMap.get(livroId);
-        livroAgrupado.generos.push(generoNome);
-        if (pontuacaoGeneros.has(generoLower)) {
-          livroAgrupado.pontuacao += pontuacaoGeneros.get(generoLower)!;
-        }
-      }
-
-      let recomendados = Array.from(livrosMap.values()).filter(l => l.pontuacao > 0);
-      recomendados.sort((a, b) => b.pontuacao - a.pontuacao);
-      if (recomendados.length === 0) {
-        recomendados = Array.from(livrosMap.values()).slice(0, 12);
-      }
+      const url = `${this.basePath}/livros/recomendacoes/perfil`;
+      const recomendados = await firstValueFrom(this.http.get<any[]>(url));
+      
       this.recomendacoes.set(recomendados);
 
     } catch (e) {

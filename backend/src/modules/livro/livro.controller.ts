@@ -51,6 +51,15 @@ export class LivroController {
     return this.livroService.findOne(id);
   }
 
+  @Get('recomendacoes/perfil')
+  @Roles(TipoPerfil.ALUNO)
+  @ApiOperation({ summary: 'Obter recomendações com base no perfil e histórico' })
+  obterRecomendacoes(@Req() request: RequestComUser) {
+    const usuarioId = request.user.id;
+    const instituicaoId = request.user.instituicao;
+    return this.livroService.obterRecomendacoesAluno(usuarioId, instituicaoId);
+  }
+
   @Patch(':id')
   @Roles(TipoPerfil.BIBLIOTECARIO)
   @ApiOperation({ summary: 'Atualizar os dados de um livro' })

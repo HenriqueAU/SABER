@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { EmprestimosService } from '../../../../../../client/services';
-import { LivroGeneroService } from '../../../../../../client/services/livroGenero.service';
 import { ClubesService } from '../../../../../../client/services/clubes.service';
-import { PreferenciasGeneroService } from '../../../../../../client/services/preferenciasGenero.service';
+import { HttpClient } from '@angular/common/http';
+import { BASE_PATH_DEFAULT } from '../../../../../../client/tokens/index';
 
 @Component({
   selector: 'app-home-aluno',
@@ -14,11 +14,11 @@ import { PreferenciasGeneroService } from '../../../../../../client/services/pre
   templateUrl: './home-aluno.html',
 })
 export default class HomeAlunoComponent implements OnInit {
-  private emprestimosService = inject(EmprestimosService);
-  private livroGeneroService = inject(LivroGeneroService);
-  private clubesService = inject(ClubesService);
-  private preferenciasGeneroService = inject(PreferenciasGeneroService);
   private router = inject(Router);
+  private clubesService = inject(ClubesService);
+  private emprestimosService = inject(EmprestimosService);
+  private http = inject(HttpClient);
+  private basePath = inject(BASE_PATH_DEFAULT);
 
   carregando = signal<boolean>(true);
   erro = signal<string>('');
@@ -160,70 +160,10 @@ export default class HomeAlunoComponent implements OnInit {
 
       this.clubesAtivos.set(cAtivos);
       this.totalClubes.set(todosClubes.length);
+
+      const url = `${this.basePath}/livros/recomendacoes/perfil`;
+      const recomendados = await firstValueFrom(this.http.get<any[]>(url));
       
-      // recomendações de livros
-      // pontuação
-
-      const resLivroGeneros = await firstValueFrom(this.livroGeneroService.livroGeneroControllerFindAll()); 
-      const livrosGeneros = Array.isArray(resLivroGeneros) ? resLivroGeneros : [];
-
-      const resHistoricoLeitura = await firstValueFrom(this.emprestimosService.emprestimoControllerGetLeiturasPorGenero());
-      const historicoLeitura = Array.isArray(resHistoricoLeitura) ? resHistoricoLeitura : [];
-
-      const resgenerosPreferidos = await firstValueFrom(this.preferenciasGeneroService.preferenciaGeneroControllerFindAll());
-      const generosPreferidos = Array.isArray(resgenerosPreferidos) ? resgenerosPreferidos : [];
-
-      const pontuacaoGeneros = new Map<string, number>();
-
-      // os generos preferidos recebem 5 pontos e são armazenados em pontuacaoGeneros
-      for (const item of generosPreferidos) {
-        if (item.genero?.nome) {
-          pontuacaoGeneros.set(item.genero.nome.trim().toLowerCase(), 10);
-        }
-      }
-
-      // para cada livro no histórico, soma 1 aos generos dos livros + pontos atuais
-      if (historicoLeitura.length > 0) {
-        for (const livro of historicoLeitura) {
-          if (livro.genero) {
-            const generoLowerCase = livro.genero.trim().toLowerCase();
-            const pontosAtuais = pontuacaoGeneros.get(generoLowerCase) || 0;
-            pontuacaoGeneros.set(generoLowerCase, pontosAtuais + livro.quantidade);
-          }
-        }
-      }
-      
-      const livrosMap = new Map<string, any>();
-      const livroJaLeu = (livroId: string) => {
-        const jaLeu = historico.some(h => h.exemplar?.livro?.id === livroId);
-        const estaLendo = ativos.some(a => a.exemplar?.livro?.id === livroId);
-        return jaLeu || estaLendo;
-      };
-
-      // converte a lista para não duplicadar os livros
-      for (const item of livrosGeneros) {
-        if (!item.livro || !item.genero || livroJaLeu(item.livro.id)) continue;
-
-        const livroId = item.livro.id;
-        const generoNome = item.genero.nome;
-        const generoLowerCase = generoNome.trim().toLowerCase();
-
-        if (!livrosMap.has(livroId)) {
-          livrosMap.set(livroId, { ...item.livro, generos: [], pontuacao: 0 });
-        }
-
-        const livroAgrupado = livrosMap.get(livroId);
-        livroAgrupado.generos.push(generoNome);
-
-        if (pontuacaoGeneros.has(generoLowerCase)) {
-          livroAgrupado.pontuacao += pontuacaoGeneros.get(generoLowerCase)!;
-        }
-      }
-
-      // descarta os generos com pontuação zerada e organiza da maior para menor pontuação
-      let recomendados = Array.from(livrosMap.values()).filter(l => l.pontuacao > 0);
-      recomendados.sort((a, b) => b.pontuacao - a.pontuacao);
-
       this.recomendacoes.set(recomendados);
 
     } catch (e) {

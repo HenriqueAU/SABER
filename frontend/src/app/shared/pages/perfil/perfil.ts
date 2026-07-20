@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { CoreAuthService } from '../../../core/auth/auth-session';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from "@angular/router";
 import { forkJoin } from 'rxjs';
 import { UsuariosService } from '../../../../client/services/usuarios.service';
@@ -9,6 +9,8 @@ import Modal from 'bootstrap/js/dist/modal';
 import { GenerosService, PreferenciasGeneroService } from '../../../../client';
 import { SuccessModal } from '../../components/success-modal/success-modal';
 import { ErrorModal } from '../../components/error-modal/error-modal';
+import { HttpClient } from '@angular/common/http';
+import { BASE_PATH_DEFAULT } from '../../../../client/tokens/index';
 
 @Component({
   selector: 'app-perfil',
@@ -22,6 +24,8 @@ export default class PerfilComponent implements OnInit{
   private preferenciasGeneroService = inject(PreferenciasGeneroService);
   private generosService = inject(GenerosService);
   private location = inject(Location);
+  private http = inject(HttpClient);
+  private basePath = inject(BASE_PATH_DEFAULT);
 
   usuarioId!: string;
   usuarioData: any = null;
@@ -147,36 +151,16 @@ export default class PerfilComponent implements OnInit{
           return;
         }
 
-        const idsOriginais = this.preferenciasOriginais.map(pref => pref.genero.id);
-        const paraCriar = this.generosSelecionados.filter(id => !idsOriginais.includes(id));
-        const paraRemover = this.preferenciasOriginais.filter(pref => !this.generosSelecionados.includes(pref.genero.id));
+        const url = `${this.basePath}/preferencias-genero/sync`;
+        const syncPayload = { generos_ids: this.generosSelecionados };
 
-        const requests = [
-          ...paraCriar.map(generoId =>
-            this.preferenciasGeneroService.preferenciaGeneroControllerCreate({
-              usuario_id: this.usuarioId,
-              genero_id: generoId,
-            })
-          ),
-          ...paraRemover.map(pref =>
-            this.preferenciasGeneroService.preferenciaGeneroControllerRemove(pref.id)
-          )
-        ];
-
-        if (requests.length === 0) {
-          this.carregarPreferencias();
-          if (typeof window !== 'undefined') window.dispatchEvent(new Event('avatarUpdated'));
-          this.abrirModalSucesso();
-          return;
-        }
-
-        forkJoin(requests).subscribe({
+        this.http.post(url, syncPayload).subscribe({
           next: () => {
             this.carregarPreferencias();
             if (typeof window !== 'undefined') window.dispatchEvent(new Event('avatarUpdated'));
             this.abrirModalSucesso();
           },
-          error: () => this.erro.set('Ocorreu um erro ao guardar as preferências.')
+          error: () => this.erro.set('Ocorreu um erro ao guardar as preferências de leitura.')
         });
       },
       error: (err) => {
