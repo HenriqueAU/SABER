@@ -63,7 +63,21 @@ export default class PerfilLeituraComponent implements OnInit {
   paginaRecomendacoesAtual = signal<number>(1);
   larguraTela = signal<number>(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
-  coresGrafico = ['#003A79', '#0EA5E9', '#EAB308', '#16A34A', '#DC2626', '#8696AC', '#F97316', '#0D9488'];
+  getCorGenero(genero: string): string {
+    switch (genero) {
+      case 'Poesia': return '#7C3AED';
+      case 'Romance': return '#DB2777';
+      case 'Tecnologia': return '#2563EB';
+      case 'Aventura': return '#14B8A6';
+      case 'Ficção Científica': return '#3B82F6';
+      case 'Filosofia': return '#D97706';
+      case 'História': return '#B45309';
+      case 'Terror': return '#4B5563';
+      case 'Fantasia': return '#22C55E';
+      case 'Biografias': return '#0EA5E9';
+      default: return '#748397';
+    }
+  }
 
   private chartInstance: Chart | null = null;
 
@@ -169,13 +183,15 @@ export default class PerfilLeituraComponent implements OnInit {
 
     if (this.chartInstance) this.chartInstance.destroy();
 
+    const coresDinamicas = perfil.map(g => this.getCorGenero(g.genero));
+
     this.chartInstance = new Chart(canvas, {
       type: 'bar',
       data: {
         labels: perfil.map(g => g.genero),
         datasets: [{
           data: perfil.map(g => g.quantidade),
-          backgroundColor: this.coresGrafico,
+          backgroundColor: coresDinamicas,
           borderWidth: 0,
         }],
       },
