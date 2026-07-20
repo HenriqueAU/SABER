@@ -9,7 +9,13 @@ import { RespostaMembroService } from '../../../../../../client/services/respost
 import { CoreAuthService } from '../../../../../core/auth/auth-session';
 import { Router, ActivatedRoute } from '@angular/router';
 import Modal from 'bootstrap/js/dist/modal';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { LivrosService } from '../../../../../../client';
 import { SuccessModal } from '../../../../components/success-modal/success-modal';
 
@@ -18,7 +24,7 @@ import { SuccessModal } from '../../../../components/success-modal/success-modal
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, SuccessModal],
   templateUrl: './home-professor.html',
-  styleUrls: ['../../../../../features/clube_livro/clube-livro.scss']
+  styleUrls: ['../../../../../features/clube_livro/clube-livro.scss'],
 })
 export default class HomeProfessorComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -63,10 +69,10 @@ export default class HomeProfessorComponent implements OnInit {
   livrosFiltrados = signal<any[]>([]);
 
   @ViewChild('feedbackModal')
-    feedbackModalRef!: ElementRef;
+  feedbackModalRef!: ElementRef;
 
   @ViewChild('clubeFormModal')
-    clubeFormModalRef!: ElementRef;
+  clubeFormModalRef!: ElementRef;
 
   @ViewChild('successModalElement') successModalElement!: ElementRef;
   mensagemSucessoModal = signal<string>('');
@@ -136,9 +142,7 @@ export default class HomeProfessorComponent implements OnInit {
       return;
     }
 
-    this.livrosFiltrados.set(
-      this.livros().filter((l) => l.titulo.toLowerCase().includes(termo))
-    );
+    this.livrosFiltrados.set(this.livros().filter((l) => l.titulo.toLowerCase().includes(termo)));
   }
 
   selecionarLivro(livro: any) {
@@ -189,8 +193,8 @@ export default class HomeProfessorComponent implements OnInit {
       },
       error: (err) => {
         this.enviandoClube.set(false);
-        this.erroClube.set(err.error?.message ?? 'Não foi possível criar o clube')
-      }
+        this.erroClube.set(err.error?.message ?? 'Não foi possível criar o clube');
+      },
     });
   }
 
@@ -236,7 +240,7 @@ export default class HomeProfessorComponent implements OnInit {
           this.router.navigate([], {
             relativeTo: this.route,
             queryParams: { abrirClubeFeedbacks: null },
-            queryParamsHandling: 'merge'
+            queryParamsHandling: 'merge',
           });
 
           setTimeout(() => {
@@ -256,7 +260,7 @@ export default class HomeProfessorComponent implements OnInit {
     const status = this.filtroStatus();
 
     return this.clubes().filter((c) => {
-      const tituloOk = !termo || (c.livro?.titulo?.toLowerCase().includes(termo));
+      const tituloOk = !termo || c.livro?.titulo?.toLowerCase().includes(termo);
 
       const encerrado = !c.ativo || (c.data_fim && new Date(c.data_fim) < new Date());
       const statusOk =
@@ -295,14 +299,43 @@ export default class HomeProfessorComponent implements OnInit {
     this.erroMembros.set('');
 
     try {
-      const resMembros = await firstValueFrom(this.membroClubeService.membroClubeControllerFindAll(clubeId));
-      this.membrosDoClube.set(Array.isArray(resMembros) ? resMembros : (resMembros as any)?.data || (resMembros as any)?.items || []);
+      const resMembros = await firstValueFrom(
+        this.membroClubeService.membroClubeControllerFindAll(clubeId),
+      );
+      this.membrosDoClube.set(
+        Array.isArray(resMembros)
+          ? resMembros
+          : (resMembros as any)?.data || (resMembros as any)?.items || [],
+      );
 
       const resPerguntas = await firstValueFrom(this.perguntasService.perguntaControllerFindAll());
-      this.perguntas.set(resPerguntas || []);
+      const todasPerguntas = resPerguntas || [];
 
-      const resItens = await firstValueFrom(this.itemPerguntaService.itemPerguntaControllerFindAll());
-      this.itensPergunta.set(resItens || []);
+    
+      const perguntasUnicas = Object.values(
+        todasPerguntas.reduce((acc: any, p: any) => {
+          if (!acc[p.texto] || new Date(p.created_at) > new Date(acc[p.texto].created_at)) {
+            acc[p.texto] = p;
+          }
+          return acc;
+        }, {}),
+      );
+
+      this.perguntas.set(perguntasUnicas);
+
+      const resItens = await firstValueFrom(
+        this.itemPerguntaService.itemPerguntaControllerFindAll(),
+      );
+      const todosItens = resItens || [];
+
+      
+      const idsPerguntasUnicas = new Set(perguntasUnicas.map((p: any) => p.id));
+      this.itensPergunta.set(
+        todosItens.filter((item: any) => {
+          const perguntaId = item.pergunta?.id || item.pergunta_id || item.pergunta;
+          return idsPerguntasUnicas.has(perguntaId);
+        }),
+      );
     } catch (err) {
       this.erroMembros.set('Não foi possível carregar as informações complementares do clube.');
     } finally {
@@ -311,7 +344,7 @@ export default class HomeProfessorComponent implements OnInit {
   }
 
   getItensDaPergunta(perguntaId: string): any[] {
-    return this.itensPergunta().filter(item => {
+    return this.itensPergunta().filter((item) => {
       const relacaoId = item.pergunta?.id || item.pergunta_id || item.pergunta;
       return relacaoId === perguntaId;
     });
@@ -323,7 +356,9 @@ export default class HomeProfessorComponent implements OnInit {
 
     try {
       const res = await firstValueFrom(this.respostasService.respostaMembroControllerFindAll());
-      this.respostasMembros.set(Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || []);
+      this.respostasMembros.set(
+        Array.isArray(res) ? res : (res as any)?.data || (res as any)?.items || [],
+      );
       const modal = new Modal(this.feedbackModalRef.nativeElement);
       modal.show();
     } catch (error) {
@@ -343,14 +378,23 @@ export default class HomeProfessorComponent implements OnInit {
     const itensDestaPergunta = this.getItensDaPergunta(perguntaId);
 
     const membrosIds = this.membrosDoClube().map((m: any) => m.id);
-    const respostas = this.respostasMembros().filter(r => {
-      const membroId = r.membro_clube?.id || r.membro_clube_id || r.membroClube?.id || r.membroClube || r.membro?.id;
+    const respostas = this.respostasMembros().filter((r) => {
+      const membroId =
+        r.membro_clube?.id ||
+        r.membro_clube_id ||
+        r.membroClube?.id ||
+        r.membroClube ||
+        r.membro?.id;
       return membrosIds.includes(membroId);
     });
 
-    const stats = itensDestaPergunta.map(item => {
-      const votos = respostas.filter(resposta => {
-        const respostaItemId = resposta.itemPergunta?.id || resposta.item_pergunta?.id || resposta.item_pergunta_id || resposta.item_pergunta;
+    const stats = itensDestaPergunta.map((item) => {
+      const votos = respostas.filter((resposta) => {
+        const respostaItemId =
+          resposta.itemPergunta?.id ||
+          resposta.item_pergunta?.id ||
+          resposta.item_pergunta_id ||
+          resposta.item_pergunta;
         return respostaItemId === item.id;
       }).length;
       return { texto: item.texto, quantidade: votos };
