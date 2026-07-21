@@ -29,6 +29,14 @@ export class PreferenciaGeneroController {
     return this.preferenciaGeneroService.create(createPreferenciaGeneroDto);
   }
 
+  @Post('sync')
+  @Roles(TipoPerfil.ALUNO)
+  @ApiOperation({ summary: 'Sincronizar lista completa de preferências de gênero' })
+  sync(@Body() body: { generos_ids: string[] }, @Req() request: RequestComUser) {
+    const usuarioToken = request.user.id;
+    return this.preferenciaGeneroService.sync(usuarioToken, body.generos_ids);
+  }
+
   @Get()
   @Roles(TipoPerfil.ALUNO)
   @ApiOperation({ summary: 'Obter todas as preferências de gênero' })

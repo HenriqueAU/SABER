@@ -190,6 +190,15 @@ export default class HomeGestorComponent implements OnInit {
         maintainAspectRatio: false,
         plugins: {
           legend: { position: 'right' },
+          tooltip: {
+            callbacks: {
+              label: (context: any) => {
+                const valor = context.parsed || context.raw || 0;
+                const sufixo = valor === 1 ? 'emprestimo' : 'emprestimos';
+                return `${valor} ${sufixo}`;
+              }
+            }
+          }
         },
       },
     });

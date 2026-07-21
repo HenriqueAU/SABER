@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { CoreAuthService } from '../../../core/auth/auth-session';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from "@angular/router";
 import { forkJoin } from 'rxjs';
 import { UsuariosService } from '../../../../client/services/usuarios.service';
@@ -147,36 +147,15 @@ export default class PerfilComponent implements OnInit{
           return;
         }
 
-        const idsOriginais = this.preferenciasOriginais.map(pref => pref.genero.id);
-        const paraCriar = this.generosSelecionados.filter(id => !idsOriginais.includes(id));
-        const paraRemover = this.preferenciasOriginais.filter(pref => !this.generosSelecionados.includes(pref.genero.id));
+        const syncPayload = { generos_ids: this.generosSelecionados };
 
-        const requests = [
-          ...paraCriar.map(generoId =>
-            this.preferenciasGeneroService.preferenciaGeneroControllerCreate({
-              usuario_id: this.usuarioId,
-              genero_id: generoId,
-            })
-          ),
-          ...paraRemover.map(pref =>
-            this.preferenciasGeneroService.preferenciaGeneroControllerRemove(pref.id)
-          )
-        ];
-
-        if (requests.length === 0) {
-          this.carregarPreferencias();
-          if (typeof window !== 'undefined') window.dispatchEvent(new Event('avatarUpdated'));
-          this.abrirModalSucesso();
-          return;
-        }
-
-        forkJoin(requests).subscribe({
+        this.preferenciasGeneroService.preferenciaGeneroControllerSync(syncPayload as any).subscribe({
           next: () => {
             this.carregarPreferencias();
             if (typeof window !== 'undefined') window.dispatchEvent(new Event('avatarUpdated'));
             this.abrirModalSucesso();
           },
-          error: () => this.erro.set('Ocorreu um erro ao guardar as preferências.')
+          error: () => this.erro.set('Ocorreu um erro ao guardar as preferências de leitura.')
         });
       },
       error: (err) => {

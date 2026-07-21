@@ -111,3 +111,11 @@
 .bar-ticker p {
   margin: 0;
 }
+
+.accordion-button:focus {
+  box-shadow: none;
+}
+
+.accordion-button:not(.collapsed) {
+  box-shadow: none;
+}
