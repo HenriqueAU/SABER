@@ -12,7 +12,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { BASE_PATH_DEFAULT, CLIENT_CONTEXT_TOKEN_DEFAULT } from "../tokens";
 import { HttpParamsBuilder } from "../utils/http-params-builder";
-import { RequestOptions, CreatePreferenciaGeneroDto } from "../models";
+import { RequestOptions, CreatePreferenciaGeneroDto, UpdatePreferenciaGeneroDto } from "../models";
 
 @Injectable({ providedIn: "root" })
 export class PreferenciasGeneroService {
@@ -77,17 +77,21 @@ export class PreferenciasGeneroService {
         return this.httpClient.post(url, createPreferenciaGeneroDto, requestOptions);
     }
 
-    preferenciaGeneroControllerSync(observe?: 'body', options?: RequestOptions<'json'>): Observable<any>;
-    preferenciaGeneroControllerSync(observe?: 'response', options?: RequestOptions<'json'>): Observable<HttpResponse<any>>;
-    preferenciaGeneroControllerSync(observe?: 'events', options?: RequestOptions<'json'>): Observable<HttpEvent<any>>;
-    preferenciaGeneroControllerSync(observe?: 'body' | 'events' | 'response', options?: RequestOptions<'arraybuffer' | 'blob' | 'json' | 'text'>): Observable<any> {
-        const url = `${this.basePath}/preferencias-genero/sync`;
+    preferenciaGeneroControllerUpdatePreferencias(updatePreferenciaGeneroDto: UpdatePreferenciaGeneroDto, observe?: 'body', options?: RequestOptions<'json'>): Observable<any>;
+    preferenciaGeneroControllerUpdatePreferencias(updatePreferenciaGeneroDto: UpdatePreferenciaGeneroDto, observe?: 'response', options?: RequestOptions<'json'>): Observable<HttpResponse<any>>;
+    preferenciaGeneroControllerUpdatePreferencias(updatePreferenciaGeneroDto: UpdatePreferenciaGeneroDto, observe?: 'events', options?: RequestOptions<'json'>): Observable<HttpEvent<any>>;
+    preferenciaGeneroControllerUpdatePreferencias(updatePreferenciaGeneroDto: UpdatePreferenciaGeneroDto, observe?: 'body' | 'events' | 'response', options?: RequestOptions<'arraybuffer' | 'blob' | 'json' | 'text'>): Observable<any> {
+        const url = `${this.basePath}/preferencias-genero/me/generos`;
 
         let headers: HttpHeaders;
         if (options?.headers instanceof HttpHeaders) {
             headers = options.headers;
         } else {
             headers = new HttpHeaders(options?.headers);
+        }
+        // Set Content-Type for JSON requests if not already set
+        if (!headers.has('Content-Type')) {
+            headers = headers.set('Content-Type', 'application/json');
         }
 
         const requestOptions: any = {
@@ -98,7 +102,7 @@ export class PreferenciasGeneroService {
             context: this.createContextWithClientId(options?.context)
         };
 
-        return this.httpClient.post(url, null, requestOptions);
+        return this.httpClient.put(url, updatePreferenciaGeneroDto, requestOptions);
     }
 
     preferenciaGeneroControllerFindOne(id: string, observe?: 'body', options?: RequestOptions<'json'>): Observable<any>;

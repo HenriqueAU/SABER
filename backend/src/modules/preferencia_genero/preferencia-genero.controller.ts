@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
   Param,
   Delete,
@@ -13,6 +14,7 @@ import type { RequestComUser } from '../../common/interfaces/request-com-usuario
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { TipoPerfil } from '../usuario/usuario.entity';
+import { UpdatePreferenciaGeneroDto } from './dto/update-preferencia-genero.dto';
 
 @ApiTags('PreferenciasGenero')
 @ApiBearerAuth()
@@ -29,12 +31,15 @@ export class PreferenciaGeneroController {
     return this.preferenciaGeneroService.create(createPreferenciaGeneroDto);
   }
 
-  @Post('sync')
+  @Put('me/generos')
   @Roles(TipoPerfil.ALUNO)
-  @ApiOperation({ summary: 'Sincronizar lista completa de preferências de gênero' })
-  sync(@Body() body: { generos_ids: string[] }, @Req() request: RequestComUser) {
+  @ApiOperation({ summary: 'Atualizar a lista completa de gêneros preferidos do aluno' })
+  updatePreferencias(
+    @Body() body: UpdatePreferenciaGeneroDto, 
+    @Req() request: RequestComUser
+  ) {
     const usuarioToken = request.user.id;
-    return this.preferenciaGeneroService.sync(usuarioToken, body.generos_ids);
+    return this.preferenciaGeneroService.update(usuarioToken, body.generos_ids);
   }
 
   @Get()

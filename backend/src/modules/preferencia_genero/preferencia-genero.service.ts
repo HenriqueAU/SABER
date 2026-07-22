@@ -57,9 +57,11 @@ export class PreferenciaGeneroService {
     await this.preferenciaGeneroRepository.remove(preferencia_genero);
   }
 
-  async sync(usuarioId: string, generosIds: string[]): Promise<void> {
-    await this.preferenciaGeneroRepository.delete({ usuario: { id: usuarioId } });
-
+  async update(usuarioId: string, generosIds: string[]): Promise<void> {
+    await this.preferenciaGeneroRepository.createQueryBuilder()
+      .delete()
+      .where("usuario_id = :usuarioId", { usuarioId })
+      .execute();
     if (!generosIds || generosIds.length === 0) return;
     const idsUnicos = [...new Set(generosIds)];
     const novasPreferencias = idsUnicos.map(generoId => 

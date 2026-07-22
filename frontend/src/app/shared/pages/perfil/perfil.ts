@@ -149,7 +149,7 @@ export default class PerfilComponent implements OnInit{
 
         const syncPayload = { generos_ids: this.generosSelecionados };
 
-        this.preferenciasGeneroService.preferenciaGeneroControllerSync(syncPayload as any).subscribe({
+        this.preferenciasGeneroService.preferenciaGeneroControllerUpdatePreferencias(syncPayload as any).subscribe({
           next: () => {
             this.carregarPreferencias();
             if (typeof window !== 'undefined') window.dispatchEvent(new Event('avatarUpdated'));

@@ -27,31 +27,32 @@ export default class ExemplarComponent implements OnInit, OnChanges{
   mensagemSucessoExemplar = '';
   erroExemplar = '';
 
+  exemplarParaRemover: string | null = null;
+  erroRemocao = '';
 
   exemplarForm: FormGroup = this.fb.group({
-    codigo: ['', Validators.required],
+    codigo: ['', Validators.required, Validators.maxLength(50)],
   });
 
-  ngOnInit() {
-
-}
+  ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges) {
-  if (changes['livroId']?.currentValue) {
-    this.carregarExemplares();
+    if (changes['livroId']?.currentValue) {
+      this.carregarExemplares();
+    }
   }
-}
- carregarExemplares() {
-  this.exemplaresService.exemplarControllerFindAll().subscribe({
-    next: (dados) => {
-      this.exemplares = dados.filter(
-        (e: any) => e.livro?.id === this.livroId
-      );
 
-      this.cdr.detectChanges();
-    },
-  });
-}
+  carregarExemplares() {
+    this.exemplaresService.exemplarControllerFindAll().subscribe({
+      next: (dados) => {
+        this.exemplares = dados.filter(
+          (e: any) => e.livro?.id === this.livroId
+        );
+        this.cdr.detectChanges();
+      },
+    });
+  }
+  
   abrirForm() {
     this.exemplarForm.reset({ status: 'disponivel' });
     this.erroExemplar = '';
@@ -66,37 +67,53 @@ export default class ExemplarComponent implements OnInit, OnChanges{
   }
 
   salvarExemplar() {
-  if (this.exemplarForm.invalid) return;
-  this.erroExemplar = '';
-  this.mensagemSucessoExemplar = '';
+    if (this.exemplarForm.invalid) return;
+      this.erroExemplar = '';
+      this.mensagemSucessoExemplar = '';
 
-  const formValue = {
-    ...this.exemplarForm.value,
-    livro_id: this.livroId
-  };
+      const formValue = {
+        ...this.exemplarForm.value,
+        livro_id: this.livroId
+      };
 
-  this.exemplaresService.exemplarControllerCreate(formValue).subscribe({
-    next: () => {
-      this.mensagemSucessoExemplar = 'Exemplar cadastrado com sucesso!';
-      this.exemplarForm.reset();
-      this.carregarExemplares();
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      this.erroExemplar = err.error?.message ?? 'Não foi possível cadastrar o exemplar.';
-      this.cdr.detectChanges();
-    },
-  });
-}
+      this.exemplaresService.exemplarControllerCreate(formValue).subscribe({
+        next: () => {
+          this.mensagemSucessoExemplar = 'Exemplar cadastrado com sucesso!';
+          this.exemplarForm.reset();
+          this.carregarExemplares();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.erroExemplar = err.error?.message ?? 'Não foi possível cadastrar o exemplar.';
+          this.cdr.detectChanges();
+        },
+      });
+  }
 
   removerExemplar(id: string) {
-    if(confirm('Tem certeza que deseja remover este exemplar?')) {
-      this.exemplaresService.exemplarControllerRemove(id).subscribe({
-        next: () => this.carregarExemplares(),
-        error: () => {
-          alert('Não foi possível remover este exemplar')
-        }
-      });
-    }
+    this.exemplarParaRemover = id;
+    this.erroRemocao = '';
+  }
+
+  cancelarRemocao() {
+    this.exemplarParaRemover = null;
+    this.erroRemocao = '';
+  }
+
+  confirmarRemocao() {
+    if (!this.exemplarParaRemover) return;
+
+    this.exemplaresService.exemplarControllerRemove(this.exemplarParaRemover).subscribe({
+      next: () => {
+        this.carregarExemplares();
+        this.exemplarParaRemover = null;
+        this.erroRemocao = '';
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.erroRemocao = 'Não foi possível remover este exemplar. Pode estar vinculado a um empréstimo.';
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

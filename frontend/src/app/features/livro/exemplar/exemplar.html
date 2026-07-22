@@ -1,4 +1,4 @@
-<div class="mt-3 border-top pt-3 px-2 pb-2 bg-white rounded-3 shadow-sm">
+<div class="mt-3 border-top pt-3 px-2 pb-2 bg-white rounded-3 shadow-sm position-relative">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="fs-6 fw-medium text-dark d-flex align-items-center gap-2 mb-0">
       <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-secondary"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
@@ -8,68 +8,92 @@
       + Adicionar exemplar
     </button>
   </div>
+  
   @if (mostrarForm) {
-        <form [formGroup]="exemplarForm" (ngSubmit)="salvarExemplar()" class="bg-primary-subtle border border-primary-subtle p-3 rounded-3 mb-3">
-          <div class="row g-3 align-items-end">
-            <div class="col">
-              <label class="form-label small fw-medium">Código identificador *</label>
-              <input type="text" formControlName="codigo" class="form-control form-control-sm" placeholder="Ex: EXE-001">
-            </div>
-            <div class="col-auto d-flex gap-2">
-              <button type="button" (click)="fecharForm()" class="btn btn-sm btn-outline-secondary">
-                Cancelar
-              </button>
-              <button type="submit" [disabled]="exemplarForm.invalid" class="btn btn-sm btn-primary">
-                Salvar
-              </button>
-            </div>
-          </div>
-          @if (erroExemplar) {
-            <div class="alert alert-danger py-2 px-3 small mt-3 mb-0">{{ erroExemplar }}</div>
-          }
-          @if (mensagemSucessoExemplar) {
-            <div class="alert alert-success py-2 px-3 small mt-3 mb-0">{{ mensagemSucessoExemplar }}</div>
-          }
-        </form>
+    <form [formGroup]="exemplarForm" (ngSubmit)="salvarExemplar()" class="bg-primary-subtle border border-primary-subtle p-3 rounded-3 mb-3">
+      <div class="row g-3 align-items-end">
+        <div class="col">
+          <label class="form-label small fw-medium">Código identificador *</label>
+          <input type="text" formControlName="codigo" class="form-control form-control-sm" placeholder="Ex: EXE-001" maxlength="50">
+        </div>
+        <div class="col-auto d-flex gap-2">
+          <button type="button" (click)="fecharForm()" class="btn btn-sm btn-outline-secondary">
+            Cancelar
+          </button>
+          <button type="submit" [disabled]="exemplarForm.invalid" class="btn btn-sm btn-primary">
+            Salvar
+          </button>
+        </div>
+      </div>
+      @if (erroExemplar) {
+        <div class="alert alert-danger py-2 px-3 small mt-3 mb-0">{{ erroExemplar }}</div>
+      }
+      @if (mensagemSucessoExemplar) {
+        <div class="alert alert-success py-2 px-3 small mt-3 mb-0">{{ mensagemSucessoExemplar }}</div>
+      }
+    </form>
   }
-
 
   <div class="bg-light rounded-3 border overflow-hidden">
     <ul class="list-group list-group-flush">
-
       @for (exemplar of exemplares; track exemplar.id) {
         <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
-        <div class="d-flex align-items-center gap-3">
-          <div class="bg-white p-2 rounded-2 shadow-sm border">
-            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-secondary"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          <div class="d-flex align-items-center gap-3">
+            <div class="bg-white p-2 rounded-2 shadow-sm border">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-secondary"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            </div>
+            <div>
+              <div class="small fw-medium text-dark">Código: {{ exemplar.codigo }}</div>
+            </div>
           </div>
-          <div>
-            <div class="small fw-medium text-dark">Código: {{ exemplar.codigo }}</div>
+          <div class="d-flex align-items-center gap-3">
+            <span class="badge rounded-pill border"
+              [ngClass]="{
+                'bg-success-subtle text-success-emphasis border-success-subtle': $any(exemplar).status === 'disponivel',
+                'bg-warning-subtle text-warning-emphasis border-warning-subtle': $any(exemplar).status === 'emprestado',
+                'bg-danger-subtle text-danger-emphasis border-danger-subtle': $any(exemplar).status === 'danificado' || $any(exemplar).status === 'perdido'
+              }">
+              {{ $any(exemplar).status | titlecase }}
+            </span>
+            <button (click)="removerExemplar(exemplar.id)" class="btn btn-sm btn-light text-secondary border shadow-sm" title="Remover exemplar">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
           </div>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-          <span class="badge rounded-pill border"
-            [ngClass]="{
-              'bg-success-subtle text-success-emphasis border-success-subtle': $any(exemplar).status === 'disponivel',
-              'bg-warning-subtle text-warning-emphasis border-warning-subtle': $any(exemplar).status === 'emprestado',
-              'bg-danger-subtle text-danger-emphasis border-danger-subtle': $any(exemplar).status === 'danificado' || $any(exemplar).status === 'perdido'
-            }">
-            {{ $any(exemplar).status | titlecase }}
-          </span>
-          <button (click)="removerExemplar(exemplar.id)" class="btn btn-sm btn-light text-secondary" title="Remover exemplar">
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-          </button>
-        </div>
-      </li>
+        </li>
       }
       @if (exemplares.length === 0) {
         <li class="list-group-item text-center py-4 bg-transparent">
-        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-secondary opacity-50 mx-auto mb-2 d-block"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
-        <p class="small text-secondary fw-medium mb-1">Nenhum exemplar cadastrado</p>
-        <p class="text-secondary mb-0" style="font-size: 0.75rem;">Adicione o primeiro exemplar deste livro.</p>
-      </li>
+          <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-secondary opacity-50 mx-auto mb-2 d-block"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+          <p class="small text-secondary fw-medium mb-1">Nenhum exemplar cadastrado</p>
+          <p class="text-secondary mb-0" style="font-size: 0.75rem;">Adicione o primeiro exemplar deste livro.</p>
+        </li>
       }
-
     </ul>
   </div>
+
+  @if (exemplarParaRemover) {
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5); z-index: 1055;">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header border-bottom-0 pb-0">
+            <h5 class="modal-title fw-bold text-danger d-flex align-items-center gap-2">
+              <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              Excluir exemplar
+            </h5>
+            <button type="button" class="btn-close" (click)="cancelarRemocao()"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-0 text-dark">Tem a certeza que deseja remover este exemplar? Esta ação não pode ser desfeita.</p>
+            @if (erroRemocao) {
+              <div class="alert alert-danger py-2 px-3 small mt-3 mb-0">{{ erroRemocao }}</div>
+            }
+          </div>
+          <div class="modal-footer border-top-0 pt-0 mt-3">
+            <button type="button" class="btn btn-light fw-medium" (click)="cancelarRemocao()">Cancelar</button>
+            <button type="button" class="btn btn-danger fw-medium" (click)="confirmarRemocao()">Excluir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </div>
