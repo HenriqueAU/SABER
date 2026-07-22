@@ -1,7 +1,6 @@
 <div #usuarioModal class="modal fade" id="usuarioModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg" style="width: 80%; max-width: 800px">
     <div class="modal-content rounded-4 shadow-lg border-0">
-
       <div class="modal-header bg-light border-bottom">
         <h1 class="modal-title fs-5 fw-bold text-dark">
           <i class="bi bi-person-plus text-primary me-2"></i>Cadastrar Utilizador
@@ -24,7 +23,7 @@
           <div class="row g-3 mb-3">
             <div class="col-12 col-md-8">
               <label for="nome" class="form-label small fw-bold text-secondary"
-                >Nome Completo</label
+                >Nome completo</label
               >
               <input
                 id="nome"
@@ -32,10 +31,26 @@
                 formControlName="nome"
                 class="form-control bg-light"
                 placeholder="Ex: João da Silva"
+                
               />
-              @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
+              @if (form.get('nome')?.hasError('required') && form.get('nome')?.touched) {
                 <small class="text-danger mt-1 d-block"
-                  ><i class="bi bi-info-circle me-1"></i>Verifique o nome introduzido.</small
+                  ><i class="bi bi-info-circle me-1"></i>O nome é obrigatório.</small
+                >
+              } @else if (form.get('nome')?.hasError('maxlength') && form.get('nome')?.touched) {
+                <small class="text-danger mt-1 d-block"
+                  ><i class="bi bi-info-circle me-1"></i>O nome deve ter no máximo 150
+                  caracteres.</small
+                >
+              } @else if (form.get('nome')?.hasError('pattern') && form.get('nome')?.touched) {
+                <small class="text-danger mt-1 d-block"
+                  ><i class="bi bi-info-circle me-1"></i>Use apenas letras, espaços, apóstrofos e
+                  hífens.</small
+                >
+              } @else if (form.get('nome')?.hasError('minlength') && form.get('nome')?.touched) {
+                <small class="text-danger mt-1 d-block"
+                  ><i class="bi bi-info-circle me-1"></i>O nome deve ter no mínimo 2
+                  caracteres.</small
                 >
               }
             </div>
@@ -113,7 +128,6 @@
               }
             </div>
           </div>
-
         </form>
       </div>
 
@@ -128,13 +142,14 @@
           [disabled]="form.invalid || enviando()"
         >
           @if (enviando()) {
-            <span class="spinner-border spinner-border-sm me-2" role="status"></span> A cadastrar...
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+            A cadastrar...
           } @else {
-            <i class="bi bi-check2-circle me-1"></i> Cadastrar Utilizador
+            <i class="bi bi-check2-circle me-1"></i>
+            Cadastrar utilizador
           }
         </button>
       </div>
-
     </div>
   </div>
 </div>
@@ -154,13 +169,12 @@
         </p>
       </div>
       <button class="btn btn-primary fw-medium shadow-sm" (click)="abrirModalUsuario()">
-        <i class="bi bi-person-plus me-2"></i>Cadastrar Usuário
+        <i class="bi bi-person-plus me-2"></i>Cadastrar usuário
       </button>
     </div>
   </div>
 
   <div class="container">
-
     <div class="row g-3 mb-4">
       <div class="col-12 col-md-6 col-lg-4">
         <div class="input-group shadow-sm">
@@ -236,11 +250,13 @@
                   "
                   (click)="alternarOrdenacao()"
                 >
-                  Data de Nascimento
-                  <i class="bi ms-1"
+                  Data de nascimento
+                  <i
+                    class="bi ms-1"
                     [class.bi-arrow-up]="ordemDataNasc() === 'asc'"
                     [class.bi-arrow-down]="ordemDataNasc() === 'desc'"
-                    [class.bi-arrow-down-up]="ordemDataNasc() === null">
+                    [class.bi-arrow-down-up]="ordemDataNasc() === null"
+                  >
                   </i>
                 </th>
               </tr>

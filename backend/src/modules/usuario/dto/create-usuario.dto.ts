@@ -58,7 +58,7 @@ export class CreateUsuarioDto {
   @IsNotEmpty()
   @MinLength(3)
   @MaxLength(255)
-  @IsEmail()
+  @IsEmail({}, { message: 'Informe um e-mail válido' })
   email!: string;
 
   @ApiProperty({
