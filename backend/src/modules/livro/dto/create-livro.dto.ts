@@ -8,6 +8,7 @@ import {
   Max,
   MaxLength,
   Min,
+  MinLength
 } from 'class-validator';
 import { FaixaEtaria } from '../livro.entity';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -66,8 +67,8 @@ export class CreateLivroDto {
   @ApiPropertyOptional({ description: 'Resumo do livro' })
   @IsString()
   @IsOptional()
-  @Min(1)
-  @Max(20000)
+  @MinLength(1)
+  @MaxLength(20000)
   sinopse?: string;
 
   @ApiPropertyOptional({ example: 'https://exemplo.com/capa.jpg' })
