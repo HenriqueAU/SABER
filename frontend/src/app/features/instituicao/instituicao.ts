@@ -24,6 +24,8 @@ export default class InstituicaoComponent implements OnInit {
   carregandoCidades = signal(false);
   instituicaoId: string | null = null;
 
+  instituicaoAtual = signal<{ nome: string; tipo: string; estado: string; cidade: string } | null>(null);
+
   tiposInstituicao = [
     { label: 'Escola', value: 'escola' },
     { label: 'Faculdade', value: 'faculdade' }
@@ -85,7 +87,7 @@ export default class InstituicaoComponent implements OnInit {
     });
   }
 
-  carregarDados(): void {
+ carregarDados(): void {
     this.instituicaoId = this.authSession.getInstituicao();
 
     if (!this.instituicaoId) {
@@ -98,12 +100,14 @@ export default class InstituicaoComponent implements OnInit {
       next: (dados: any) => {
         const inst = dados?.data || dados;
         if (inst) {
-          this.form.patchValue({
+
+          this.instituicaoAtual.set({
             nome: inst.nome || '',
             tipo: inst.tipo || '',
-            cidade: inst.cidade || '',
-            estado: inst.estado || ''
-          }, { emitEvent: false });
+            estado: inst.estado || '',
+            cidade: inst.cidade || ''
+          });
+
           if (inst.estado) {
             this.carregarCidadesIBGE(inst.estado, inst.cidade);
           }
@@ -117,40 +121,62 @@ export default class InstituicaoComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
-    if (this.form.invalid || !this.instituicaoId) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    this.enviando.set(true);
-    this.mensagemSucesso.set('');
-    this.mensagemErro.set('');
-
-    const updateDto = this.form.getRawValue();
-
-    this.instituicaoService.instituicaoControllerUpdate(this.instituicaoId, updateDto).subscribe({
-      next: () => {
-        this.mensagemSucesso.set('Dados da instituição atualizados com sucesso!');
-        this.enviando.set(false);
-        this.carregarDados();
-        setTimeout(() => this.fecharModal(), 1500);
-      },
-      error: (err: any) => {
-        const msg = err.error?.message;
-        if (err.status === 400 && msg) {
-          this.mensagemErro.set(Array.isArray(msg) ? msg[0] : msg);
-        } else {
-          this.mensagemErro.set('Ocorreu um erro ao atualizar os dados. Tente novamente.');
-        }
-        this.enviando.set(false);
-      }
-    });
+ onSubmit(): void {
+  if (this.form.invalid || !this.instituicaoId) {
+    this.form.markAllAsTouched();
+    return;
   }
+
+  this.enviando.set(true);
+  this.mensagemSucesso.set('');
+  this.mensagemErro.set('');
+
+  const updateDto = this.form.getRawValue();
+
+  this.instituicaoService.instituicaoControllerUpdate(this.instituicaoId, updateDto).subscribe({
+    next: (resposta: any) => {
+      const inst = resposta?.data || resposta;
+
+      this.instituicaoAtual.set({
+        nome: inst.nome || '',
+        tipo: inst.tipo || '',
+        estado: inst.estado || '',
+        cidade: inst.cidade || ''
+      });
+
+      this.mensagemSucesso.set('Dados da instituição atualizados com sucesso!');
+      this.enviando.set(false);
+      setTimeout(() => this.fecharModal(), 1500);
+    },
+    error: (err: any) => {
+      const msg = err.error?.message;
+      if (err.status === 400 && msg) {
+        this.mensagemErro.set(Array.isArray(msg) ? msg[0] : msg);
+      } else {
+        this.mensagemErro.set('Ocorreu um erro ao atualizar os dados. Tente novamente.');
+      }
+      this.enviando.set(false);
+    }
+  });
+}
 
   abrirModal(): void {
     this.mensagemSucesso.set('');
     this.mensagemErro.set('');
+
+    const atual = this.instituicaoAtual();
+    if (atual) {
+      this.form.patchValue({
+        nome: atual.nome,
+        tipo: atual.tipo,
+        estado: atual.estado
+      }, { emitEvent: false });
+
+      if (atual.estado) {
+        this.carregarCidadesIBGE(atual.estado, atual.cidade);
+      }
+    }
+
     const modal = new Modal(this.instituicaoModalRef.nativeElement);
     modal.show();
   }
@@ -158,5 +184,15 @@ export default class InstituicaoComponent implements OnInit {
   fecharModal(): void {
     const modal = Modal.getInstance(this.instituicaoModalRef.nativeElement);
     modal?.hide();
+
+    const atual = this.instituicaoAtual();
+    if (atual) {
+      this.form.patchValue({
+        nome: atual.nome,
+        tipo: atual.tipo,
+        estado: atual.estado,
+        cidade: atual.cidade
+      }, { emitEvent: false });
+    }
   }
 }

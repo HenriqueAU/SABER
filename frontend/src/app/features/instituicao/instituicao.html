@@ -1,13 +1,17 @@
 <div class="container-fluid py-4 px-4">
   
   <div class="container py-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
+    <div
+      class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3"
+    >
       <div class="text-center text-md-start">
-        <p class="fs-5 fw-medium text-dark mb-0">Visualize e edite as informações gerais da sua instituição.</p>
+        <p class="fs-5 fw-medium text-dark mb-0">
+          Visualize e edite as informações gerais da sua instituição.
+        </p>
       </div>
       @if (!carregando() && !mensagemErroGeral()) {
         <button class="btn btn-primary fw-medium shadow-sm" (click)="abrirModal()">
-           <i class="bi bi-pencil-square me-2"></i>Editar Dados
+          <i class="bi bi-pencil-square me-2"></i>Editar Dados
         </button>
       }
     </div>
@@ -31,33 +35,55 @@
     @if (!carregando() && !mensagemErroGeral()) {
       <div class="card border-0 shadow-sm rounded-3 mb-4">
         <div class="card-body p-4 p-md-5">
-          <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-building text-primary me-2"></i>Detalhes da Instituição</h5>
-          
+          <h5 class="fw-bold mb-4 text-dark">
+            <i class="bi bi-building text-primary me-2"></i>Detalhes da Instituição
+          </h5>
+
           <div class="row g-4">
             <div class="col-12 col-md-6">
-              <span class="text-secondary small d-block mb-1 fw-semibold text-uppercase">Nome da Instituição</span>
-              <span class="fw-bold text-dark fs-5">{{ form.get('nome')?.value || '—' }}</span>
+              <span class="text-secondary small d-block mb-1 fw-semibold text-uppercase"
+                >Nome da Instituição</span
+              >
+              <span class="fw-bold text-dark fs-5">{{ instituicaoAtual()?.nome || '—' }}</span>
             </div>
-            
+
             <div class="col-12 col-md-6">
-              <span class="text-secondary small d-block mb-1 fw-semibold text-uppercase">Tipo de Ensino</span>
+              <span class="text-secondary small d-block mb-1 fw-semibold text-uppercase"
+                >Tipo de Ensino</span
+              >
               <span class="badge bg-secondary-subtle text-primary px-3 py-2 fs-6">
-                {{ form.get('tipo')?.value === 'escola' ? 'Escola' : form.get('tipo')?.value === 'faculdade' ? 'Faculdade' : '—' }}
+                {{
+                  instituicaoAtual()?.tipo === 'escola'
+                    ? 'Escola'
+                    : instituicaoAtual()?.tipo === 'faculdade'
+                      ? 'Faculdade'
+                      : '—'
+                }}
               </span>
             </div>
 
             <div class="col-12">
-              <hr class="border-light my-2">
+              <hr class="border-light my-2" />
             </div>
 
             <div class="col-12 col-md-6">
-              <span class="text-secondary small d-block mb-1 fw-semibold text-uppercase">Estado (UF)</span>
-              <span class="fw-medium text-dark"><i class="bi bi-map text-secondary me-2"></i>{{ form.get('estado')?.value || '—' }}</span>
+              <span class="text-secondary small d-block mb-1 fw-semibold text-uppercase"
+                >Estado (UF)</span
+              >
+              <span class="fw-medium text-dark"
+                ><i class="bi bi-map text-secondary me-2"></i
+                >{{ instituicaoAtual()?.estado || '—' }}</span
+              >
             </div>
 
             <div class="col-12 col-md-6">
-              <span class="text-secondary small d-block mb-1 fw-semibold text-uppercase">Cidade</span>
-              <span class="fw-medium text-dark"><i class="bi bi-geo-alt text-danger me-2"></i>{{ form.getRawValue().cidade || '—' }}</span>
+              <span class="text-secondary small d-block mb-1 fw-semibold text-uppercase"
+                >Cidade</span
+              >
+              <span class="fw-medium text-dark"
+                ><i class="bi bi-geo-alt text-danger me-2"></i
+                >{{ instituicaoAtual()?.cidade || '—' }}</span
+              >
             </div>
           </div>
         </div>
@@ -72,12 +98,16 @@
     <div class="modal-content rounded-4 shadow-lg border-0">
       
       <div class="modal-header bg-light border-bottom">
-        <h1 class="modal-title fs-5 fw-bold text-dark"><i class="bi bi-pencil-square text-primary me-2"></i>Editar Instituição</h1>
+        <h1 class="modal-title fs-5 fw-bold text-dark">
+          <i class="bi bi-pencil-square text-primary me-2"></i>Editar Instituição
+        </h1>
         <button type="button" class="btn-close" (click)="fecharModal()"></button>
       </div>
 
       <div class="modal-body p-4">
-        <p class="text-secondary small mb-4">Mantenha as informações da sua instituição sempre atualizadas.</p>
+        <p class="text-secondary small mb-4">
+          Mantenha as informações da sua instituição sempre atualizadas.
+        </p>
 
         @if (mensagemSucesso()) {
           <div class="alert alert-success small d-flex align-items-center shadow-sm border-0">
@@ -93,15 +123,27 @@
         <form [formGroup]="form" (ngSubmit)="onSubmit()" id="formInstituicao">
           
           <div class="mb-3">
-            <label for="nome" class="form-label small fw-bold text-secondary">Nome da Instituição</label>
-            <input id="nome" type="text" formControlName="nome" class="form-control bg-light" placeholder="Ex: Escola Estadual Exemplo">
+            <label for="nome" class="form-label small fw-bold text-secondary"
+              >Nome da Instituição</label
+            >
+            <input
+              id="nome"
+              type="text"
+              formControlName="nome"
+              class="form-control bg-light"
+              placeholder="Ex: Escola Estadual Exemplo"
+            />
             @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
-              <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>O nome é obrigatório.</small>
+              <small class="text-danger mt-1 d-block"
+                ><i class="bi bi-info-circle me-1"></i>O nome é obrigatório.</small
+              >
             }
           </div>
 
           <div class="mb-3">
-            <label for="tipo" class="form-label small fw-bold text-secondary">Tipo de Instituição</label>
+            <label for="tipo" class="form-label small fw-bold text-secondary"
+              >Tipo de Instituição</label
+            >
             <select id="tipo" formControlName="tipo" class="form-select bg-light">
               <option value="" disabled>Selecione o tipo</option>
               @for (t of tiposInstituicao; track t.value) {
@@ -109,7 +151,9 @@
               }
             </select>
             @if (form.get('tipo')?.invalid && form.get('tipo')?.touched) {
-              <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>O tipo é obrigatório.</small>
+              <small class="text-danger mt-1 d-block"
+                ><i class="bi bi-info-circle me-1"></i>O tipo é obrigatório.</small
+              >
             }
           </div>
 
@@ -122,7 +166,9 @@
               }
             </select>
             @if (form.get('estado')?.invalid && form.get('estado')?.touched) {
-              <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>O estado é obrigatório.</small>
+              <small class="text-danger mt-1 d-block"
+                ><i class="bi bi-info-circle me-1"></i>O estado é obrigatório.</small
+              >
             }
           </div>
 
@@ -137,16 +183,25 @@
               }
             </select>
             @if (form.get('cidade')?.invalid && form.get('cidade')?.touched) {
-              <small class="text-danger mt-1 d-block"><i class="bi bi-info-circle me-1"></i>A cidade é obrigatória.</small>
+              <small class="text-danger mt-1 d-block"
+                ><i class="bi bi-info-circle me-1"></i>A cidade é obrigatória.</small
+              >
             }
           </div>
 
         </form>
       </div>
-      
+
       <div class="modal-footer bg-light border-top">
-        <button type="button" class="btn btn-outline-secondary" (click)="fecharModal()">Cancelar</button>
-        <button type="submit" form="formInstituicao" class="btn btn-primary shadow-sm" [disabled]="form.invalid || enviando() || carregandoCidades()">
+        <button type="button" class="btn btn-outline-secondary" (click)="fecharModal()">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          form="formInstituicao"
+          class="btn btn-primary shadow-sm"
+          [disabled]="form.invalid || enviando() || carregandoCidades()"
+        >
           @if (enviando()) {
             <span class="spinner-border spinner-border-sm me-2" role="status"></span> A salvar...
           } @else {
