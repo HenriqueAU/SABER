@@ -18,12 +18,11 @@ import { CoreAuthService } from '../../core/auth/auth-session';
 import { TipoPerfil } from '../../core/auth/tipo-perfil.enum';
 import { LivroGeneroService } from '../../../client';
 import { SuccessModal } from '../../shared/components/success-modal/success-modal';
-import { ErrorModal } from '../../shared/components/error-modal/error-modal';
 
 @Component({
   selector: 'app-clube-livro',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SuccessModal, ErrorModal],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SuccessModal],
   templateUrl: './clube-livro.html',
   styleUrls: ['./clube-livro.scss'],
 })
@@ -60,8 +59,7 @@ export default class ClubeLivroComponent implements OnInit {
   generosPorLivro = signal<Record<string, string[]>>({});
 
   jaAvaliado = signal(false);
-@ViewChild('successModal') successModalRef!: ElementRef;
-
+  @ViewChild('successModal') successModalRef!: ElementRef;
 
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
@@ -73,7 +71,7 @@ export default class ClubeLivroComponent implements OnInit {
   private authService = inject(CoreAuthService);
   private membroClubeService = inject(MembroClubeService);
   private livroGeneroService = inject(LivroGeneroService);
-  
+
   generosDisponiveis = computed(() =>
     Object.values(this.generosPorLivro())
       .flat()
@@ -412,58 +410,25 @@ export default class ClubeLivroComponent implements OnInit {
           next: () => {
             this.jaAvaliado.set(true);
             this.enviando.set(false);
+            this.fecharModalAvaliacao();
 
-          
-            const modalEl = document.getElementById('modalAvaliacao');
-            if (modalEl) {
-              const backdrop = document.querySelector('.modal-backdrop');
-              modalEl.classList.remove('show');
-              modalEl.style.display = 'none';
-              document.body.classList.remove('modal-open');
-              document.body.style.removeProperty('overflow');
-              document.body.style.removeProperty('padding-right');
-              if (backdrop) backdrop.remove();
-            }
-
-           
             this.mensagemSucesso.set('Avaliação enviada com sucesso! Obrigado pelo seu feedback.');
-            setTimeout(() => {
-              const modalSucesso = new (window as any).bootstrap.Modal(
-                this.successModalRef.nativeElement,
-              );
-              modalSucesso.show();
-            }, 300);
+            setTimeout(() => this.abrirModalSucesso(), 300);
           },
           error: (err) => {
-          const status = err?.status;
-          if (status === 409) {
-            
-            this.jaAvaliado.set(true);
-            this.enviando.set(false);
+            const status = err?.status;
+            if (status === 409) {
+              this.jaAvaliado.set(true);
+              this.enviando.set(false);
+              this.fecharModalAvaliacao();
 
-            const modalEl = document.getElementById('modalAvaliacao');
-            if (modalEl) {
-              const backdrop = document.querySelector('.modal-backdrop');
-              modalEl.classList.remove('show');
-              modalEl.style.display = 'none';
-              document.body.classList.remove('modal-open');
-              document.body.style.removeProperty('overflow');
-              document.body.style.removeProperty('padding-right');
-              if (backdrop) backdrop.remove();
+              this.mensagemSucesso.set('Você já avaliou este clube. Obrigado pelo feedback!');
+              setTimeout(() => this.abrirModalSucesso(), 300);
+            } else {
+              this.mensagemErro.set('Ocorreu um erro ao enviar a avaliação.');
+              this.enviando.set(false);
             }
-
-            this.mensagemSucesso.set('Você já avaliou este clube. Obrigado pelo feedback!');
-            setTimeout(() => {
-              const modalSucesso = new (window as any).bootstrap.Modal(
-                this.successModalRef.nativeElement,
-              );
-              modalSucesso.show();
-            }, 300);
-          } else {
-            this.mensagemErro.set('Ocorreu um erro ao enviar a avaliação.');
-            this.enviando.set(false);
-          }
-        },
+          },
         });
       } else {
         this.enviando.set(false);
@@ -472,6 +437,19 @@ export default class ClubeLivroComponent implements OnInit {
       this.mensagemErro.set('Ocorreu um erro de comunicação com o servidor.');
       this.enviando.set(false);
     }
+  }
+
+  private fecharModalAvaliacao(): void {
+    const modalEl = document.getElementById('modalAvaliacao');
+    if (!modalEl) return;
+
+    const bootstrapModal = (window as any).bootstrap.Modal.getInstance(modalEl);
+    bootstrapModal?.hide();
+  }
+
+  private abrirModalSucesso(): void {
+    const modalSucesso = new (window as any).bootstrap.Modal(this.successModalRef.nativeElement);
+    modalSucesso.show();
   }
 
   async abrirFeedbacks() {
