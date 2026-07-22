@@ -9,7 +9,7 @@
         </div>
 
         <div class="d-flex flex-column flex-lg-row gap-2 align-items-stretch w-100" style="max-width: 900px;">
-          
+
           <div class="card shadow-sm border-0 flex-grow-1">
             <div class="card-body p-0">
               <div class="position-relative">
@@ -34,7 +34,7 @@
               <i class="bi bi-plus-circle me-1"></i> Criar clube
             </button>
           </div>
-          
+
         </div>
       </div>
     </header>
@@ -57,9 +57,9 @@
       <div class="row g-3 g-md-4">
         @for (c of clubesFiltrados(); track c.id) {
           <div class="col-12 col-sm-6 col-lg-4">
-            
+
             <div class="card h-100 shadow-sm border-0 overflow-hidden clube-card-horizontal position-relative w-100" style="cursor: pointer;" (click)="abrirClube(c)">
-              
+
               <span
                 class="badge clube-status-badge shadow-sm"
                 [class.status-ativo]="obterStatusClube(c) === 'Ativo'"
@@ -74,7 +74,7 @@
                 </div>
 
                 <div class="card-body p-2 p-md-3 d-flex flex-column min-w-0">
-                  
+
                   <h6 class="fw-bold text-dark text-truncate mb-1" style="font-size: 0.85rem;" title="{{ c.livro?.titulo }}">
                     {{ c.livro?.titulo || 'Título não informado' }}
                   </h6>
@@ -323,7 +323,7 @@
       </div>
     }
   }
-  
+
   <div #clubeFormModal class="modal fade" id="clubeFormModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content rounded-4 shadow-lg border-0">
@@ -356,22 +356,22 @@
                 @if (livrosFiltrados().length > 0) {
                   <div class="list-group position-absolute w-100 shadow z-3 mt-1" style="max-height: 250px; overflow-y: auto;">
                     @for (livro of livrosFiltrados(); track livro.id) {
-                      
+
                       <button type="button" class="list-group-item list-group-item-action p-2" (click)="selecionarLivro(livro)">
                         <div class="d-flex align-items-center gap-3">
-                          
-                          <img [src]="livro.capa_url || livro.capaUrl || 'assets/imgs/livros/livro-sem-capa.png'" 
-                               alt="Capa do Livro" 
-                               class="rounded shadow-sm flex-shrink-0" 
+
+                          <img [src]="livro.capa_url || livro.capaUrl || 'assets/imgs/livros/livro-sem-capa.png'"
+                               alt="Capa do Livro"
+                               class="rounded shadow-sm flex-shrink-0"
                                style="width: 35px; height: 50px; object-fit: cover;">
-                          
+
                           <div class="d-flex flex-column text-start overflow-hidden">
                             <strong class="text-dark text-truncate" style="font-size: 0.85rem;">{{ livro.titulo }}</strong>
                             <small class="text-secondary text-truncate" style="font-size: 0.75rem;">
                               {{ livro.autor || 'Autor Desconhecido' }} • {{ livro.ano_publicacao || livro.ano || 'Ano N/A' }}
                             </small>
                           </div>
-                          
+
                         </div>
                       </button>
 
@@ -394,7 +394,7 @@
 
             <div class="mb-3">
               <label class="form-label fw-semibold small text-secondary text-uppercase">Local de encontro</label>
-              <input type="text" formControlName="local_encontro" class="form-control bg-light border-light-subtle" placeholder="Ex: Sala 4 ou link do Meet">
+              <input type="text" formControlName="local_encontro" class="form-control bg-light border-light-subtle" placeholder="Ex: Sala 4">
             </div>
           </div>
           <div class="modal-footer bg-light border-top-0 pt-3">

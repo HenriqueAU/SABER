@@ -18,12 +18,11 @@ import { CoreAuthService } from '../../core/auth/auth-session';
 import { TipoPerfil } from '../../core/auth/tipo-perfil.enum';
 import { LivroGeneroService } from '../../../client';
 import { SuccessModal } from '../../shared/components/success-modal/success-modal';
-import { ErrorModal } from '../../shared/components/error-modal/error-modal';
 
 @Component({
   selector: 'app-clube-livro',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SuccessModal, ErrorModal],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SuccessModal],
   templateUrl: './clube-livro.html',
   styleUrls: ['./clube-livro.scss'],
 })
@@ -73,7 +72,7 @@ export default class ClubeLivroComponent implements OnInit {
   private authService = inject(CoreAuthService);
   private membroClubeService = inject(MembroClubeService);
   private livroGeneroService = inject(LivroGeneroService);
-  
+
   generosDisponiveis = computed(() =>
     Object.values(this.generosPorLivro())
       .flat()
@@ -388,7 +387,7 @@ export default class ClubeLivroComponent implements OnInit {
       );
       idDaInscricao = minhaInscricao.id;
     } catch (error) {
-     
+
       this.mensagemErro.set('Apenas membros matriculados neste clube podem enviar avaliações.');
       this.enviando.set(false);
       return;
@@ -413,7 +412,7 @@ export default class ClubeLivroComponent implements OnInit {
             this.jaAvaliado.set(true);
             this.enviando.set(false);
 
-          
+
             const modalEl = document.getElementById('modalAvaliacao');
             if (modalEl) {
               const backdrop = document.querySelector('.modal-backdrop');
@@ -425,7 +424,7 @@ export default class ClubeLivroComponent implements OnInit {
               if (backdrop) backdrop.remove();
             }
 
-           
+
             this.mensagemSucesso.set('Avaliação enviada com sucesso! Obrigado pelo seu feedback.');
             setTimeout(() => {
               const modalSucesso = new (window as any).bootstrap.Modal(
@@ -437,7 +436,7 @@ export default class ClubeLivroComponent implements OnInit {
           error: (err) => {
           const status = err?.status;
           if (status === 409) {
-            
+
             this.jaAvaliado.set(true);
             this.enviando.set(false);
 
