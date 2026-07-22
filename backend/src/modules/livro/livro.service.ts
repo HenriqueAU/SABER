@@ -99,20 +99,24 @@ export class LivroService {
     };
   }
 
-  async obterRecomendacoesAluno(usuarioId: string, instituicaoId: string): Promise<Livro[]> {
+  async obterRecomendacoesAluno(
+    usuarioId: string,
+    instituicaoId: string,
+  ): Promise<Livro[]> {
     const manager = this.livroRepository.manager;
 
     const preferencias = await manager.find(PreferenciaGenero, {
       where: { usuario: { id: usuarioId } },
-      relations: ['genero']
+      relations: ['genero'],
     });
 
     const pontuacaoGeneros = new Map<string, number>();
-    preferencias.forEach(p => {
+    preferencias.forEach((p) => {
       if (p.genero) pontuacaoGeneros.set(p.genero.id, 10);
     });
 
-    const historico = await manager.createQueryBuilder(Emprestimo, 'emp')
+    const historico = await manager
+      .createQueryBuilder(Emprestimo, 'emp')
       .innerJoin('emp.exemplar', 'ex')
       .innerJoin('ex.livro', 'livro')
       .innerJoin(LivroGenero, 'lg', 'lg.livro_id = livro.id')
@@ -135,25 +139,26 @@ export class LivroService {
       let pontos = pontuacaoGeneros.get(genId) || 0;
 
       if (h.data_devolucao) {
-        
         const diasAtras = (HOJE - new Date(h.data_devolucao).getTime()) / (1000 * 3600 * 24);
         if (diasAtras <= 30) pontos += 3;
         else if (diasAtras <= 90) pontos += 2;
         else pontos += 1;
       } else {
-        
         pontos += 4;
       }
       pontuacaoGeneros.set(genId, pontos);
     });
-    
-    const qb = this.livroRepository.createQueryBuilder('livro')
+
+    const qb = this.livroRepository
+      .createQueryBuilder('livro')
       .leftJoin(LivroGenero, 'lg', 'lg.livro_id = livro.id')
       .where('livro.instituicao_id = :instituicaoId', { instituicaoId });
 
     // Remove os livros que já leu ou está lendo
     if (livrosLidosIds.size > 0) {
-      qb.andWhere('livro.id NOT IN (:...ids)', { ids: Array.from(livrosLidosIds) });
+      qb.andWhere('livro.id NOT IN (:...ids)', {
+        ids: Array.from(livrosLidosIds),
+      });
     }
 
     if (pontuacaoGeneros.size > 0) {
@@ -174,7 +179,10 @@ export class LivroService {
     // Adiciona 2 livros fora da bolha
     let resultadoFinal = [...recomendados];
     if (resultadoFinal.length < 12) {
-      const idsIgnorar = [...Array.from(livrosLidosIds), ...resultadoFinal.map(l => l.id)];
+      const idsIgnorar = [
+        ...Array.from(livrosLidosIds),
+        ...resultadoFinal.map((l) => l.id),
+      ];
 
       const qbAleatorio = this.livroRepository.createQueryBuilder('livro')
         .where('livro.instituicao_id = :instituicaoId', { instituicaoId });
@@ -183,30 +191,31 @@ export class LivroService {
         qbAleatorio.andWhere('livro.id NOT IN (:...ids)', { ids: idsIgnorar });
       }
 
-      qbAleatorio.orderBy('livro.created_at', 'DESC')
-                .limit(12 - resultadoFinal.length);
+      qbAleatorio
+        .orderBy('livro.created_at', 'DESC')
+        .limit(12 - resultadoFinal.length);
 
       const descobertas = await qbAleatorio.getMany();
       resultadoFinal = [...resultadoFinal, ...descobertas];
     }
-    
+
     // injeta os generos nos livros recomendados para aparecer no frontend
     if (resultadoFinal.length > 0) {
-      const idsRecomendados = resultadoFinal.map(l => l.id);
-      
+      const idsRecomendados = resultadoFinal.map((l) => l.id);
+
       const generosDosLivros = await manager.find(LivroGenero, {
         where: { livro: { id: In(idsRecomendados) } },
-        relations: ['livro', 'genero']
+        relations: ['livro', 'genero'],
       });
 
-      const recomendadosComGeneros = resultadoFinal.map(livro => {
+      const recomendadosComGeneros = resultadoFinal.map((livro) => {
         const nomesDosGeneros = generosDosLivros
-          .filter(lg => lg.livro.id === livro.id && lg.genero)
-          .map(lg => lg.genero.nome);
+          .filter((lg) => lg.livro.id === livro.id && lg.genero)
+          .map((lg) => lg.genero.nome);
 
         return {
           ...livro,
-          generos: nomesDosGeneros
+          generos: nomesDosGeneros,
         };
       });
       return recomendadosComGeneros;
