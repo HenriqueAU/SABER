@@ -46,6 +46,15 @@ export class EmprestimoService {
       throw new NotFoundException('Exemplar não está disponível');
     }
 
+    if (
+      new Date(dadosEmprestimo.data_devolucao_esperada) <=
+      new Date(dadosEmprestimo.data_retirada)
+    ) {
+      throw new BadRequestException(
+        'A data de devolução não pode ser menor que data de retirada',
+      );
+    }
+
     await this.validarAlunoSemAtraso(usuario_id);
     await this.validarAlunoSemMesmoLivro(
       usuario_id,

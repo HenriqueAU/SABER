@@ -386,7 +386,7 @@ export default class ClubeLivroComponent implements OnInit {
       );
       idDaInscricao = minhaInscricao.id;
     } catch (error) {
-     
+
       this.mensagemErro.set('Apenas membros matriculados neste clube podem enviar avaliações.');
       this.enviando.set(false);
       return;
