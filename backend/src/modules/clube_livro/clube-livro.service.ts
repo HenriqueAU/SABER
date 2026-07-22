@@ -31,7 +31,7 @@ export class ClubeService {
 
     if (dataFim <= dataAtual) {
       throw new BadRequestException(
-        'A data de finalização não pode ser menor que a data atual'
+        'A data de finalização não pode ser menor que a data atual',
       );
     }
 
