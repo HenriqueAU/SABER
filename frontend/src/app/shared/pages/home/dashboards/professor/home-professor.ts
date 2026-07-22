@@ -60,6 +60,9 @@ export default class HomeProfessorComponent implements OnInit {
   paginaAtualAlunos = signal<number>(1);
   itensPorPaginaAlunos = 5;
 
+  paginaAtualClubes = signal<number>(1);
+  itensPorPaginaClubes = 6;
+
   termoBusca = signal('');
   filtroStatus = signal<'TODOS' | 'ATIVOS' | 'ENCERRADOS'>('TODOS');
 
@@ -85,6 +88,44 @@ export default class HomeProfessorComponent implements OnInit {
     data_fim: ['', Validators.required],
     local_encontro: [''],
   });
+
+  get clubesPaginados(): any[] {
+    const inicio = (this.paginaAtualClubes() - 1) * this.itensPorPaginaClubes;
+    const fim = inicio + this.itensPorPaginaClubes;
+    return this.clubesFiltrados().slice(inicio, fim);
+  }
+
+  get totalPaginasClubes(): number {
+    return Math.ceil(this.clubesFiltrados().length / this.itensPorPaginaClubes);
+  }
+
+  get paginasExibidasClubes(): (number | string)[] {
+    const total = this.totalPaginasClubes;
+    const atual = this.paginaAtualClubes();
+    const paginas: (number | string)[] = [];
+
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) {
+        paginas.push(i);
+      }
+    } else {
+      if (atual <= 4) {
+        paginas.push(1, 2, 3, 4, 5, '...', total);
+      } else if (atual >= total - 3) {
+        paginas.push(1, '...', total - 4, total - 3, total - 2, total - 1, total);
+      } else {
+        paginas.push(1, '...', atual - 1, atual, atual + 1, '...', total);
+      }
+    }
+    return paginas;
+  }
+
+  mudarPaginaClubes(pagina: number | string, event?: Event) {
+    if (event) event.preventDefault();
+    if (typeof pagina === 'number' && pagina >= 1 && pagina <= this.totalPaginasClubes) {
+      this.paginaAtualClubes.set(pagina);
+    }
+  }
 
   get membrosPaginados(): any[] {
     const inicio = (this.paginaAtualAlunos() - 1) * this.itensPorPaginaAlunos;
