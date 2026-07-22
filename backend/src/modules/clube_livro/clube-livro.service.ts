@@ -26,6 +26,20 @@ export class ClubeService {
 
   async create(createClubeDto: CreateClubeLivroDto): Promise<ClubeLivro> {
     const { professor_id, livro_id, ...dadosClube } = createClubeDto;
+    const dataFim = new Date(dadosClube.data_fim);
+    const dataAtual = new Date();
+
+    if (dataFim <= dataAtual) {
+      throw new BadRequestException(
+        'A data de finalização não pode ser menor que a data atual'
+      );
+    }
+
+    if (dadosClube.data_inicio && dataFim <= new Date(dadosClube.data_inicio)) {
+      throw new BadRequestException(
+        'A data de finalização não pode ser menor que a data de início',
+      );
+    }
 
     const quantidadeClubesAtivosDoProfessor =
       await this.clubeLivroRepository.count({

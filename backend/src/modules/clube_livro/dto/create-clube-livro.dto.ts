@@ -44,10 +44,10 @@ export class CreateClubeLivroDto {
   @ApiProperty({
     description: 'Data de termino do clube',
     example: '2026-12-01',
-    required: false,
   })
   @IsDateString()
-  data_fim?: Date | null;
+  @IsNotEmpty()
+  data_fim!: Date;
 
   @ApiProperty({
     description: 'local ou link de encontro',
