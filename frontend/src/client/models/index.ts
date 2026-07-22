@@ -190,6 +190,11 @@ export interface CreatePreferenciaGeneroDto {
     genero_id: string;
 }
 
+export interface UpdatePreferenciaGeneroDto {
+    /** Lista de IDs dos gêneros selecionados pelo usuário */
+    generos_ids: Array<string>;
+}
+
 export interface CreateLivroGeneroDto {
     /** ID do livro */
     livro_id: string;
