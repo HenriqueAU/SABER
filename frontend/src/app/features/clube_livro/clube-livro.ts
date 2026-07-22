@@ -386,7 +386,6 @@ export default class ClubeLivroComponent implements OnInit {
       );
       idDaInscricao = minhaInscricao.id;
     } catch (error) {
-
       this.mensagemErro.set('Apenas membros matriculados neste clube podem enviar avaliações.');
       this.enviando.set(false);
       return;
@@ -410,20 +409,16 @@ export default class ClubeLivroComponent implements OnInit {
           next: () => {
             this.jaAvaliado.set(true);
             this.enviando.set(false);
-            this.fecharModalAvaliacao();
-
             this.mensagemSucesso.set('Avaliação enviada com sucesso! Obrigado pelo seu feedback.');
-            setTimeout(() => this.abrirModalSucesso(), 300);
+            this.fecharModalAvaliacao();
           },
           error: (err) => {
             const status = err?.status;
             if (status === 409) {
               this.jaAvaliado.set(true);
               this.enviando.set(false);
-              this.fecharModalAvaliacao();
-
               this.mensagemSucesso.set('Você já avaliou este clube. Obrigado pelo feedback!');
-              setTimeout(() => this.abrirModalSucesso(), 300);
+              this.fecharModalAvaliacao();
             } else {
               this.mensagemErro.set('Ocorreu um erro ao enviar a avaliação.');
               this.enviando.set(false);
@@ -444,11 +439,26 @@ export default class ClubeLivroComponent implements OnInit {
     if (!modalEl) return;
 
     const bootstrapModal = (window as any).bootstrap.Modal.getInstance(modalEl);
+
+    modalEl.addEventListener('hidden.bs.modal', () => this.abrirModalSucesso(), { once: true });
+
     bootstrapModal?.hide();
   }
 
   private abrirModalSucesso(): void {
     const modalSucesso = new (window as any).bootstrap.Modal(this.successModalRef.nativeElement);
+
+    this.successModalRef.nativeElement.addEventListener(
+      'hidden.bs.modal',
+      () => {
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('overflow');
+        document.body.style.removeProperty('padding-right');
+        document.querySelectorAll('.modal-backdrop').forEach((el) => el.remove());
+      },
+      { once: true },
+    );
+
     modalSucesso.show();
   }
 
