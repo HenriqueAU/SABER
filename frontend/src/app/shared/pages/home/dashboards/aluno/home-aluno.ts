@@ -9,6 +9,7 @@ import { ClubesService, EmprestimosService, LivrosService } from '../../../../..
   standalone: true,
   imports: [CommonModule],
   templateUrl: './home-aluno.html',
+  styleUrls: ['../../home.scss'],
 })
 export default class HomeAlunoComponent implements OnInit {
   private router = inject(Router);
