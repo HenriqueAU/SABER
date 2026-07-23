@@ -31,7 +31,7 @@ export default class ExemplarComponent implements OnInit, OnChanges{
   erroRemocao = '';
 
   exemplarForm: FormGroup = this.fb.group({
-    codigo: ['', Validators.required, Validators.maxLength(50)],
+    codigo: ['', [Validators.required, Validators.maxLength(50)]],
   });
 
   ngOnInit() {}

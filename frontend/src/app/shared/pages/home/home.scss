@@ -70,6 +70,22 @@
     background-color: rgba(var(--bs-danger-rgb), 0.1) !important; 
   }
 
+  .text-prazo-azul {
+    color: #005C86 !important;
+  }
+
+  .text-atrasado-azul {
+    color: #7BAEFF !important;
+  }
+
+  .bg-prazo-azul {
+    background-color: #006595 !important; 
+  }
+
+  .bg-atrasado-azul {
+    background-color: #A8C8FC !important; 
+  }
+
   .clube-card-horizontal {
     background-color: #ffffff;
     border-radius: 12px;
