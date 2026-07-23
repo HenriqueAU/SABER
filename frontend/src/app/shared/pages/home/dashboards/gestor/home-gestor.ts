@@ -9,6 +9,7 @@ import { forkJoin } from 'rxjs';
 Chart.register(...registerables);
 
 type FaixaEtaria = 'todas' | '0-12' | '13-17' | '18-25' | '26-40' | '40+';
+type PeriodoRanking = '7d' | '15d' | '30d' | 'todos';
 
 @Component({
   selector: 'app-home-gestor',
@@ -25,32 +26,159 @@ export default class HomeGestorComponent implements OnInit {
   emprestimosAtivos = signal<number>(0);
   totalExemplares = signal<number>(0);
   totalExemplaresAnimado = signal<number>(0);
-  rankingLivros = signal<any[]>([]);
   generos = signal<any[]>([]);
   mediaLeitura = signal<any | null>(null);
   mensagemErro = signal<string>('');
 
   faixaSelecionada = signal<FaixaEtaria>('todas');
+  periodosRanking: { label: string; value: PeriodoRanking }[] = [
+    { label: 'Últimos 7 dias', value: '7d' },
+    { label: 'Últimos 15 dias', value: '15d' },
+    { label: 'Últimos 30 dias', value: '30d' },
+    { label: 'Todos os tempos', value: 'todos' }
+  ];
+  periodoRanking = signal<PeriodoRanking>('todos');
+  periodoDevolucoes = signal<PeriodoRanking>('todos');
+  periodoLog = signal<PeriodoRanking>('todos');
+
+  onPeriodoRankingChange(periodo: string): void {
+    this.periodoRanking.set(periodo as PeriodoRanking);
+  }
+
+  onPeriodoDevolucoesChange(periodo: string): void {
+    this.periodoDevolucoes.set(periodo as PeriodoRanking);
+  }
+
+  onPeriodoLogChange(periodo: string): void {
+    this.periodoLog.set(periodo as PeriodoRanking);
+    this.paginaAtual.set(1);
+  }
+
+  rankingLivros = computed(() => {
+    const periodo = this.periodoRanking();
+    const emprestimos = this.emprestimos();
+
+    if (emprestimos.length === 0) return [];
+
+    let limiteData: Date | null = null;
+    const agora = new Date();
+
+    if (periodo === '7d') {
+      limiteData = new Date(agora.getTime() - 7 * 24 * 60 * 60 * 1000);
+    } else if (periodo === '15d') {
+      limiteData = new Date(agora.getTime() - 15 * 24 * 60 * 60 * 1000);
+    } else if (periodo === '30d') {
+      limiteData = new Date(agora.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+
+    let emprestimosFiltrados = emprestimos;
+    if (limiteData) {
+      emprestimosFiltrados = emprestimos.filter((e: any) => {
+        if (!e.data_retirada) return false;
+        const dataRetirada = new Date(e.data_retirada);
+        return dataRetirada >= limiteData!;
+      });
+    }
+
+    const contagem = new Map<number, any>();
+
+    emprestimosFiltrados.forEach((e: any) => {
+      const livro = e.exemplar?.livro;
+      if (livro) {
+        if (!contagem.has(livro.id)) {
+          contagem.set(livro.id, {
+            livroId: livro.id,
+            titulo: livro.titulo,
+            autor: livro.autor,
+            capa_url: livro.capa_url,
+            totalEmprestimos: 0,
+          });
+        }
+        contagem.get(livro.id).totalEmprestimos++;
+      }
+    });
+
+    return Array.from(contagem.values())
+      .sort((a, b) => b.totalEmprestimos - a.totalEmprestimos)
+      .slice(0, 5);
+  });
 
   paginaAtual = signal<number>(1);
   itensPorPagina = 10;
 
-  totalDevolvidos = computed(() =>
-    this.emprestimos().filter((e: any) => e.data_devolucao_efetiva).length
-  );
+  emprestimosFiltradosLog = computed(() => {
+    const periodo = this.periodoLog();
+    const emprestimos = this.emprestimos();
+
+    if (periodo === 'todos') return emprestimos;
+
+    let limiteData: Date | null = null;
+    const agora = new Date();
+
+    if (periodo === '7d') {
+      limiteData = new Date(agora.getTime() - 7 * 24 * 60 * 60 * 1000);
+    } else if (periodo === '15d') {
+      limiteData = new Date(agora.getTime() - 15 * 24 * 60 * 60 * 1000);
+    } else if (periodo === '30d') {
+      limiteData = new Date(agora.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+
+    if (limiteData) {
+      return emprestimos.filter((e: any) => {
+        if (!e.data_retirada) return false;
+        const dataRetirada = new Date(e.data_retirada);
+        return dataRetirada >= limiteData!;
+      });
+    }
+
+    return emprestimos;
+  });
+
+  emprestimosPaginados = computed(() => {
+    const inicio = (this.paginaAtual() - 1) * this.itensPorPagina;
+    const fim = inicio + this.itensPorPagina;
+    return this.emprestimosFiltradosLog().slice(inicio, fim);
+  });
+
+  totalPaginas = computed(() => Math.ceil(this.emprestimosFiltradosLog().length / this.itensPorPagina));
+
+  paginas = computed(() => Array.from({ length: this.totalPaginas() }, (_, i) => i + 1));
+
+  emprestimosDevolvidosFiltrados = computed(() => {
+    const periodo = this.periodoDevolucoes();
+    const devolvidos = this.emprestimos().filter((e: any) => e.data_devolucao_efetiva);
+
+    let limiteData: Date | null = null;
+    const agora = new Date();
+
+    if (periodo === '7d') {
+      limiteData = new Date(agora.getTime() - 7 * 24 * 60 * 60 * 1000);
+    } else if (periodo === '15d') {
+      limiteData = new Date(agora.getTime() - 15 * 24 * 60 * 60 * 1000);
+    } else if (periodo === '30d') {
+      limiteData = new Date(agora.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+
+    if (limiteData) {
+      return devolvidos.filter((e: any) => {
+        const dataDevolucao = new Date(e.data_devolucao_efetiva);
+        return dataDevolucao >= limiteData!;
+      });
+    }
+
+    return devolvidos;
+  });
+
+  totalDevolvidos = computed(() => this.emprestimosDevolvidosFiltrados().length);
 
   totalNoPrazo = computed(() =>
-    this.emprestimos().filter((e: any) =>
-      e.data_devolucao_efetiva &&
-      new Date(e.data_devolucao_efetiva) <= new Date(e.data_devolucao_esperada)
+    this.emprestimosDevolvidosFiltrados().filter(
+      (e: any) => new Date(e.data_devolucao_efetiva) <= new Date(e.data_devolucao_esperada)
     ).length
   );
 
-  totalAtrasados = computed(() =>
-    this.emprestimos().filter((e: any) =>
-      e.data_devolucao_efetiva &&
-      new Date(e.data_devolucao_efetiva) > new Date(e.data_devolucao_esperada)
-    ).length
+  totalAtrasados = computed(
+    () => (this.totalDevolvidos() - this.totalNoPrazo()),
   );
 
   porcentagemNoPrazo = computed(() => {
@@ -59,25 +187,7 @@ export default class HomeGestorComponent implements OnInit {
     return Math.round((this.totalNoPrazo() / total) * 100);
   });
 
-  porcentagemAtrasados = computed(() => {
-    const total = this.totalDevolvidos();
-    if (total === 0) return 0;
-    return Math.round((this.totalAtrasados() / total) * 100);
-  });
-
-  emprestimosPaginados = computed(() => {
-    const inicio = (this.paginaAtual() - 1) * this.itensPorPagina;
-    const fim = inicio + this.itensPorPagina;
-    return this.emprestimos().slice(inicio, fim);
-  });
-
-  totalPaginas = computed(() =>
-    Math.ceil(this.emprestimos().length / this.itensPorPagina)
-  );
-
-  paginas = computed(() =>
-    Array.from({ length: this.totalPaginas() }, (_, i) => i + 1)
-  );
+  porcentagemAtrasados = computed(() => 100 - this.porcentagemNoPrazo());
 
   irParaPagina(pagina: number): void {
     if (pagina < 1 || pagina > this.totalPaginas()) return;
@@ -101,22 +211,25 @@ export default class HomeGestorComponent implements OnInit {
 
   carregarDados(): void {
     forkJoin({
-      ranking: this.dashboardService.dashboardControllerLivrosMaisEmprestados(),
       media: this.dashboardService.dashboardControllerMediaLeitura(),
       emprestimos: this.emprestimosService.emprestimoControllerFindAll(),
       exemplares: this.exemplaresService.exemplarControllerFindAll(),
     }).subscribe({
-      next: ({ ranking, media, emprestimos, exemplares }) => {
-        this.rankingLivros.set(ranking);
+      next: ({ media, emprestimos, exemplares }) => {
         this.mediaLeitura.set(media);
-        this.emprestimos.set(emprestimos);
-        
-        const qtdExemplares = Array.isArray(exemplares) ? exemplares.length : 0;
-        this.totalExemplares.set(qtdExemplares);
-        this.animarContadorExemplares(qtdExemplares);
+
+        const ordenados = [...emprestimos].sort((a, b) => {
+          const dataA = new Date(a.data_retirada).getTime();
+          const dataB = new Date(b.data_retirada).getTime();
+          return dataB - dataA;
+        });
+        this.emprestimos.set(ordenados);
 
         const ativos = emprestimos.filter((e: any) => !e.data_devolucao_efetiva);
         this.emprestimosAtivos.set(ativos.length);
+
+        this.totalExemplares.set(exemplares.length);
+        this.animarContadorExemplares(exemplares.length);
       },
       error: () => this.mensagemErro.set('Erro ao carregar dados do dashboard'),
     });
@@ -149,16 +262,32 @@ export default class HomeGestorComponent implements OnInit {
   get deltaLabel(): string {
     const d = this.mediaLeitura()?.variacaoPercent ?? 0;
     const abs = Math.abs(d);
-    return d >= 0
-      ? `↑ ${abs}% a mais que o mês anterior`
-      : `↓ ${abs}% a menos que o mês anterior`;
+    return d >= 0 ? `↑ ${abs}% a mais que o mês anterior` : `↓ ${abs}% a menos que o mês anterior`;
+  }
+
+  private limitarGeneros(dados: any[]): any[] {
+    if (dados.length <= 3) return dados;
+
+    const ordenados = [...dados].sort(
+      (a, b) => b.totalEmprestimos - a.totalEmprestimos
+    );
+
+    const top3 = ordenados.slice(0, 3);
+    const restante = ordenados.slice(3);
+    const outrosTotal = restante.reduce((sum: number, genero: any) => sum + genero.totalEmprestimos, 0);
+
+    if (outrosTotal > 0) {
+      return [...top3, { nome: 'Outros', totalEmprestimos: outrosTotal }];
+    }
+    return top3;
   }
 
   private renderGenresChart(): void {
     const canvas = document.getElementById('genresChartGestor') as HTMLCanvasElement;
     if (!canvas) return;
 
-    const dados = this.generos();
+    const dadosLimitados = this.limitarGeneros(this.generos());
+    const total = dadosLimitados.reduce((sum: number, genero: any) => sum + genero.totalEmprestimos, 0);
 
     if (this.genresChartInstance) {
       this.genresChartInstance.destroy();
@@ -167,40 +296,56 @@ export default class HomeGestorComponent implements OnInit {
     this.genresChartInstance = new Chart(canvas, {
       type: 'doughnut',
       data: {
-        labels: dados.map(g => g.nome),
-        datasets: [{
-          data: dados.map(g => g.totalEmprestimos),
-          backgroundColor: [
-            '#5FD6C1',
-            '#5A9BFF',
-            '#CFA06A',
-            '#8BB6F5',
-            '#EC6FB1',
-            '#A3AAB5',
-            '#F2C94C',
-            '#63C97B',
-            '#B889F4',
-            '#55B7E8',
-          ],
-          borderWidth: 0,
-        }],
+        labels: dadosLimitados.map((genero) => genero.nome),
+        datasets: [
+          {
+            data: dadosLimitados.map((genero) => genero.totalEmprestimos),
+            backgroundColor: ['#00244C', '#006595', '#0ea7e0', '#a8c8fc'],
+            borderWidth: 0,
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        cutout: '55%',
         plugins: {
           legend: { position: 'right' },
           tooltip: {
             callbacks: {
-              label: (context: any) => {
-                const valor = context.parsed || context.raw || 0;
-                const sufixo = valor === 1 ? 'emprestimo' : 'emprestimos';
-                return `${valor} ${sufixo}`;
-              }
-            }
-          }
+              label: (ctx) => {
+                const label = ctx.label || '';
+                const value = ctx.parsed || 0;
+                const pct = total > 0 ? Math.round((value / total) * 100) : 0;
+                return ` ${label}: ${value} alunos (${pct}%)`;
+              },
+            },
+          },
         },
       },
+      plugins: [
+        {
+          id: 'centerText',
+          beforeDraw: (chart) => {
+            const { ctx, width, height, chartArea } = chart;
+            ctx.save();
+            const centerX = (chartArea.left + chartArea.right) / 2;
+            const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+            ctx.font = 'bold 20px Lato, sans-serif';
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(String(total), centerX, centerY + 2);
+
+            ctx.font = '16px Lato, sans-serif';
+            ctx.fillStyle = '#1F2232';
+            ctx.textBaseline = 'top';
+            ctx.fillText('Total', centerX, centerY + 4);
+            ctx.restore();
+          },
+        },
+      ],
     });
   }
 
